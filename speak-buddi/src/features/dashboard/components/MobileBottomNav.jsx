@@ -6,6 +6,7 @@ import vocab from "../../../assets/icons/vocab.svg";
 
 const NAV_ITEMS = [
   { label: "Home",      icon: house, path: "/dashboard"  },
+  { label: "Roadmap",   icon: null,  path: "/roadmap"    },
   { label: "Speaking",  icon: mic,   path: "/speaking"   },
   { label: "New words", icon: vocab, path: "/vocabulary" },
 ];
@@ -33,15 +34,22 @@ export default function MobileBottomNav({ activePath = "/dashboard" }) {
               className={`mobile-nav-item ${isActive ? "active" : ""}`}
             >
               <span className="mobile-nav-icon" aria-hidden="true">
-                <img
-                  src={item.icon}
-                  alt=""
-                  style={{
-                    width: 22,
-                    height: 22,
-                    objectFit: "contain",
-                  }}
-                />
+                {item.icon ? (
+                  <img
+                    src={item.icon}
+                    alt=""
+                    style={{
+                      width: 22,
+                      height: 22,
+                      objectFit: "contain",
+                    }}
+                  />
+                ) : (
+                  /* Roadmap inline SVG */
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" style={{ color: "inherit" }}>
+                    <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm2 4v-2H3c0 1.1.9 2 2 2zm-2-12h2V7H3v2zm12 12h2v-2h-2v2zm4-18H5c-1.1 0-2 .9-2 2v2h2V5h14v14h-4v2h4c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 12h2v-2h-2v2zm-4 4h2v-2H7v2zm0-4h2v-2H7v2zm0-4h2V9H7v2zm4 8h2v-2h-2v2zm0-8h2V9h-2v2z"/>
+                  </svg>
+                )}
               </span>
 
               <span className="mobile-nav-label">

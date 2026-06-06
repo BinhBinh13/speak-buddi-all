@@ -20,6 +20,9 @@ import VocabularyPage from "../features/vocabulary/VocabularyPage";
 import QuizListPage from "../features/quiz/QuizListPage";
 import QuizPage from "../features/quiz/QuizPage";
 import QuizResultPage from "../features/quiz/QuizResultPage";
+import OnboardingPage from "../features/onboarding/OnboardingPage";
+import ProfilePage    from "../features/profile/ProfilePage";
+import RoadmapPage    from "../features/roadmap/RoadmapPage";
 
 export default function App() {
   return (
@@ -39,11 +42,20 @@ export default function App() {
 
           {/* ── Protected routes (yêu cầu đăng nhập) ────────────────────── */}
           <Route element={<ProtectedRoute />}>
+            {/* S2.1: Onboarding wizard — bắt buộc sau khi đăng ký */}
+            <Route path="/onboarding" element={<OnboardingPage />} />
+
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/speaking" element={<SpeakingPage />} />
 
             {/* S3.2: Vocabulary page */}
             <Route path="/vocabulary" element={<VocabularyPage />} />
+
+            {/* S2.3: Profile / Settings page */}
+            <Route path="/profile" element={<ProfilePage />} />
+
+            {/* S2.4: Roadmap snake-style */}
+            <Route path="/roadmap" element={<RoadmapPage />} />
 
             {/* S4.5: Quiz list page — đặt TRƯỚC /quiz/:testId để không nhầm "quiz" là testId */}
             <Route path="/quiz" element={<QuizListPage />} />
@@ -51,15 +63,12 @@ export default function App() {
             {/* S4.2: Quiz page */}
             <Route path="/quiz/:testId" element={<QuizPage />} />
 
-            {/* S4.3: Quiz result page (placeholder — S4.4 sẽ implement chi tiết) */}
+            {/* S4.3: Quiz result page */}
             <Route path="/quiz/:testId/result/:attemptId" element={<QuizResultPage />} />
 
             {/* Các route sẽ có page thật khi các story tương ứng hoàn thành */}
             {/* <Route path="/translation" element={<TranslationPage />} /> */}
             {/* <Route path="/pronunciation" element={<PronunciationPage />} /> */}
-            {/* <Route path="/roadmap" element={<RoadmapPage />} /> */}
-            {/* <Route path="/onboarding" element={<OnboardingPage />} /> */}
-            {/* <Route path="/profile" element={<ProfilePage />} /> */}
             {/* <Route path="/settings/*" element={<SettingsPage />} /> */}
             {/* <Route path="/payment/*" element={<PaymentPage />} /> */}
           </Route>

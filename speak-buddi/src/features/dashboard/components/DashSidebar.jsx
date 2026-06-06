@@ -5,6 +5,7 @@ import {
   LuMap,
   LuBookOpen,
   LuClipboardList,
+  LuMic,
   LuChartBar,
   LuSettings,
 } from "react-icons/lu";
@@ -14,6 +15,7 @@ const NAV_ITEMS = [
   { label: "Roadmap",    Icon: LuMap,             path: "/roadmap"    },
   { label: "Vocabulary", Icon: LuBookOpen,        path: "/vocabulary" },
   { label: "Quiz",       Icon: LuClipboardList,   path: "/quiz"       },
+  { label: "Speaking",   Icon: LuMic,             path: "/speaking"   },
   { label: "Analytics",  Icon: LuChartBar,        path: "/analytics"  },
   { label: "Settings",   Icon: LuSettings,        path: "/settings"   },
 ];

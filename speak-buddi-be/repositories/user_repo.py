@@ -14,7 +14,9 @@ _USER_SELECT = """
            u.status,
            COALESCE(p.name, '')  AS name,
            p.target_level        AS level,
-           p.learning_goal       AS goal
+           p.learning_goal       AS goal,
+           p.daily_minutes       AS daily_minutes,
+           p.words_per_session   AS words_per_session
     FROM   users u
     LEFT JOIN user_profile p ON p.user_id = u.id
 """
@@ -52,7 +54,9 @@ async def get_user_by_oauth(
                    u.status,
                    COALESCE(p.name, '') AS name,
                    p.target_level       AS level,
-                   p.learning_goal      AS goal
+                   p.learning_goal      AS goal,
+                   p.daily_minutes      AS daily_minutes,
+                   p.words_per_session  AS words_per_session
             FROM   oauth_account oa
             JOIN   users u  ON u.id  = oa.user_id
             LEFT JOIN user_profile p ON p.user_id = u.id
@@ -95,7 +99,7 @@ async def create_user(
         text("INSERT INTO user_profile (user_id, name) VALUES (CAST(:uid AS UUID), :name)"),
         {"uid": user_row["id"], "name": name},
     )
-    user_row.update({"name": name, "level": None, "goal": None})
+    user_row.update({"name": name, "level": None, "goal": None, "daily_minutes": 10, "words_per_session": 10})
     return user_row
 
 
@@ -158,3 +162,82 @@ async def use_reset_token(db: AsyncSession, token_id: str) -> None:
         text("UPDATE password_reset_token SET used = TRUE WHERE id = CAST(:id AS UUID)"),
         {"id": token_id},
     )
+
+
+# ─── Onboarding (S2.1) ────────────────────────────────────────────────────────
+
+async def get_topics_by_level(db: AsyncSession, level_code: str) -> list[dict]:
+    """Trả danh sách topic active thuộc level_code (vd: 'A1').
+    Sắp theo display_order rồi name.
+    """
+    r = await db.execute(
+        text("""
+            SELECT t.id::text, t.name, t.slug
+            FROM   topic t
+            JOIN   level l ON t.level_id = l.id
+            WHERE  l.code = UPPER(:code) AND t.is_active = TRUE
+            ORDER  BY t.display_order, t.name
+        """),
+        {"code": level_code},
+    )
+    rows = r.mappings().all()
+    return [dict(row) for row in rows]
+
+
+# ─── Profile (S2.3) ───────────────────────────────────────────────────────────
+
+async def update_level(
+    db: AsyncSession,
+    user_id: str,
+    level: str,
+) -> dict | None:
+    """Cập nhật chỉ target_level trong user_profile.
+    Không đụng interests/daily_minutes/words_per_session (BR09).
+    Trả dict với target_level mới hoặc None nếu không tìm thấy profile.
+    """
+    r = await db.execute(
+        text("""
+            UPDATE user_profile
+            SET    target_level = :level,
+                   updated_at   = NOW()
+            WHERE  user_id = CAST(:uid AS UUID)
+            RETURNING target_level
+        """),
+        {"level": level, "uid": user_id},
+    )
+    await db.commit()
+    row = r.mappings().first()
+    return dict(row) if row else None
+
+
+async def update_onboarding(
+    db: AsyncSession,
+    user_id: str,
+    level: str,
+    topics: list[str],
+    daily_minutes: int,
+    words_per_session: int,
+) -> dict:
+    """Cập nhật onboarding user_profile; trả lại dict với các field đã lưu."""
+    r = await db.execute(
+        text("""
+            UPDATE user_profile
+            SET    target_level      = :level,
+                   interests         = :topics,
+                   daily_minutes     = :daily_minutes,
+                   words_per_session = :words_per_session,
+                   updated_at        = NOW()
+            WHERE  user_id = CAST(:uid AS UUID)
+            RETURNING target_level, interests, daily_minutes, words_per_session
+        """),
+        {
+            "level":             level,
+            "topics":            topics,
+            "daily_minutes":     daily_minutes,
+            "words_per_session": words_per_session,
+            "uid":               user_id,
+        },
+    )
+    await db.commit()
+    row = r.mappings().first()
+    return dict(row) if row else {}
