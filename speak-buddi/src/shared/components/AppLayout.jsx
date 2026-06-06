@@ -11,9 +11,11 @@ import MobileBottomNav from "../../features/dashboard/components/MobileBottomNav
 const USER = { name: "Minh", streak: 12, level: "B2", goal: "IELTS 7.0" };
 
 const PAGE_TITLES = {
-  "/dashboard":  { title: "Learning path", icon: "" },
-  "/speaking":   { title: "Speaking",      icon: "" },
-  "/vocabulary": { title: "New words",     icon: "" },
+  "/dashboard":  { title: "Learning path",        icon: "" },
+  "/speaking":   { title: "Speaking",             icon: "" },
+  "/vocabulary": { title: "New words",            icon: "" },
+  "/profile":    { title: "Hồ sơ & Cài đặt",     icon: "" },
+  "/roadmap":    { title: "Lộ trình học",          icon: "" },
 };
 
 /**

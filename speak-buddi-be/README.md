@@ -41,7 +41,7 @@ cp .env.example .env
 # Mở .env và điền các giá trị thật:
 # ANTHROPIC_API_KEY, ELEVENLABS_API_KEY, JWT_SECRET, ...
 ```
-
+44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444
 ### 4. Kiểm tra môi trường
 
 ```bash
@@ -49,7 +49,7 @@ python check_env.py
 ```
 
 Kết quả mong đợi: tất cả package + key bắt buộc đều hiện ✅.
-
+=944444444444444444444
 ### 5. Khởi tạo database PostgreSQL
 
 > Bắt buộc từ **S3.1+** (DB thật đã được kích hoạt).

@@ -300,8 +300,8 @@ export default function RegisterPage() {
     try {
       const data = await register(name.trim(), email.trim().toLowerCase(), password);
       login({ access_token: data.access_token, refresh_token: data.refresh_token, user: data.user });
-      // /onboarding chưa có route → fallback /dashboard; cập nhật khi S2.1 xong
-      navigate("/dashboard", { replace: true });
+      // S2.1: redirect sang onboarding sau khi đăng ký
+      navigate("/onboarding", { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -315,7 +315,8 @@ export default function RegisterPage() {
     try {
       const data = await loginWithGoogle();
       login({ access_token: data.access_token, refresh_token: data.refresh_token, user: data.user });
-      navigate("/dashboard", { replace: true });
+      // S2.1: redirect sang onboarding; guard sẽ xử lý nếu đã onboard trước
+      navigate("/onboarding", { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {
