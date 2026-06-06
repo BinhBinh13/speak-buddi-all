@@ -17,6 +17,9 @@ import ResetPasswordPage from "../features/auth/pages/ResetPasswordPage";
 import DashboardPage from "../features/dashboard/DashboardPage";
 import SpeakingPage from "../features/speaking/SpeakingPage";
 import VocabularyPage from "../features/vocabulary/VocabularyPage";
+import QuizListPage from "../features/quiz/QuizListPage";
+import QuizPage from "../features/quiz/QuizPage";
+import QuizResultPage from "../features/quiz/QuizResultPage";
 
 export default function App() {
   return (
@@ -42,8 +45,16 @@ export default function App() {
             {/* S3.2: Vocabulary page */}
             <Route path="/vocabulary" element={<VocabularyPage />} />
 
+            {/* S4.5: Quiz list page — đặt TRƯỚC /quiz/:testId để không nhầm "quiz" là testId */}
+            <Route path="/quiz" element={<QuizListPage />} />
+
+            {/* S4.2: Quiz page */}
+            <Route path="/quiz/:testId" element={<QuizPage />} />
+
+            {/* S4.3: Quiz result page (placeholder — S4.4 sẽ implement chi tiết) */}
+            <Route path="/quiz/:testId/result/:attemptId" element={<QuizResultPage />} />
+
             {/* Các route sẽ có page thật khi các story tương ứng hoàn thành */}
-            {/* <Route path="/quiz/*" element={<QuizPage />} /> */}
             {/* <Route path="/translation" element={<TranslationPage />} /> */}
             {/* <Route path="/pronunciation" element={<PronunciationPage />} /> */}
             {/* <Route path="/roadmap" element={<RoadmapPage />} /> */}

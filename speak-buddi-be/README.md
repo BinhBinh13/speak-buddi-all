@@ -64,11 +64,18 @@ psql -U postgres -d speakbuddi -f db/schema_core.sql
 # Bước 2 — Schema learning content (S3.1: level/topic/tag/topic_word)
 psql -U postgres -d speakbuddi -f db/schema_learning.sql
 
+# Bước 3 — Schema tiến độ học (S3.3: user_word_progress)
+psql -U postgres -d speakbuddi -f db/schema_progress.sql
+
+# Bước 4 — Schema quiz/test (S4.1: vocabulary_test, quiz_question, quiz_answer,
+#           quiz_attempt, quiz_attempt_answer)
+psql -U postgres -d speakbuddi -f db/schema_quiz.sql
+
 # Cấu hình DATABASE_URL trong .env:
 # DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/speakbuddi
 ```
 
-> Cả hai schema đều **idempotent** — chạy lại nhiều lần không gây lỗi.
+> Tất cả schema đều **idempotent** — chạy lại nhiều lần không gây lỗi.
 
 ### 6. Chạy server
 
@@ -102,12 +109,27 @@ speak-buddi-be/
 ├── db/
 │   ├── __init__.py         # Export get_db()
 │   ├── connection.py       # SQLAlchemy async engine (kích hoạt S3.1)
-│   ├── schema_core.sql     # PostgreSQL schema: users, user_profile, oauth_account,
+│   ├── schema_core.sql     # S1.1: users, user_profile, oauth_account,
 │   │                       #   user_session, payment_plan, user_subscription
-│   └── schema_learning.sql # S3.1: level, topic, tag, topic_word, topic_word_tag
+│   ├── schema_learning.sql # S3.1: level, topic, tag, topic_word, topic_word_tag
+│   ├── schema_progress.sql # S3.3: user_word_progress
+│   └── schema_quiz.sql     # S4.1: vocabulary_test, quiz_question, quiz_answer,
+│                           #   quiz_attempt, quiz_attempt_answer
+├── repositories/
+│   ├── __init__.py
+│   ├── user_repo.py    # CRUD users, oauth, password_reset
+│   └── quiz_repo.py    # S4.1: CRUD quiz tables (raw SQL async)
+├── services/
+│   ├── __init__.py
+│   ├── ai_service.py   # Claude AI conversation
+│   ├── tts_service.py  # ElevenLabs TTS
+│   ├── email_service.py
+│   ├── google_auth.py
+│   └── quiz_service.py # S4.1: calculate_score, check_fill_blank_answer
 ├── schemas/
 │   ├── __init__.py
-│   └── learning.py     # Pydantic schemas skeleton (tham chiếu S3.2/S9.1)
+│   ├── learning.py     # Pydantic schemas S3.1/S3.3
+│   └── quiz.py         # S4.1: Pydantic schemas quiz (skeleton)
 ├── requirements.txt    # Pin version dependencies
 ├── .env.example        # Template biến môi trường (không có secret thật)
 ├── check_env.py        # Kiểm tra package + env key

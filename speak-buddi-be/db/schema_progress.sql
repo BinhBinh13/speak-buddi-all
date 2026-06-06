@@ -1,3 +1,4 @@
+\encoding UTF8
 -- ─── SpeakBuddi — Schema Progress (PostgreSQL) ───────────────────────────────
 -- Phạm vi S3.3: lưu tiến độ học từ của user (per-word + topic context)
 --
