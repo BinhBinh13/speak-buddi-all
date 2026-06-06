@@ -67,6 +67,20 @@ export function AuthProvider({ children }) {
     dispatchAuthChanged();
   }
 
+  /**
+   * Cập nhật một phần user object (merge vào state hiện tại).
+   * Dùng cho các story profile (S2.3, v.v.) sau khi API trả dữ liệu mới.
+   * @param {Partial<object>} partial - các field cần cập nhật
+   */
+  function updateUser(partial) {
+    setUserState((prev) => {
+      const next = { ...(prev || {}), ...partial };
+      setUser(next);
+      dispatchAuthChanged();
+      return next;
+    });
+  }
+
   const value = {
     token,
     user,
@@ -75,6 +89,7 @@ export function AuthProvider({ children }) {
     isPaid:  !!user?.is_paid,
     login,
     logout,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

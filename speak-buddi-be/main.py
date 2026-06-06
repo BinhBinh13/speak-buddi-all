@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from core.config import ALLOWED_ORIGINS
-from routers import ai, auth, learning
+from routers import ai, auth, learning, onboarding, profile, roadmap
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(levelname)s  %(message)s")
 
@@ -22,6 +22,9 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(ai.router)
 app.include_router(learning.router)
+app.include_router(onboarding.router)
+app.include_router(profile.router)
+app.include_router(roadmap.router)
 
 
 @app.get("/health")

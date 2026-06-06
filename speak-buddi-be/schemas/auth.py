@@ -32,12 +32,16 @@ class ResetPasswordRequest(BaseModel):
 def user_to_dict(user: dict, is_paid: bool = False) -> dict:
     """Chuẩn hóa dict user trả về client — dùng chung cho mọi auth endpoint."""
     return {
-        "id":      str(user["id"]),
-        "name":    user.get("name") or "",
-        "email":   user["email"],
-        "role":    user.get("role", "student"),
-        "is_paid": is_paid,
-        "level":   user.get("level"),
-        "streak":  user.get("streak", 0),
-        "goal":    user.get("goal"),
+        "id":                   str(user["id"]),
+        "name":                 user.get("name") or "",
+        "email":                user["email"],
+        "role":                 user.get("role", "student"),
+        "is_paid":              is_paid,
+        "level":                user.get("level"),
+        "streak":               user.get("streak", 0),
+        "goal":                 user.get("goal"),
+        # Onboarding fields (S2.1)
+        "onboarding_completed": user.get("level") is not None,
+        "daily_minutes":        user.get("daily_minutes") if user.get("daily_minutes") is not None else 10,
+        "words_per_session":    user.get("words_per_session") if user.get("words_per_session") is not None else 10,
     }
