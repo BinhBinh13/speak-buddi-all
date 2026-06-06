@@ -13,13 +13,13 @@
   "summary": {
     "totalEpics": 12,
     "totalStories": 46,
-    "completedStories": 5,
-    "progressPercent": 11,
+    "completedStories": 9,
+    "progressPercent": 20,
     "byStatus": {
-      "todo": 41,
-      "in_progress": 0,
+      "todo": 36,
+      "in_progress": 1,
       "review": 0,
-      "done": 5,
+      "done": 9,
       "blocked": 0
     }
   },
@@ -67,13 +67,13 @@
       "features": ["F05"],
       "businessRules": [],
       "owner": "Dev A",
-      "status": "todo",
-      "progressPercent": 0,
+      "status": "done",
+      "progressPercent": 100,
       "stories": [
-        { "id": "S3.1", "title": "Data model level/topic/topic_word/tag + soft delete", "ac": "5.3", "priority": "P0", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S3.2", "title": "Man hinh hoc tu vung theo level/topic", "ac": "AC-05-01/02", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S3.3", "title": "Luu tien do hoc tu/topic", "ac": "AC-05-03", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S3.4", "title": "Hien thi noi dung crawl moi, giu tien do cu", "ac": "AC-05-04", "priority": "P2", "status": "todo", "assignee": "", "notes": "" }
+        { "id": "S3.1", "title": "Data model level/topic/topic_word/tag + soft delete", "ac": "5.3", "priority": "P0", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S3.1-plan.md", "implement": "implement/S3.1-implement.md", "review": "review/S3.1-review.md" }, "updatedAt": "2026-06-06" },
+        { "id": "S3.2", "title": "Man hinh hoc tu vung theo level/topic", "ac": "AC-05-01/02", "priority": "P1", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S3.2-plan.md", "implement": "implement/S3.2-implement.md", "review": "review/S3.2-review.md" }, "updatedAt": "2026-06-06" },
+        { "id": "S3.3", "title": "Luu tien do hoc tu/topic", "ac": "AC-05-03", "priority": "P1", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S3.3-plan.md", "implement": "implement/S3.3-implement.md", "review": "review/S3.3-review.md" }, "updatedAt": "2026-06-06" },
+        { "id": "S3.4", "title": "Hien thi noi dung crawl moi, giu tien do cu", "ac": "AC-05-04", "priority": "P2", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S3.4-plan.md", "implement": "implement/S3.4-implement.md", "review": "review/S3.4-review.md" }, "updatedAt": "2026-06-06" }
       ]
     },
     {
@@ -160,10 +160,10 @@
       "features": ["F15", "F17", "F18"],
       "businessRules": ["BR07", "BR10", "BR11", "BR12"],
       "owner": "Dev C",
-      "status": "todo",
+      "status": "in_progress",
       "progressPercent": 0,
       "stories": [
-        { "id": "S9.1", "title": "Admin CRUD topic/vocab/test + validation inline", "ac": "AC-13-01/02, 5.2", "priority": "P0", "status": "todo", "assignee": "", "notes": "" },
+        { "id": "S9.1", "title": "Admin CRUD topic/vocab/test + validation inline", "ac": "AC-13-01/02, 5.2", "priority": "P0", "status": "in_progress", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S9.1-plan.md", "implement": "", "review": "" }, "updatedAt": "2026-06-06" },
         { "id": "S9.2", "title": "Soft delete is_active=false", "ac": "AC-13-03, 5.3", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
         { "id": "S9.3", "title": "Crawler Langeek tuan + map A1-C2 + auto-publish", "ac": "AC-13-04, BR10, FR-18/19", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
         { "id": "S9.4", "title": "Fallback Langeek loi: cache/retry/log/notify", "ac": "AC-13-05, BR12, FR-20", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },

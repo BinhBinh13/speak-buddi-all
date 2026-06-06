@@ -1,21 +1,23 @@
 # speak-buddi-be/db/connection.py
-# ─── Kết nối DB nền cho SpeakBuddi (S1.1) ────────────────────────────────────
+# ─── Kết nối DB nền cho SpeakBuddi (S1.1 scaffold → Activated S3.1) ──────────
 #
-# Phạm vi S1.1:
-#   - Đọc DATABASE_URL từ .env, tạo SQLAlchemy engine (async, PostgreSQL).
-#   - Cung cấp get_db() Depends để routes sau này dùng (S1.8+).
-#   - Auth vẫn dùng MOCK_USERS trong main.py; chưa nối DB thật (TODO: S1.8).
+# Phạm vi:
+#   - Đọc DATABASE_URL từ .env, tạo SQLAlchemy async engine (PostgreSQL/asyncpg).
+#   - Cung cấp get_db() Depends để routes dùng (S3.2+, S9.1+).
+#   - Raise RuntimeError ngay khi khởi động nếu DATABASE_URL chưa set.
 #
-# Để ACTIVATE:
-#   1. Cài driver: pip install asyncpg sqlalchemy
-#   2. Set DATABASE_URL=postgresql+asyncpg://user:pass@host/db trong .env
-#   3. Chạy schema: psql -U user -d speakbuddi -f db/schema_core.sql
-#   4. Bỏ comment phần engine/session bên dưới và xoá DummyEngine placeholder.
+# Yêu cầu:
+#   pip install asyncpg sqlalchemy
+#   Set DATABASE_URL=postgresql+asyncpg://user:pass@host/db trong .env
+#   Chạy schema: psql -U user -d speakbuddi -f db/schema_core.sql
 
 import logging
 import os
+from collections.abc import AsyncGenerator
 
 from dotenv import load_dotenv
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
 
 load_dotenv()
 
@@ -23,61 +25,38 @@ log = logging.getLogger("speakbuddi.db")
 
 DATABASE_URL: str | None = os.getenv("DATABASE_URL")
 
-# ── Placeholder engine (dùng khi chưa cấu hình DB) ───────────────────────────
+if not DATABASE_URL:
+    log.warning(
+        "DATABASE_URL chưa được set trong .env — "
+        "Ứng dụng sẽ không kết nối được với PostgreSQL."
+    )
+    raise RuntimeError(
+        "DATABASE_URL chưa được set. "
+        "Vui lòng thêm DATABASE_URL=postgresql+asyncpg://... vào file .env"
+    )
 
-class _DummyEngine:
-    """Engine giả — cho phép app khởi động mà không cần DB thật ở S1.1."""
-    is_configured: bool = False
+engine = create_async_engine(
+    DATABASE_URL,
+    echo=False,       # đặt True để log SQL khi debug
+    pool_size=5,
+    max_overflow=10,
+)
 
-    def __repr__(self) -> str:
-        return "<DummyEngine: DATABASE_URL not set — activate in S1.8>"
+_AsyncSessionLocal: sessionmaker = sessionmaker(  # type: ignore[call-overload]
+    engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+)
 
 
-engine: _DummyEngine | object = _DummyEngine()
-
-# ── Kết nối thật (SQLAlchemy async) — bỏ comment khi S1.8+ sẵn sàng ──────────
-
-# from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-# from sqlalchemy.orm import sessionmaker
-
-# if not DATABASE_URL:
-#     raise RuntimeError("DATABASE_URL chưa được set. Xem .env.example.")
-
-# engine = create_async_engine(
-#     DATABASE_URL,
-#     echo=False,          # True để log SQL khi debug
-#     pool_size=5,
-#     max_overflow=10,
-# )
-
-# _AsyncSessionLocal = sessionmaker(
-#     engine,
-#     class_=AsyncSession,
-#     expire_on_commit=False,
-# )
-
-# async def get_db() -> AsyncSession:
-#     """FastAPI Depends — yield session, rollback on error, close after."""
-#     async with _AsyncSessionLocal() as session:
-#         try:
-#             yield session
-#             await session.commit()
-#         except Exception:
-#             await session.rollback()
-#             raise
-#         finally:
-#             await session.close()
-
-# ── Stub get_db (dùng cho S1.1 chưa có DB thật) ──────────────────────────────
-
-async def get_db():  # type: ignore[return]
-    """
-    Stub Depends — trả về None đến khi DATABASE_URL được cấu hình (S1.8+).
-    Không dùng trong production; thay bằng phiên bản async thật ở trên.
-    """
-    if DATABASE_URL:
-        log.warning(
-            "get_db() stub được gọi dù DATABASE_URL đã set — "
-            "bỏ comment phần SQLAlchemy trong db/connection.py (TODO: S1.8)."
-        )
-    yield None
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    """FastAPI Depends — yield AsyncSession, commit khi thành công, rollback khi lỗi."""
+    async with _AsyncSessionLocal() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()

@@ -1,14 +1,17 @@
 -- ─── SpeakBuddi — Schema cốt lõi (PostgreSQL) ───────────────────────────────
 -- Phạm vi S1.1: nhóm Identity/Auth + Payment/Subscription (SRS §5.3)
--- Các nhóm Learning / Quiz / Speaking / Translation / Report
---   → thuộc S3.1, S4.1, v.v. (KHÔNG tạo ở đây).
+-- Phạm vi S3.1 (Activated): nhóm Learning content — level/topic/tag/topic_word/topic_word_tag
 --
--- Cách chạy:
+-- Cách chạy (idempotent — chạy 2 lần không lỗi):
 --   psql -U <user> -d <db> -f db/schema_core.sql
+--
+-- Sau đó chạy schema learning content (S3.1):
+--   psql -U <user> -d <db> -f db/schema_learning.sql
 --
 -- Lần đầu (tạo DB):
 --   createdb -U postgres speakbuddi
 --   psql -U postgres -d speakbuddi -f db/schema_core.sql
+--   psql -U postgres -d speakbuddi -f db/schema_learning.sql
 -- ─────────────────────────────────────────────────────────────────────────────
 
 -- Bật extension cần thiết
@@ -137,15 +140,21 @@ DECLARE
 BEGIN
     FOREACH t IN ARRAY ARRAY[
         'users', 'user_profile', 'oauth_account',
-        'payment_plan', 'user_subscription'
+        'payment_plan', 'user_subscription',
+        'level', 'topic', 'tag', 'topic_word'
     ]
     LOOP
-        EXECUTE format(
-            'CREATE OR REPLACE TRIGGER trg_%I_updated_at
-             BEFORE UPDATE ON %I
-             FOR EACH ROW EXECUTE FUNCTION set_updated_at()',
-            t, t
-        );
+        IF EXISTS (
+            SELECT 1 FROM information_schema.tables
+            WHERE table_schema = 'public' AND table_name = t
+        ) THEN
+            EXECUTE format(
+                'CREATE OR REPLACE TRIGGER trg_%I_updated_at
+                 BEFORE UPDATE ON %I
+                 FOR EACH ROW EXECUTE FUNCTION set_updated_at()',
+                t, t
+            );
+        END IF;
     END LOOP;
 END;
 $$;
@@ -174,3 +183,6 @@ SELECT * FROM (VALUES
      3)
 ) AS v (name, price_vnd, duration_days, description, features, sort_order)
 WHERE NOT EXISTS (SELECT 1 FROM payment_plan LIMIT 1);
+
+
+

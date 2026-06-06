@@ -11,8 +11,8 @@ API backend cho ứng dụng luyện nói tiếng Anh **SpeakBuddi**, xây dựn
 | Framework | FastAPI |
 | AI | Anthropic Claude (claude-haiku-4-5) |
 | Text-to-Speech | ElevenLabs (eleven_multilingual_v2) |
-| Auth | JWT tự implement (HMAC-SHA256) — chưa dùng DB (S1.8+) |
-| DB (cấu hình sẵn) | PostgreSQL + SQLAlchemy async (sẽ activate ở S1.8+) |
+| Auth | JWT tự implement (HMAC-SHA256) — mock user trong RAM (S1.8 sẽ dùng DB) |
+| DB | PostgreSQL + SQLAlchemy async (kích hoạt S3.1) |
 
 ---
 
@@ -50,22 +50,25 @@ python check_env.py
 
 Kết quả mong đợi: tất cả package + key bắt buộc đều hiện ✅.
 
-### 5. (Tuỳ chọn) Khởi tạo database PostgreSQL
+### 5. Khởi tạo database PostgreSQL
 
-> Bước này chỉ cần thiết từ **S1.8+**. Ở S1.1 auth vẫn dùng mock user.
+> Bắt buộc từ **S3.1+** (DB thật đã được kích hoạt).
 
 ```bash
 # Tạo database
 createdb -U postgres speakbuddi
 
-# Chạy schema cốt lõi (Identity/Auth + Payment/Subscription)
+# Bước 1 — Schema cốt lõi (Identity/Auth + Payment/Subscription)
 psql -U postgres -d speakbuddi -f db/schema_core.sql
+
+# Bước 2 — Schema learning content (S3.1: level/topic/tag/topic_word)
+psql -U postgres -d speakbuddi -f db/schema_learning.sql
 
 # Cấu hình DATABASE_URL trong .env:
 # DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/speakbuddi
-
-# Bỏ comment phần SQLAlchemy trong db/connection.py (xem TODO: S1.8)
 ```
+
+> Cả hai schema đều **idempotent** — chạy lại nhiều lần không gây lỗi.
 
 ### 6. Chạy server
 
@@ -97,10 +100,14 @@ Server chạy tại: `http://localhost:8000`
 speak-buddi-be/
 ├── main.py             # FastAPI app + routes + mock auth
 ├── db/
-│   ├── __init__.py     # Export get_db()
-│   ├── connection.py   # Engine config (stub → SQLAlchemy async khi S1.8)
-│   └── schema_core.sql # PostgreSQL schema: users, user_profile, oauth_account,
-│                       #   user_session, payment_plan, user_subscription
+│   ├── __init__.py         # Export get_db()
+│   ├── connection.py       # SQLAlchemy async engine (kích hoạt S3.1)
+│   ├── schema_core.sql     # PostgreSQL schema: users, user_profile, oauth_account,
+│   │                       #   user_session, payment_plan, user_subscription
+│   └── schema_learning.sql # S3.1: level, topic, tag, topic_word, topic_word_tag
+├── schemas/
+│   ├── __init__.py
+│   └── learning.py     # Pydantic schemas skeleton (tham chiếu S3.2/S9.1)
 ├── requirements.txt    # Pin version dependencies
 ├── .env.example        # Template biến môi trường (không có secret thật)
 ├── check_env.py        # Kiểm tra package + env key
