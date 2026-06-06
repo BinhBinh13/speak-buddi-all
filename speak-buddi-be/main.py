@@ -15,6 +15,9 @@ import base64, hashlib, hmac
 from elevenlabs.client import ElevenLabs
 from pydantic import BaseModel
 
+# ─── Routers (S3.2+) ──────────────────────────────────────────────────────────
+from routers import learning
+
 # ─── Config ───────────────────────────────────────────────────────────────────
 load_dotenv()
 
@@ -39,6 +42,9 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["X-Reply-Text"],
 )
+
+# ─── Include routers ──────────────────────────────────────────────────────────
+app.include_router(learning.router)
 
 # ─── API Clients ──────────────────────────────────────────────────────────────
 @lru_cache(maxsize=1)
@@ -115,7 +121,7 @@ def current_user(creds: HTTPAuthorizationCredentials = Depends(security)) -> dic
 # ─── Mock user store ──────────────────────────────────────────────────────────
 MOCK_USERS = {
     "demo@speakbuddi.com": {
-        "id":            "u_001",
+        "id":            "00000000-0000-0000-0000-000000000002",
         "name":          "Demo User",
         "email":         "demo@speakbuddi.com",
         "password_hash": hashlib.sha256("password123".encode()).hexdigest(),
