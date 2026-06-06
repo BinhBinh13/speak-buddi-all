@@ -13,13 +13,13 @@
   "summary": {
     "totalEpics": 12,
     "totalStories": 46,
-    "completedStories": 17,
-    "progressPercent": 37,
+    "completedStories": 22,
+    "progressPercent": 48,
     "byStatus": {
-      "todo": 28,
+      "todo": 22,
       "in_progress": 1,
-      "review": 0,
-      "done": 17,
+      "review": 1,
+      "done": 22,
       "blocked": 0
     }
   },
@@ -100,11 +100,11 @@
       "features": ["F07"],
       "businessRules": [],
       "owner": "Dev A",
-      "status": "todo",
-      "progressPercent": 0,
+      "status": "done",
+      "progressPercent": 100,
       "stories": [
-        { "id": "S5.1", "title": "Dich EN->VI + validation input rong", "ac": "AC-07-01/02", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S5.2", "title": "Luu lich su dich", "ac": "AC-07-03", "priority": "P2", "status": "todo", "assignee": "", "notes": "" }
+        { "id": "S5.1", "title": "Dich EN->VI + validation input rong", "ac": "AC-07-01/02", "priority": "P1", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S5.1-plan.md", "implement": "implement/S5.1-implement.md", "review": "review/S5.1-review.md" }, "updatedAt": "2026-06-07" },
+        { "id": "S5.2", "title": "Luu lich su dich", "ac": "AC-07-03", "priority": "P2", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S5.2-plan.md", "implement": "implement/S5.2-implement.md", "review": "review/S5.2-review.md" }, "updatedAt": "2026-06-07" }
       ]
     },
     {

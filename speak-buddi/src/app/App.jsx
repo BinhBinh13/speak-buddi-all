@@ -23,6 +23,7 @@ import QuizResultPage from "../features/quiz/QuizResultPage";
 import OnboardingPage from "../features/onboarding/OnboardingPage";
 import ProfilePage    from "../features/profile/ProfilePage";
 import RoadmapPage    from "../features/roadmap/RoadmapPage";
+import TranslatePage  from "../features/translate/TranslatePage";
 
 export default function App() {
   return (
@@ -66,8 +67,10 @@ export default function App() {
             {/* S4.3: Quiz result page */}
             <Route path="/quiz/:testId/result/:attemptId" element={<QuizResultPage />} />
 
+            {/* S5.1: Translate page */}
+            <Route path="/translate" element={<TranslatePage />} />
+
             {/* Các route sẽ có page thật khi các story tương ứng hoàn thành */}
-            {/* <Route path="/translation" element={<TranslationPage />} /> */}
             {/* <Route path="/pronunciation" element={<PronunciationPage />} /> */}
             {/* <Route path="/settings/*" element={<SettingsPage />} /> */}
             {/* <Route path="/payment/*" element={<PaymentPage />} /> */}
