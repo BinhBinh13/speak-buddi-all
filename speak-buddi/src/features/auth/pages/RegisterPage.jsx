@@ -309,9 +309,18 @@ export default function RegisterPage() {
     }
   };
 
-  const handleGoogleRegister = () => {
+  const handleGoogleRegister = async () => {
     setError("");
-    loginWithGoogle();
+    setLoading(true);
+    try {
+      const data = await loginWithGoogle();
+      login({ access_token: data.access_token, refresh_token: data.refresh_token, user: data.user });
+      navigate("/dashboard", { replace: true });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleKeyDown = (e) => {
