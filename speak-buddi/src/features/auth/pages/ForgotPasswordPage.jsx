@@ -1,11 +1,11 @@
-// src/features/auth/ForgotPasswordPage.jsx
+// src/features/auth/pages/ForgotPasswordPage.jsx
 // Trang Quên mật khẩu — S1.7
 // Layout: full-screen surface + 2 decorative blobs + card căn giữa max-width 440px.
 // Bám mockup: speak-buddi-docs/ui/quen_mat_khau_desktop/
 // Màu palette: indigo primary #3525cd (DESIGN.md).
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { forgotPassword } from "../../shared/services/authService";
+import { forgotPassword } from "../../../shared/auth/authService";
 
 // ─── Design tokens — DESIGN.md ───────────────────────────────────────────────
 const C = {

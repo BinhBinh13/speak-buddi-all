@@ -1,5 +1,4 @@
-// src/shared/services/authService.js
-import apiClient from "./apiClient";
+import apiClient from "../api/client";
 
 const API_URL = import.meta.env.VITE_API_URL;
 

@@ -1,11 +1,11 @@
-// src/features/auth/ResetPasswordPage.jsx
+// src/features/auth/pages/ResetPasswordPage.jsx
 // Trang Thiết lập mật khẩu mới — S1.7
 // Layout: full-screen surface + card căn giữa max-width 440px.
 // Bám mockup: speak-buddi-docs/ui/thiet_lap_mat_khau_desktop/
 // Đọc ?token= từ URL; nếu không có token → redirect /forgot-password.
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { resetPassword } from "../../shared/services/authService";
+import { resetPassword } from "../../../shared/auth/authService";
 
 // ─── Design tokens — DESIGN.md ───────────────────────────────────────────────
 const C = {

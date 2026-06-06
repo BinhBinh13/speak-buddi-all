@@ -4,7 +4,7 @@
 // custom event "auth-changed" (trong cùng tab) để re-render guard / navbar.
 // S1.8: thêm user object, isAdmin, isPaid từ server response.
 import { createContext, useContext, useEffect, useState } from "react";
-import { getToken, setTokens, clearTokens, getUser, setUser } from "../services/authService";
+import { getToken, setTokens, clearTokens, getUser, setUser } from "./authService";
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 const AUTH_CHANGED = "auth-changed";

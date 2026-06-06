@@ -7,11 +7,11 @@ import PaidRoute from "../shared/auth/PaidRoute";
 // ── Public pages ──────────────────────────────────────────────────────────────
 import LandingPage from "../features/landing/LandingPage";
 import PricingPage from "../features/pricing/PricingPage";
-import LoginPage from "../features/auth/LoginPage";
-import RegisterPage from "../features/auth/RegisterPage";
-import OAuthCallbackPage from "../features/auth/OAuthCallbackPage";
-import ForgotPasswordPage from "../features/auth/ForgotPasswordPage";
-import ResetPasswordPage from "../features/auth/ResetPasswordPage";
+import LoginPage from "../features/auth/pages/LoginPage";
+import RegisterPage from "../features/auth/pages/RegisterPage";
+import OAuthCallbackPage from "../features/auth/pages/OAuthCallbackPage";
+import ForgotPasswordPage from "../features/auth/pages/ForgotPasswordPage";
+import ResetPasswordPage from "../features/auth/pages/ResetPasswordPage";
 
 // ── Protected pages ───────────────────────────────────────────────────────────
 import DashboardPage from "../features/dashboard/DashboardPage";

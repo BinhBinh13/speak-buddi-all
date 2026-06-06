@@ -1,12 +1,12 @@
-// src/features/auth/LoginPage.jsx
+// src/features/auth/pages/LoginPage.jsx
 // Trang đăng nhập — S1.5
 // Layout: 1 card căn giữa, nền surface + 2 decorative blob.
 // Bám mockup login_page_desktop (speak-buddi-docs/ui/login_page_desktop/).
 // Màu palette: indigo primary #3525cd (DESIGN.md).
 import { useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import { loginWithEmail, loginWithGoogle } from "../../shared/services/authService";
-import { useAuth } from "../../shared/auth/AuthContext";
+import { loginWithEmail, loginWithGoogle } from "../../../shared/auth/authService";
+import { useAuth } from "../../../shared/auth/AuthContext";
 
 // ─── Design tokens — DESIGN.md ───────────────────────────────────────────────
 const C = {
