@@ -15,7 +15,7 @@ export default function OAuthCallbackPage() {
     const rawNext = searchParams.get("next");
 
     if (token) {
-      login(token);
+      login({ access_token: token, refresh_token: null, user: null });
 
       // Validate ?next= — chỉ chấp nhận same-origin path
       let redirectTo = "/dashboard";

@@ -13,13 +13,13 @@
   "summary": {
     "totalEpics": 12,
     "totalStories": 46,
-    "completedStories": 5,
-    "progressPercent": 11,
+    "completedStories": 8,
+    "progressPercent": 17,
     "byStatus": {
-      "todo": 41,
+      "todo": 38,
       "in_progress": 0,
       "review": 0,
-      "done": 5,
+      "done": 8,
       "blocked": 0
     }
   },
@@ -31,17 +31,17 @@
       "features": ["F01", "F02"],
       "businessRules": ["BR01"],
       "owner": "Shared",
-      "status": "in_progress",
-      "progressPercent": 63,
+      "status": "done",
+      "progressPercent": 100,
       "stories": [
         { "id": "S1.1", "title": "Setup du an + base layout responsive", "ac": "NFR-4.8", "priority": "P0", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S1.1-plan.md", "implement": "implement/S1.1-implement.md", "review": "review/S1.1-review.md" }, "updatedAt": "2026-06-06" },
         { "id": "S1.2", "title": "Trang landing + pricing cong khai", "ac": "AC-01-01/02", "priority": "P1", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S1.2-plan.md", "implement": "implement/S1.2-implement.md", "review": "review/S1.2-review.md" }, "updatedAt": "2026-06-06" },
         { "id": "S1.3", "title": "Chan Guest truy cap tinh nang hoc", "ac": "AC-01-03, BR01", "priority": "P1", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S1.3-plan.md", "implement": "implement/S1.3-implement.md", "review": "review/S1.3-review.md" }, "updatedAt": "2026-06-06" },
         { "id": "S1.4", "title": "Dang ky email/password + validation", "ac": "AC-02-01, 5.2", "priority": "P0", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S1.4-plan.md", "implement": "implement/S1.4-implement.md", "review": "review/S1.4-review.md" }, "updatedAt": "2026-06-06" },
         { "id": "S1.5", "title": "Dang nhap + JWT access/refresh token", "ac": "AC-02-02, 4.5", "priority": "P0", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S1.5-plan.md", "implement": "implement/S1.5-implement.md", "review": "review/S1.5-review.md" }, "updatedAt": "2026-06-06" },
-        { "id": "S1.6", "title": "Google OAuth", "ac": "AC-02-03", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S1.7", "title": "Reset mat khau qua email (Resend)", "ac": "AC-02-04", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S1.8", "title": "Phan quyen role + subscription state", "ac": "4.5", "priority": "P0", "status": "todo", "assignee": "", "notes": "" }
+        { "id": "S1.6", "title": "Google OAuth", "ac": "AC-02-03", "priority": "P1", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S1.6-plan.md", "implement": "implement/S1.6-implement.md", "review": "review/S1.6-review.md" }, "updatedAt": "2026-06-06" },
+        { "id": "S1.7", "title": "Reset mat khau qua email (Gmail SMTP)", "ac": "AC-02-04", "priority": "P1", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S1.7-plan.md", "implement": "implement/S1.7-implement.md", "review": "review/S1.7-review.md" }, "updatedAt": "2026-06-06" },
+        { "id": "S1.8", "title": "Phan quyen role + subscription state", "ac": "4.5", "priority": "P0", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S1.8-plan.md", "implement": "implement/S1.8-implement.md", "review": "review/S1.8-review.md" }, "updatedAt": "2026-06-06" }
       ]
     },
     {

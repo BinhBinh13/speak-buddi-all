@@ -299,8 +299,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       const data = await register(name.trim(), email.trim().toLowerCase(), password);
-      // S1.5: login() nhận { access_token, refresh_token } (không còn data.token)
-      login({ access_token: data.access_token, refresh_token: data.refresh_token });
+      login({ access_token: data.access_token, refresh_token: data.refresh_token, user: data.user });
       // /onboarding chưa có route → fallback /dashboard; cập nhật khi S2.1 xong
       navigate("/dashboard", { replace: true });
     } catch (err) {
