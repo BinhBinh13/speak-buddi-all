@@ -9,7 +9,7 @@
 //   getTopicProgress(topicId)           → GET /api/topics/{topicId}/progress
 // ─────────────────────────────────────────────────────────────────────────────
 
-import apiClient from "../../../shared/services/apiClient";
+import apiClient from "../../../shared/api/client";
 
 /**
  * Lấy danh sách 6 level A1–C2.

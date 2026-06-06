@@ -1,8 +1,4 @@
-// src/shared/services/apiClient.js
-// S1.5: thêm refresh interceptor — khi gặp 401, thử refresh access token 1 lần,
-// retry request gốc; nếu refresh thất bại → clear tokens + redirect /login với
-// thông báo phiên hết hạn.
-import { refreshAccessToken, clearTokens } from "./authService";
+import { refreshAccessToken, clearTokens } from "../auth/authService";
 
 // S1.1: chuẩn hóa sang VITE_API_BASE_URL; fallback VITE_API_URL (cũ) rồi localhost.
 const API_URL =

@@ -1,9 +1,9 @@
-// src/features/auth/OAuthCallbackPage.jsx
+// src/features/auth/pages/OAuthCallbackPage.jsx
 // Nhận token từ OAuth provider (query param ?token=), gọi login() từ AuthContext
 // để cập nhật state, sau đó điều hướng về ?next= (same-origin) hoặc /dashboard.
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useAuth } from "../../shared/auth/AuthContext";
+import { useAuth } from "../../../shared/auth/AuthContext";
 
 export default function OAuthCallbackPage() {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ export default function OAuthCallbackPage() {
     const rawNext = searchParams.get("next");
 
     if (token) {
-      login(token);
+      login({ access_token: token, refresh_token: null, user: null });
 
       // Validate ?next= — chỉ chấp nhận same-origin path
       let redirectTo = "/dashboard";

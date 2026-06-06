@@ -4,6 +4,7 @@ fastapi==0.136.3
 pydantic==2.13.4
 python-dotenv==1.2.2
 uvicorn[standard]==0.48.0
-# ── DB driver (PostgreSQL) — Activated S3.1 ────────────────────────────────────
 asyncpg==0.30.0
 sqlalchemy==2.0.41
+google-auth==2.38.0
+requests==2.32.3

@@ -17,6 +17,19 @@
 -- Bật extension cần thiết
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";  -- gen_random_uuid()
 
+
+-- ─── DROP TABLES (Development Only) ─────────────────────────────────────────
+DROP TABLE IF EXISTS user_subscription CASCADE;
+DROP TABLE IF EXISTS payment_plan CASCADE;
+DROP TABLE IF EXISTS password_reset_token CASCADE;
+DROP TABLE IF EXISTS user_session CASCADE;
+DROP TABLE IF EXISTS oauth_account CASCADE;
+DROP TABLE IF EXISTS user_profile CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+
+-- Xóa trigger function nếu muốn reset hoàn toàn
+DROP FUNCTION IF EXISTS set_updated_at() CASCADE;
+
 -- ─── 1. users ─────────────────────────────────────────────────────────────────
 -- Role: student | admin (BR01 §4.5: "Paid User là subscription state, không phải role")
 -- status: active | suspended | deleted (soft-delete cấp user)
@@ -87,7 +100,22 @@ CREATE INDEX IF NOT EXISTS idx_user_session_user_active
     ON user_session (user_id, revoked)
     WHERE revoked = FALSE;
 
--- ─── 5. payment_plan ─────────────────────────────────────────────────────────
+-- ─── 5. password_reset_token ─────────────────────────────────────────────────
+-- Lưu token hash (§4.5: không lưu raw token) — dùng khi S1.8 migrate sang DB
+CREATE TABLE IF NOT EXISTS password_reset_token (
+    id         UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id    UUID         NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    token_hash VARCHAR(64)  NOT NULL UNIQUE,  -- SHA-256 hex của raw token
+    expires_at TIMESTAMPTZ  NOT NULL,
+    used       BOOLEAN      NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_prt_user_id ON password_reset_token (user_id);
+CREATE INDEX IF NOT EXISTS idx_prt_expires ON password_reset_token (expires_at)
+    WHERE NOT used;
+
+-- ─── 6. payment_plan ─────────────────────────────────────────────────────────
 -- Danh sách gói trả phí (Admin CRUD ở S10.1)
 -- is_active: false = soft-delete (BR07)
 CREATE TABLE IF NOT EXISTS payment_plan (
@@ -106,7 +134,7 @@ CREATE TABLE IF NOT EXISTS payment_plan (
 CREATE INDEX IF NOT EXISTS idx_payment_plan_active
     ON payment_plan (is_active, sort_order);
 
--- ─── 6. user_subscription ───────────────────────────────────────────────────
+-- ─── 7. user_subscription ───────────────────────────────────────────────────
 -- Trạng thái subscription của user (BR04: "Paid User là subscription state, không phải role")
 -- status: pending | active | expired | cancelled
 CREATE TABLE IF NOT EXISTS user_subscription (
