@@ -1,4 +1,5 @@
--- ─── SpeakBuddi — Schema cốt lõi (PostgreSQL) ───────────────────────────────
+\encoding UTF8
+-- ─── SpeakBuddi — Schema cot loi (PostgreSQL) ───────────────────────────────
 -- Phạm vi S1.1: nhóm Identity/Auth + Payment/Subscription (SRS §5.3)
 -- Phạm vi S3.1 (Activated): nhóm Learning content — level/topic/tag/topic_word/topic_word_tag
 --

@@ -3,7 +3,7 @@
   "version": "1.1.0",
   "source": "Project/docs/speak-buddi/SRS_speak-buddi_v1.1.0.md",
   "backlog": "backlog.md",
-  "lastUpdated": "2026-06-06",
+  "lastUpdated": "2026-06-07",
   "statusLegend": ["todo", "in_progress", "review", "done", "blocked"],
   "priorityLegend": {
     "P0": "Blocker - chan cac story khac",
@@ -13,13 +13,13 @@
   "summary": {
     "totalEpics": 12,
     "totalStories": 46,
-    "completedStories": 15,
-    "progressPercent": 33,
+    "completedStories": 17,
+    "progressPercent": 37,
     "byStatus": {
-      "todo": 29,
+      "todo": 28,
       "in_progress": 1,
-      "review": 1,
-      "done": 15,
+      "review": 0,
+      "done": 17,
       "blocked": 0
     }
   },
@@ -83,14 +83,14 @@
       "features": ["F06"],
       "businessRules": ["BR08"],
       "owner": "Dev A",
-      "status": "todo",
-      "progressPercent": 0,
+      "status": "done",
+      "progressPercent": 100,
       "stories": [
-        { "id": "S4.1", "title": "Data model quiz: test/question/answer/attempt", "ac": "5.3", "priority": "P0", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S4.2", "title": "Cac dang cau hoi: flashcard/MC/fill/mapping", "ac": "AC-06-01, 3.4", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S4.3", "title": "Lam bai + chan nop thieu dap an", "ac": "AC-06-02, 5.2", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S4.4", "title": "Cham diem dung/tong x100% + luu attempt", "ac": "AC-06-03, BR08", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S4.5", "title": "Loc test theo level/topic, giu attempt cu", "ac": "AC-06-04", "priority": "P2", "status": "todo", "assignee": "", "notes": "" }
+        { "id": "S4.1", "title": "Data model quiz: test/question/answer/attempt", "ac": "5.3", "priority": "P0", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S4.1-plan.md", "implement": "implement/S4.1-implement.md", "review": "review/S4.1-review.md" }, "updatedAt": "2026-06-06" },
+        { "id": "S4.2", "title": "Cac dang cau hoi: flashcard/MC/fill/mapping", "ac": "AC-06-01, 3.4", "priority": "P1", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S4.2-plan.md", "implement": "implement/S4.2-implement.md", "review": "review/S4.2-review.md" }, "updatedAt": "2026-06-06" },
+        { "id": "S4.3", "title": "Lam bai + chan nop thieu dap an", "ac": "AC-06-02, 5.2", "priority": "P1", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S4.3-plan.md", "implement": "implement/S4.3-implement.md", "review": "review/S4.3-review.md" }, "updatedAt": "2026-06-07" },
+        { "id": "S4.4", "title": "Cham diem dung/tong x100% + luu attempt", "ac": "AC-06-03, BR08", "priority": "P1", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S4.4-plan.md", "implement": "implement/S4.4-implement.md", "review": "review/S4.4-review.md" }, "updatedAt": "2026-06-07" },
+        { "id": "S4.5", "title": "Loc test theo level/topic, giu attempt cu", "ac": "AC-06-04", "priority": "P2", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S4.5-plan.md", "implement": "implement/S4.5-implement.md", "review": "review/S4.5-review.md" }, "updatedAt": "2026-06-07" }
       ]
     },
     {

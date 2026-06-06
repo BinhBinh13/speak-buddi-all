@@ -43,7 +43,7 @@ export default function AppLayout({ children, rightPanel = null }) {
   const { title, icon } = PAGE_TITLES[pathname] ?? { title: "SpeakBuddi", icon: "✨" };
 
   return (
-    <div style={{ fontFamily: FONTS.body, background: COLORS.cream, minHeight: "100vh" }}>
+    <div style={{ fontFamily: FONTS.body, background: COLORS.surface, minHeight: "100vh" }}>
       <style>{SHELL_CSS}</style>
 
       {/* Topbar — fixed, spans col 2 + col 3 */}
@@ -106,7 +106,7 @@ const SHELL_CSS = `
   }
 
   .shell-content {
-    background: ${COLORS.cream};
+    background: ${COLORS.surface};
     min-height: calc(100vh - 60px);
     /* padding bottom để không bị MobileBottomNav che (mobile) */
     padding-bottom: 0;
