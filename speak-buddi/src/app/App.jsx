@@ -16,6 +16,7 @@ import ResetPasswordPage from "../features/auth/ResetPasswordPage";
 // ── Protected pages ───────────────────────────────────────────────────────────
 import DashboardPage from "../features/dashboard/DashboardPage";
 import SpeakingPage from "../features/speaking/SpeakingPage";
+import VocabularyPage from "../features/vocabulary/VocabularyPage";
 
 export default function App() {
   return (
@@ -38,8 +39,10 @@ export default function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/speaking" element={<SpeakingPage />} />
 
+            {/* S3.2: Vocabulary page */}
+            <Route path="/vocabulary" element={<VocabularyPage />} />
+
             {/* Các route sẽ có page thật khi các story tương ứng hoàn thành */}
-            {/* <Route path="/vocabulary" element={<VocabularyPage />} /> */}
             {/* <Route path="/quiz/*" element={<QuizPage />} /> */}
             {/* <Route path="/translation" element={<TranslationPage />} /> */}
             {/* <Route path="/pronunciation" element={<PronunciationPage />} /> */}

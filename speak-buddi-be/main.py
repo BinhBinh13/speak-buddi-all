@@ -28,6 +28,9 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.connection import get_db
 
+# ─── Routers (S3.2+) ──────────────────────────────────────────────────────────
+from routers import learning
+
 # ─── Config ───────────────────────────────────────────────────────────────────
 load_dotenv()
 
@@ -61,6 +64,9 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["X-Reply-Text"],
 )
+
+# ─── Include routers ──────────────────────────────────────────────────────────
+app.include_router(learning.router)
 
 # ─── API Clients ──────────────────────────────────────────────────────────────
 @lru_cache(maxsize=1)
