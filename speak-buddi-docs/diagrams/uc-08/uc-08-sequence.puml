@@ -1,0 +1,19 @@
+@startuml
+title UC08 — Student practices pronunciation — Sequence
+actor "Student" as Actor
+participant "PronunciationPage" as UI
+participant "API Gateway" as API
+participant "PronunciationService" as PronunciationService
+database "MySQL" as DB
+participant "ElevenLabs API" as ElevenLabs_API
+Actor -> UI : start pronunciation attempt
+UI -> API : HTTPS request
+API -> PronunciationService : route and authorize
+PronunciationService -> DB : read/write PronunciationAttempt
+DB -->> PronunciationService : data result
+PronunciationService -> ElevenLabs_API : integration request
+ElevenLabs_API -->> PronunciationService : integration response
+PronunciationService -->> API : response
+API -->> UI : JSON result
+UI -->> Actor : score and feedback are displayed
+@enduml

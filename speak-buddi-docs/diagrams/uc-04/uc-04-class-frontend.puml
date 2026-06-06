@@ -1,0 +1,124 @@
+@startuml uc-04-class-frontend
+title UC04 — Student views personalized roadmap by selected level — Frontend Classes
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+package "frontend.roadmap" {
+  class RoadmapPage {
+    - selectedLevel: Level?
+    - state: RoadmapUiState
+    + onLoad(): void
+    + render(): JSX
+  }
+
+  class useRoadmap {
+    + selectedLevel: Level?
+    + roadmap: RoadmapViewModel?
+    + isLoading: boolean
+    + error: string?
+    + isUsingCache: boolean
+    + loadRoadmap(): Promise[void]
+    + retry(): Promise[void]
+  }
+
+  class RoadmapApiClient {
+    + getRoadmap(): Promise[RoadmapResponse]
+  }
+
+  class RoadmapView {
+    + topics: RoadmapTopicViewModel[]
+    + render(): JSX
+  }
+
+  class RoadmapTopicCard {
+    + topic: RoadmapTopicViewModel
+    + openVocabulary(): void
+    + openActivities(): void
+    + render(): JSX
+  }
+
+  class LevelRequiredPrompt {
+    + message: string
+    + navigateToOnboarding(): void
+    + render(): JSX
+  }
+
+  class CacheFallbackNotice {
+    + lastSuccessfulCrawlAt: DateTime?
+    + render(): JSX
+  }
+}
+
+package "frontend.state" {
+  class UserLevelStore {
+    + selectedLevel: Level?
+    + hasCompletedOnboarding: boolean
+    + refreshProfile(): Promise[void]
+  }
+
+  class RoadmapViewModel {
+    + selectedLevel: Level
+    + topics: RoadmapTopicViewModel[]
+    + cacheStatus: CacheStatus
+  }
+
+  class RoadmapTopicViewModel {
+    + topicId: string
+    + title: string
+    + level: Level
+    + vocabularyCount: number
+    + activityCount: number
+    + progressPercent: number
+  }
+
+  enum Level {
+    A1
+    A2
+    B1
+    B2
+    C1
+    C2
+  }
+
+  enum CacheStatus {
+    FRESH
+    CACHED_FALLBACK
+    EMPTY
+  }
+
+  enum RoadmapUiState {
+    LOADING
+    LEVEL_REQUIRED
+    READY
+    EMPTY
+    ERROR
+  }
+}
+
+RoadmapPage --> useRoadmap
+RoadmapPage --> RoadmapView
+RoadmapPage --> LevelRequiredPrompt
+RoadmapPage --> CacheFallbackNotice
+useRoadmap --> RoadmapApiClient
+useRoadmap --> UserLevelStore
+useRoadmap --> RoadmapViewModel
+RoadmapView --> RoadmapTopicCard
+RoadmapViewModel --> RoadmapTopicViewModel
+RoadmapViewModel --> CacheStatus
+RoadmapTopicViewModel --> Level
+RoadmapPage --> RoadmapUiState
+
+note right of useRoadmap
+  Loads roadmap for the authenticated
+  user's selected A1-C2 level.
+  If API reports CACHED_FALLBACK,
+  the UI keeps current cached topics visible.
+end note
+
+note bottom of RoadmapView
+  Topics, vocabulary, and activity entry points
+  come from active content. Langeek-crawled
+  content is auto-published and requires
+  no Admin approval before display.
+end note
+@enduml

@@ -1,0 +1,11 @@
+@startuml
+title UC11 — Paid User changes ElevenLabs voice/model — Use Case
+left to right direction
+skinparam packageStyle rectangle
+actor "Paid User" as Paid_User
+actor "ElevenLabs API" as ElevenLabs_API
+rectangle "speak-buddi" {
+  Paid_User -- (UC11: Paid User changes ElevenLabs voice/model)
+  (UC11: Paid User changes ElevenLabs voice/model) ..> ElevenLabs_API : uses
+}
+@enduml

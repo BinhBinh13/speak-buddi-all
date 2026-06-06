@@ -1,0 +1,65 @@
+@startuml uc-04-sequence
+title UC04 — Student views personalized roadmap by selected level — Sequence
+skinparam sequenceParticipantBorderColor #333333
+skinparam sequenceLifeLineBorderColor #333333
+skinparam sequenceLifeLineBackgroundColor #FEFEFE
+
+actor "Student" as Student
+participant "RoadmapPage" as UI
+participant "API Gateway" as API
+participant "RoadmapService" as RoadmapService
+participant "UserProfileRepository" as UserProfileRepo
+participant "LevelContentRepository" as ContentRepo
+participant "UserTopicProgressRepository" as ProgressRepo
+participant "LangeekCrawlerJob" as Crawler
+participant "Langeek Vocabulary Source" as Langeek
+database "Content DB" as ContentDB
+database "Content Cache" as Cache
+
+== Scheduled content sync background context ==
+Crawler -> Langeek : weekly crawl level-based topics/new words
+alt Langeek reachable and crawl permitted
+  Langeek -->> Crawler : A1-C2 topic/new-word pages
+  Crawler -> ContentRepo : map to internal levels/topics\nand publish automatically
+  ContentRepo -> ContentDB : upsert active auto-published content
+  ContentRepo -> Cache : refresh active level snapshots
+else Langeek down or crawl fails
+  Crawler -> Cache : keep current active snapshots
+  Crawler -> ContentDB : record failure/retry/log status
+end
+
+note over Crawler,ContentRepo
+  Crawled content is auto-published.
+  UC04 roadmap does not wait for Admin approval.
+end note
+
+== UC04 learner request ==
+Student -> UI : open roadmap screen
+UI -> API : GET /api/v1/roadmap
+API -> RoadmapService : authorize and route user request
+RoadmapService -> UserProfileRepo : get selectedLevel(userId)
+UserProfileRepo -->> RoadmapService : selectedLevel = A1..C2
+
+alt selected level exists and user is allowed
+  RoadmapService -> ContentRepo : findActiveTopicsByLevel(selectedLevel)
+  ContentRepo -> ContentDB : query active topics/vocabulary/activities
+  ContentDB -->> ContentRepo : active content result
+
+  alt active crawled/Admin-managed content found
+    ContentRepo -->> RoadmapService : level topics and metadata
+  else latest crawl failed or source unavailable
+    RoadmapService -> Cache : getActiveLevelSnapshot(selectedLevel)
+    Cache -->> RoadmapService : cached active topics/new words
+  end
+
+  RoadmapService -> ProgressRepo : findByUserAndLevel(userId, selectedLevel)
+  ProgressRepo -->> RoadmapService : topic progress
+  RoadmapService -->> API : RoadmapResponse(topics, progress, cacheStatus)
+  API -->> UI : 200 OK JSON
+  UI -->> Student : display selected-level roadmap
+else missing selected level or unauthorized
+  RoadmapService -->> API : error: login or level required
+  API -->> UI : 401/403/422 JSON
+  UI -->> Student : show login or level-required prompt
+end
+@enduml

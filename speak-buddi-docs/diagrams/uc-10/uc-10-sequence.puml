@@ -1,0 +1,22 @@
+@startuml
+title UC10 — Student purchases paid plan/payment — Sequence
+actor "Student" as Actor
+participant "PricingPage" as UI
+participant "API Gateway" as API
+participant "PaymentService" as PaymentService
+database "MySQL" as DB
+participant "Payment Provider" as Payment_Provider
+participant "Resend" as Resend
+Actor -> UI : select plan and confirm payment
+UI -> API : HTTPS request
+API -> PaymentService : route and authorize
+PaymentService -> DB : read/write PaymentTransaction
+DB -->> PaymentService : data result
+PaymentService -> Payment_Provider : integration request
+Payment_Provider -->> PaymentService : integration response
+PaymentService -> Resend : integration request
+Resend -->> PaymentService : integration response
+PaymentService -->> API : response
+API -->> UI : JSON result
+UI -->> Actor : subscription is activated after successful payment
+@enduml

@@ -1,0 +1,60 @@
+@startuml uc-13-screenflow
+title UC13 — Admin manages topic/vocabulary/tests and crawler content sync — Screen Flow
+skinparam activityDotColor red
+skinparam activityBackgroundColor #FEFEFE
+skinparam activityBorderColor #333333
+skinparam activityDiamondBackgroundColor #FEFEFE
+skinparam activityDiamondBorderColor #333333
+skinparam backgroundColor #FEFEFE
+
+start
+if (Trigger source?) then (Admin console)
+  :Open Admin Content and Crawler Console;
+  :View topics, vocabulary, tests,\ncrawler config, sync status and logs;
+  if (Admin action?) then (Create/update content or test)
+    :Enter topic/vocabulary/test data\nwith A1-C2 level and topic mapping;
+    if (Input valid?) then (yes)
+      :Save content;
+      :Show success state;
+    else (no)
+      :Show inline validation errors\n(duplicate/missing required fields);
+      :Keep draft input;
+    endif
+  elseif (Disable active/crawled content) then (yes)
+    :Confirm disable action;
+    :Set is_active=false;
+    :Hide disabled content from roadmap,\nvocabulary and activities;
+  elseif (Configure crawler) then (yes)
+    :Update source URL, weekly schedule,\nretry policy and rate limit;
+    :Save crawler configuration;
+  else (Inspect sync/logs)
+    :Open sync status and crawl log view;
+    :Review last successful sync,\nretry status, cache status and errors;
+  endif
+else (Weekly scheduler)
+  :Start weekly Langeek content sync;
+  :Load crawler configuration;
+  :Check ToS, robots.txt,\ncopyright/licensing and rate-limit guardrails;
+  if (Crawling permitted?) then (yes)
+    :Fetch level-based pages from\nhttps://langeek.co/en-VI/vocab/level-based;
+    if (Langeek reachable and crawl succeeds?) then (yes)
+      :Parse topics and new words;
+      :Map content to A1-C2 levels\nand internal topics;
+      :Automatically publish crawled content\nwithout Admin pre-approval;
+      :Refresh active content cache;
+      :Record successful crawl log;
+    else (no)
+      :Keep current cached/active content;
+      :Retry according to configured policy;
+      :Log failure details;
+      :Notify Admin with source URL, reason,\nlast success, retry and cache status;
+    endif
+  else (no)
+    :Stop automated crawl;
+    :Keep current cached/active content;
+    :Log guardrail/legal-permission risk;
+    :Notify Admin to use manual curation fallback;
+  endif
+endif
+stop
+@enduml

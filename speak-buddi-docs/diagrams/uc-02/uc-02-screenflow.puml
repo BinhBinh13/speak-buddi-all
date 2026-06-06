@@ -1,0 +1,17 @@
+@startuml
+title UC02 — User registers/logs in/resets password/OAuth Google — Screen Flow
+skinparam activityBackgroundColor #FEFEFE
+skinparam activityBorderColor #333333
+start
+:Open AuthPage;
+:User attempts to register, login, reset password, or use Google OAuth;
+if (Access and input valid?) then (yes)
+  :Call AuthService;
+  :Persist/read User data if needed;
+  :Display success state;
+else (no)
+  :Show validation/access error;
+  :Keep user input where possible;
+endif
+stop
+@enduml

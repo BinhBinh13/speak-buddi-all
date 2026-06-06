@@ -1,0 +1,24 @@
+@startuml
+title UC01 — Guest views landing/pricing — Frontend Classes
+skinparam classAttributeIconSize 0
+class LandingPage {
+  - state: UIState
+  + render(): JSX
+  + handleSubmit(): void
+}
+class useUC01 {
+  + loading: boolean
+  + error: string | null
+  + execute(payload): Promise<Result>
+}
+class UC01ApiClient {
+  + request(payload): Promise<ApiResponse>
+}
+class UC01FormOrView {
+  + props: Props
+  + render(): JSX
+}
+LandingPage --> useUC01
+LandingPage --> UC01FormOrView
+useUC01 --> UC01ApiClient
+@enduml

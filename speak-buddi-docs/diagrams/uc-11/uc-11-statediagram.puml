@@ -1,0 +1,15 @@
+@startuml
+title UC11 — Paid User changes ElevenLabs voice/model — State Diagram
+[*] --> Idle
+Idle --> InProgress : save voice preference
+InProgress --> Validating : submit/request
+Validating --> Completed : success
+Validating --> Error : validation/integration/access error
+Error --> InProgress : retry/fix input
+Completed --> [*]
+state Completed {
+  [*] --> ResultVisible
+  ResultVisible --> Saved : UserVoicePreference updated/read
+  Saved --> [*]
+}
+@enduml

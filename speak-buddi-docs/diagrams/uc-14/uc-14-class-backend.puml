@@ -1,0 +1,27 @@
+@startuml
+title UC14 — Admin manages payment plans — Backend Classes
+skinparam classAttributeIconSize 0
+class UC14Controller {
+  - service: PaymentPlanAdminService
+  + handle(request): Response
+}
+class PaymentPlanAdminService {
+  - repository: PaymentPlanRepository
+  + execute(command): Result
+  + validate(command): void
+}
+class PaymentPlanRepository {
+  + findById(id): PaymentPlan
+  + save(entity: PaymentPlan): PaymentPlan
+}
+class PaymentPlan {
+  - id: Long
+  - createdAt: DateTime
+  - updatedAt: DateTime
+}
+
+UC14Controller --> PaymentPlanAdminService
+PaymentPlanAdminService --> PaymentPlanRepository
+PaymentPlanRepository --> PaymentPlan
+
+@enduml

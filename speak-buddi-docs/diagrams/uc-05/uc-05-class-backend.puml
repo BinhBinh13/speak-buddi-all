@@ -1,0 +1,149 @@
+@startuml uc-05-class-backend
+title UC05 — Student learns vocabulary by selected level/topic — Backend Classes
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+package "backend.learning" {
+  class VocabularyController {
+    - vocabularyService: VocabularyService
+    + getVocabulary(userId: UUID, selectedLevel: CefrLevel, topicId: UUID): VocabularyResponse
+    + saveProgress(userId: UUID, request: ProgressRequest): ProgressResponse
+  }
+
+  class VocabularyService {
+    - catalogService: ContentCatalogService
+    - progressRepository: LearningProgressRepository
+    + getVocabulary(userId: UUID, level: CefrLevel, topicId: UUID): VocabularyResponse
+    + saveProgress(userId: UUID, level: CefrLevel, topicId: UUID, wordId: UUID, status: ProgressStatus): ProgressResponse
+    + validateLevelTopic(level: CefrLevel, topicId: UUID): void
+  }
+
+  class ContentCatalogService {
+    - topicRepository: TopicRepository
+    - topicWordRepository: TopicWordRepository
+    - cache: ActiveContentCache
+    + findActiveWords(level: CefrLevel, topicId: UUID): List<TopicWord>
+    + getFallbackCachedWords(level: CefrLevel, topicId: UUID): List<TopicWord>
+    + refreshCache(level: CefrLevel, topicId: UUID): void
+    + disableContent(wordId: UUID): void
+  }
+
+  class LearningProgressRepository {
+    + upsertWordProgress(userId: UUID, level: CefrLevel, topicId: UUID, wordId: UUID, status: ProgressStatus): UserWordProgress
+    + updateTopicProgress(userId: UUID, level: CefrLevel, topicId: UUID): UserTopicProgress
+  }
+}
+
+package "backend.content_sync" {
+  class LangeekCrawlerService {
+    - sourceUrl: URI
+    - crawlJobRepository: ContentCrawlJobRepository
+    - catalogService: ContentCatalogService
+    + runWeeklyCrawl(): CrawlResult
+    + mapToLevelTopics(payload: CrawledPayload): List<TopicWord>
+    + publishActiveContent(words: List<TopicWord>): void
+    + keepCachedContentOnFailure(error: CrawlError): void
+  }
+
+  class CrawlFailureNotifier {
+    + notifyAdmin(sourceUrl: URI, reason: String, lastSuccessAt: Instant, retryStatus: String, cacheStatus: String): void
+  }
+
+  class ContentCrawlJobRepository {
+    + saveJob(status: CrawlStatus): ContentCrawlJob
+    + logFailure(jobId: UUID, reason: String): ContentCrawlLog
+    + findLastSuccessful(sourceUrl: URI): ContentCrawlJob
+  }
+}
+
+package "backend.domain" {
+  enum CefrLevel {
+    A1
+    A2
+    B1
+    B2
+    C1
+    C2
+  }
+
+  class Topic {
+    + id: UUID
+    + level: CefrLevel
+    + name: String
+    + isActive: boolean
+  }
+
+  class TopicWord {
+    + id: UUID
+    + topicId: UUID
+    + level: CefrLevel
+    + word: String
+    + meaning: String
+    + example: String
+    + grammarNote: String
+    + source: ContentSourceType
+    + isActive: boolean
+  }
+
+  class UserWordProgress {
+    + userId: UUID
+    + topicId: UUID
+    + wordId: UUID
+    + level: CefrLevel
+    + status: ProgressStatus
+    + updatedAt: Instant
+  }
+
+  class UserTopicProgress {
+    + userId: UUID
+    + topicId: UUID
+    + level: CefrLevel
+    + learnedCount: int
+    + totalCount: int
+  }
+
+  class ContentCrawlJob {
+    + id: UUID
+    + sourceUrl: URI
+    + status: CrawlStatus
+    + startedAt: Instant
+    + completedAt: Instant
+    + lastSuccessfulAt: Instant
+  }
+}
+
+package "backend.infrastructure" {
+  class TopicRepository {
+    + findActiveByLevel(level: CefrLevel): List<Topic>
+    + findActiveByLevelAndId(level: CefrLevel, topicId: UUID): Topic
+  }
+
+  class TopicWordRepository {
+    + findActiveByLevelAndTopic(level: CefrLevel, topicId: UUID): List<TopicWord>
+    + saveAll(words: List<TopicWord>): List<TopicWord>
+    + setActive(wordId: UUID, active: boolean): void
+  }
+
+  class ActiveContentCache {
+    + get(level: CefrLevel, topicId: UUID): List<TopicWord>
+    + put(level: CefrLevel, topicId: UUID, words: List<TopicWord>): void
+    + invalidate(level: CefrLevel, topicId: UUID): void
+  }
+}
+
+VocabularyController --> VocabularyService
+VocabularyService --> ContentCatalogService
+VocabularyService --> LearningProgressRepository
+VocabularyService --> CefrLevel
+ContentCatalogService --> TopicRepository
+ContentCatalogService --> TopicWordRepository
+ContentCatalogService --> ActiveContentCache
+TopicRepository --> Topic
+TopicWordRepository --> TopicWord
+LearningProgressRepository --> UserWordProgress
+LearningProgressRepository --> UserTopicProgress
+LangeekCrawlerService --> ContentCrawlJobRepository
+LangeekCrawlerService --> ContentCatalogService
+LangeekCrawlerService --> CrawlFailureNotifier
+ContentCrawlJobRepository --> ContentCrawlJob
+@enduml

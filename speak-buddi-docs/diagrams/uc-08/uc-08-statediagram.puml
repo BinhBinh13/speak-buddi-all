@@ -1,0 +1,15 @@
+@startuml
+title UC08 — Student practices pronunciation — State Diagram
+[*] --> Idle
+Idle --> InProgress : start pronunciation attempt
+InProgress --> Validating : submit/request
+Validating --> Completed : success
+Validating --> Error : validation/integration/access error
+Error --> InProgress : retry/fix input
+Completed --> [*]
+state Completed {
+  [*] --> ResultVisible
+  ResultVisible --> Saved : PronunciationAttempt updated/read
+  Saved --> [*]
+}
+@enduml

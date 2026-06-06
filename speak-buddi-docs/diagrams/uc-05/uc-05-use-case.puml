@@ -1,0 +1,50 @@
+@startuml uc-05-use-case
+title UC05 — Student learns vocabulary by selected level/topic — Use Case
+left to right direction
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #FEFEFE
+  BorderColor #333333
+}
+
+actor "Student" as Student
+actor "Paid User" as PaidUser
+actor "Langeek Vocabulary Source" as Langeek <<external>>
+actor "Admin" as Admin
+
+rectangle "speak-buddi" {
+  usecase "UC05: Learn vocabulary\nby selected level/topic" as UC05
+  usecase "Use selected level\n(A1, A2, B1, B2, C1, C2)" as SelectLevel
+  usecase "Open topic vocabulary\nwith active words" as OpenTopic
+  usecase "Display crawled or\nAdmin-managed content" as DisplayContent
+  usecase "Show meanings, examples,\nand grammar notes" as LearningInfo
+  usecase "Save word/topic progress\nwith level context" as SaveProgress
+  usecase "Use cached active content\nif latest crawl failed" as CacheFallback
+  usecase "Weekly Langeek crawl\n(auto-publish content)" as WeeklyCrawl
+  usecase "Edit/disable crawled\ncontent after publish" as AdminManage
+}
+
+Student -- UC05
+PaidUser -- UC05
+UC05 ..> SelectLevel : <<include>>
+UC05 ..> OpenTopic : <<include>>
+UC05 ..> DisplayContent : <<include>>
+UC05 ..> LearningInfo : <<include>>
+UC05 ..> SaveProgress : <<include>>
+DisplayContent ..> CacheFallback : <<extend>>
+DisplayContent ..> WeeklyCrawl : uses active content from
+Langeek -- WeeklyCrawl
+Admin -- AdminManage
+AdminManage ..> DisplayContent : controls active/disabled
+
+note right of WeeklyCrawl
+  Source: https://langeek.co/en-VI/vocab/level-based
+  Schedule: weekly
+  Successful crawl is auto-published.
+end note
+
+note bottom of CacheFallback
+  If crawl fails, learners continue using
+  current cached/active vocabulary content.
+end note
+@enduml

@@ -1,0 +1,36 @@
+@startuml
+title UC03 — Student selects level during onboarding to create personalized roadmap — Use Case
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Student" as Student
+
+rectangle "speak-buddi" {
+  usecase "UC03: Select A1-C2 level\nduring onboarding" as UC03
+  usecase "Answer required\nonboarding questions" as AnswerQuestions
+  usecase "Save selected level\nand onboarding profile" as SaveProfile
+  usecase "Generate roadmap from\nactive level content" as GenerateRoadmap
+  usecase "Update selected level\nin profile/onboarding" as UpdateLevel
+
+  Student -- UC03
+  Student -- UpdateLevel
+
+  UC03 .> AnswerQuestions : <<include>>
+  UC03 .> SaveProfile : <<include>>
+  UC03 .> GenerateRoadmap : <<include>>
+  UpdateLevel .> SaveProfile : <<include>>
+  UpdateLevel .> GenerateRoadmap : <<include>>
+}
+
+note right of UC03
+  Student manually chooses one level:
+  A1, A2, B1, B2, C1, or C2.
+  No scored assessment flow is used.
+end note
+
+note bottom of GenerateRoadmap
+  Roadmap uses selected level plus
+  active topics/vocabulary/activities
+  from Langeek-crawled or Admin-managed content.
+end note
+@enduml

@@ -1,0 +1,24 @@
+@startuml
+title UC07 — Student translates English words — Frontend Classes
+skinparam classAttributeIconSize 0
+class TranslationWidget {
+  - state: UIState
+  + render(): JSX
+  + handleSubmit(): void
+}
+class useUC07 {
+  + loading: boolean
+  + error: string | null
+  + execute(payload): Promise<Result>
+}
+class UC07ApiClient {
+  + request(payload): Promise<ApiResponse>
+}
+class UC07FormOrView {
+  + props: Props
+  + render(): JSX
+}
+TranslationWidget --> useUC07
+TranslationWidget --> UC07FormOrView
+useUC07 --> UC07ApiClient
+@enduml

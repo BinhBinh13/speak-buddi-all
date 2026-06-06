@@ -1,0 +1,174 @@
+@startuml uc-04-class-backend
+title UC04 — Student views personalized roadmap by selected level — Backend Classes
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+package "backend.roadmap" {
+  class RoadmapController {
+    - service: RoadmapService
+    + getRoadmap(userId: UUID): RoadmapResponse
+  }
+
+  class RoadmapService {
+    - userProfileRepository: UserProfileRepository
+    - levelContentRepository: LevelContentRepository
+    - progressRepository: UserTopicProgressRepository
+    - contentCache: ContentCacheService
+    + getPersonalizedRoadmap(userId: UUID): RoadmapResponse
+    - resolveSelectedLevel(userId: UUID): Level
+    - loadActiveContent(level: Level): LevelContentSnapshot
+    - buildRoadmap(content: LevelContentSnapshot, progress: UserTopicProgress[]): RoadmapResponse
+  }
+
+  class RoadmapResponse {
+    + selectedLevel: Level
+    + topics: RoadmapTopic[]
+    + cacheStatus: CacheStatus
+    + generatedAt: DateTime
+  }
+
+  class RoadmapTopic {
+    + topicId: UUID
+    + title: string
+    + level: Level
+    + vocabularyCount: int
+    + activityCount: int
+    + progressPercent: decimal
+  }
+}
+
+package "backend.profile" {
+  class UserProfileRepository {
+    + findSelectedLevel(userId: UUID): Level
+    + hasCompletedOnboarding(userId: UUID): boolean
+  }
+
+  class UserProfile {
+    + userId: UUID
+    + selectedLevel: Level
+    + learningGoal: string
+    + onboardingCompleted: boolean
+  }
+}
+
+package "backend.content" {
+  class LevelContentRepository {
+    + findActiveTopicsByLevel(level: Level): Topic[]
+    + findActiveVocabularyByTopic(topicId: UUID): TopicWord[]
+    + findActiveActivitiesByTopic(topicId: UUID): LearningActivity[]
+    + getLatestCrawlStatus(): CrawlStatus
+  }
+
+  class ContentCacheService {
+    + getActiveLevelSnapshot(level: Level): LevelContentSnapshot
+    + refreshActiveLevelSnapshot(level: Level, snapshot: LevelContentSnapshot): void
+  }
+
+  class LevelContentSnapshot {
+    + level: Level
+    + topics: Topic[]
+    + source: ContentSource
+    + usingCache: boolean
+    + lastSuccessfulCrawlAt: DateTime
+  }
+
+  class Topic {
+    + id: UUID
+    + level: Level
+    + title: string
+    + source: ContentSource
+    + status: ContentStatus
+    + autoPublished: boolean
+  }
+
+  class TopicWord {
+    + id: UUID
+    + topicId: UUID
+    + word: string
+    + meaning: string
+    + level: Level
+  }
+
+  class LearningActivity {
+    + id: UUID
+    + topicId: UUID
+    + type: ActivityType
+    + level: Level
+  }
+
+  enum ContentSource {
+    LANGEEK_CRAWLER
+    ADMIN_MANAGED
+    CACHE
+  }
+
+  enum ContentStatus {
+    ACTIVE
+    DISABLED
+  }
+
+  enum CacheStatus {
+    FRESH
+    CACHED_FALLBACK
+    EMPTY
+  }
+}
+
+package "backend.progress" {
+  class UserTopicProgressRepository {
+    + findByUserAndLevel(userId: UUID, level: Level): UserTopicProgress[]
+    + save(entity: UserTopicProgress): UserTopicProgress
+  }
+
+  class UserTopicProgress {
+    + id: UUID
+    + userId: UUID
+    + topicId: UUID
+    + level: Level
+    + progressPercent: decimal
+    + updatedAt: DateTime
+  }
+}
+
+enum Level {
+  A1
+  A2
+  B1
+  B2
+  C1
+  C2
+}
+
+RoadmapController --> RoadmapService
+RoadmapService --> UserProfileRepository
+RoadmapService --> LevelContentRepository
+RoadmapService --> UserTopicProgressRepository
+RoadmapService --> ContentCacheService
+RoadmapService --> RoadmapResponse
+RoadmapResponse --> RoadmapTopic
+UserProfileRepository --> UserProfile
+LevelContentRepository --> Topic
+LevelContentRepository --> TopicWord
+LevelContentRepository --> LearningActivity
+ContentCacheService --> LevelContentSnapshot
+LevelContentSnapshot --> Topic
+Topic --> ContentSource
+Topic --> ContentStatus
+RoadmapResponse --> CacheStatus
+UserProfile --> Level
+Topic --> Level
+TopicWord --> Level
+LearningActivity --> Level
+UserTopicProgress --> Level
+
+note right of Topic
+  Langeek-crawled content is
+  autoPublished=true when crawl succeeds.
+  Admin approval is not required before display.
+end note
+
+note bottom of ContentCacheService
+  If Langeek is down or crawling fails,
+  RoadmapService uses the current active cache.
+end note
+@enduml

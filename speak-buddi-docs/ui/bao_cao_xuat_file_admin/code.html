@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Reports &amp; Exports - Admin</title>
+<!-- Google Fonts: Be Vietnam Pro -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-surface-variant": "#464555",
+                      "inverse-primary": "#c3c0ff",
+                      "surface-tint": "#4d44e3",
+                      "surface-container-highest": "#e4e1ee",
+                      "outline": "#777587",
+                      "surface-bright": "#fcf8ff",
+                      "on-background": "#1b1b24",
+                      "inverse-on-surface": "#f3effc",
+                      "on-primary-fixed": "#0f0069",
+                      "surface": "#fcf8ff",
+                      "on-error-container": "#93000a",
+                      "on-secondary": "#ffffff",
+                      "surface-container": "#f0ecf9",
+                      "surface-container-high": "#eae6f4",
+                      "on-secondary-fixed-variant": "#005236",
+                      "on-primary-container": "#dad7ff",
+                      "surface-dim": "#dcd8e5",
+                      "error": "#ba1a1a",
+                      "primary-fixed": "#e2dfff",
+                      "tertiary-container": "#a44100",
+                      "surface-variant": "#e4e1ee",
+                      "on-surface": "#1b1b24",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-fixed": "#351000",
+                      "inverse-surface": "#302f39",
+                      "secondary-container": "#6cf8bb",
+                      "on-primary-fixed-variant": "#3323cc",
+                      "tertiary": "#7e3000",
+                      "outline-variant": "#c7c4d8",
+                      "secondary": "#006c49",
+                      "primary": "#3525cd",
+                      "on-tertiary-fixed-variant": "#7b2f00",
+                      "tertiary-fixed-dim": "#ffb695",
+                      "surface-container-lowest": "#ffffff",
+                      "primary-container": "#4f46e5",
+                      "background": "#fcf8ff",
+                      "on-primary": "#ffffff",
+                      "surface-container-low": "#f5f2ff",
+                      "secondary-fixed": "#6ffbbe",
+                      "on-secondary-fixed": "#002113",
+                      "secondary-fixed-dim": "#4edea3",
+                      "error-container": "#ffdad6",
+                      "tertiary-fixed": "#ffdbcc",
+                      "primary-fixed-dim": "#c3c0ff",
+                      "on-error": "#ffffff",
+                      "on-tertiary-container": "#ffd2be",
+                      "on-secondary-container": "#00714d"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-desktop": "64px",
+                      "md": "1.5rem",
+                      "xs": "0.5rem",
+                      "margin-mobile": "16px",
+                      "xl": "3rem",
+                      "max-width": "1280px",
+                      "base": "4px",
+                      "lg": "2rem",
+                      "gutter": "16px",
+                      "sm": "1rem"
+              },
+              "fontFamily": {
+                      "display": ["Be Vietnam Pro"],
+                      "h1-mobile": ["Be Vietnam Pro"],
+                      "h1": ["Be Vietnam Pro"],
+                      "body-md": ["Be Vietnam Pro"],
+                      "label-md": ["Be Vietnam Pro"],
+                      "h3": ["Be Vietnam Pro"],
+                      "label-sm": ["Be Vietnam Pro"],
+                      "body-lg": ["Be Vietnam Pro"],
+                      "h2": ["Be Vietnam Pro"]
+              },
+              "fontSize": {
+                      "display": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                      "h1-mobile": ["28px", { "lineHeight": "1.25", "fontWeight": "700" }],
+                      "h1": ["32px", { "lineHeight": "1.25", "fontWeight": "700" }],
+                      "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                      "label-md": ["14px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                      "h3": ["20px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                      "label-sm": ["12px", { "lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                      "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                      "h2": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }]
+              }
+            }
+          }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex selection:bg-primary selection:text-on-primary">
+<!-- SideNavBar -->
+<nav class="bg-surface-container-low dark:bg-surface-container-lowest h-full w-64 fixed left-0 top-0 shadow-sm flex flex-col py-md px-xs z-50">
+<!-- Brand Logo -->
+<div class="px-sm mb-xl">
+<h1 class="font-h2 text-h2 font-bold text-primary dark:text-inverse-primary">VietLearn Admin</h1>
+<p class="font-label-sm text-label-sm text-outline mt-1">Enterprise Control</p>
+</div>
+<!-- Navigation Links -->
+<div class="flex-1 overflow-y-auto flex flex-col gap-1">
+<!-- Overview -->
+<a class="flex items-center gap-3 px-sm py-3 rounded-lg text-on-surface-variant dark:text-on-surface-variant font-medium font-label-md text-label-md hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors scale-98 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Overview</span>
+</a>
+<!-- Topics -->
+<a class="flex items-center gap-3 px-sm py-3 rounded-lg text-on-surface-variant dark:text-on-surface-variant font-medium font-label-md text-label-md hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors scale-98 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="auto_stories">auto_stories</span>
+<span>Topics</span>
+</a>
+<!-- Vocabulary -->
+<a class="flex items-center gap-3 px-sm py-3 rounded-lg text-on-surface-variant dark:text-on-surface-variant font-medium font-label-md text-label-md hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors scale-98 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span>Vocabulary</span>
+</a>
+<!-- Tests -->
+<a class="flex items-center gap-3 px-sm py-3 rounded-lg text-on-surface-variant dark:text-on-surface-variant font-medium font-label-md text-label-md hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors scale-98 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="quiz">quiz</span>
+<span>Tests</span>
+</a>
+<!-- Analytics -->
+<a class="flex items-center gap-3 px-sm py-3 rounded-lg text-on-surface-variant dark:text-on-surface-variant font-medium font-label-md text-label-md hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors scale-98 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span>Analytics</span>
+</a>
+<!-- Payments -->
+<a class="flex items-center gap-3 px-sm py-3 rounded-lg text-on-surface-variant dark:text-on-surface-variant font-medium font-label-md text-label-md hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors scale-98 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span>Payments</span>
+</a>
+<!-- Reports (ACTIVE) -->
+<a class="flex items-center gap-3 px-sm py-3 rounded-lg bg-surface-container-high text-primary font-bold border-r-4 border-primary font-label-md text-label-md scale-98 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="flag">flag</span>
+<span>Reports</span>
+</a>
+</div>
+<!-- CTA & Footer -->
+<div class="mt-auto flex flex-col gap-sm pt-md border-t border-outline-variant">
+<button class="w-full bg-primary text-on-primary py-2 rounded-lg font-label-md text-label-md hover:bg-surface-tint transition-colors">Manage Plan</button>
+<a class="flex items-center gap-3 px-sm py-2 rounded-lg text-on-surface-variant font-medium font-label-md text-label-md hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+<a class="flex items-center gap-3 px-sm py-2 rounded-lg text-on-surface-variant font-medium font-label-md text-label-md hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span>Support</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 ml-64 flex flex-col relative w-full overflow-x-hidden">
+<!-- TopNavBar -->
+<header class="bg-surface/80 dark:bg-surface-bright/80 backdrop-blur-md w-full sticky top-0 border-b border-outline-variant dark:border-outline flex justify-between items-center px-lg py-4 z-40 transition-all duration-200">
+<div class="flex items-center gap-md">
+<h2 class="font-h3 text-h3 font-bold text-on-surface dark:text-on-surface">Dashboard</h2>
+</div>
+<div class="flex items-center gap-md">
+<!-- Search -->
+<div class="relative hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="pl-10 pr-4 py-2 rounded-full border border-outline-variant bg-surface focus:border-primary focus:ring-1 focus:ring-primary font-body-md text-body-md w-64 transition-all" placeholder="Search..." type="text"/>
+</div>
+<!-- Actions -->
+<button class="p-2 text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<!-- Profile -->
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center border border-outline-variant ml-2">
+<span class="material-symbols-outlined">person</span>
+</div>
+</div>
+</header>
+<!-- Page Canvas -->
+<main class="flex-1 p-lg max-w-max-width mx-auto w-full">
+<div class="mb-lg">
+<h1 class="font-h1 text-h1 text-on-background">System Reports</h1>
+<p class="font-body-lg text-body-lg text-outline mt-2">Analyze performance and generate data exports.</p>
+</div>
+<!-- Bento Grid: Analytics -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-md mb-xl">
+<!-- User Growth (Large Area) -->
+<div class="md:col-span-8 bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(53,37,205,0.04)] p-md border border-surface-container hover:shadow-[0_8px_24px_rgba(53,37,205,0.06)] transition-shadow">
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-h3 text-h3 text-on-surface">User Growth</h3>
+<select class="bg-surface border-outline-variant rounded-lg font-label-md text-label-md text-on-surface-variant py-1 pl-3 pr-8 focus:border-primary">
+<option>Last 30 Days</option>
+<option>This Year</option>
+</select>
+</div>
+<!-- Chart Mockup -->
+<div class="h-64 w-full relative flex items-end justify-between gap-2 pt-8">
+<!-- Abstract bars for visual interest -->
+<div class="w-full bg-primary-fixed rounded-t-sm h-[20%]"></div>
+<div class="w-full bg-primary-fixed rounded-t-sm h-[35%]"></div>
+<div class="w-full bg-primary-fixed rounded-t-sm h-[25%]"></div>
+<div class="w-full bg-primary-container rounded-t-sm h-[60%]"></div>
+<div class="w-full bg-primary-container rounded-t-sm h-[45%]"></div>
+<div class="w-full bg-primary rounded-t-sm h-[80%]"></div>
+<div class="w-full bg-primary rounded-t-sm h-[95%]"></div>
+<!-- Trend line mockup -->
+<svg class="absolute top-0 left-0 w-full h-full" preserveaspectratio="none" viewbox="0 0 100 100">
+<path d="M0,80 Q20,70 30,50 T70,30 T100,5" fill="none" stroke="#4f46e5" stroke-linecap="round" stroke-width="3"></path>
+</svg>
+</div>
+</div>
+<!-- Engagement Metrics (Small Card) -->
+<div class="md:col-span-4 bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(53,37,205,0.04)] p-md border border-surface-container flex flex-col justify-between">
+<div>
+<h3 class="font-h3 text-h3 text-on-surface mb-xs">Engagement</h3>
+<p class="font-label-md text-label-md text-outline">Active vs Inactive</p>
+</div>
+<div class="flex items-center justify-center my-md">
+<!-- CSS Donut Chart Mockup -->
+<div class="w-32 h-32 rounded-full flex items-center justify-center relative" style="background: conic-gradient(#3525cd 0% 75%, #e2dfff 75% 100%);">
+<div class="w-24 h-24 bg-surface-container-lowest rounded-full flex items-center justify-center flex-col">
+<span class="font-h2 text-h2 text-primary">75%</span>
+</div>
+</div>
+</div>
+<div class="flex justify-between font-label-sm text-label-sm">
+<div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-primary"></span> Active</div>
+<div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-primary-fixed"></span> Idle</div>
+</div>
+</div>
+<!-- Revenue Overview (Wide Span) -->
+<div class="md:col-span-12 bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(53,37,205,0.04)] p-md border border-surface-container">
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-h3 text-h3 text-on-surface">Revenue Pipeline</h3>
+<span class="font-h3 text-h3 text-secondary">+$14,250</span>
+</div>
+<div class="flex gap-4">
+<div class="flex-1 bg-surface-container-low rounded-lg p-sm border border-outline-variant/30">
+<div class="font-label-sm text-label-sm text-outline mb-1">New Subscriptions</div>
+<div class="font-h2 text-h2 text-on-surface">842</div>
+</div>
+<div class="flex-1 bg-surface-container-low rounded-lg p-sm border border-outline-variant/30">
+<div class="font-label-sm text-label-sm text-outline mb-1">Renewals</div>
+<div class="font-h2 text-h2 text-on-surface">1,204</div>
+</div>
+<div class="flex-1 bg-error-container rounded-lg p-sm border border-error/20">
+<div class="font-label-sm text-label-sm text-on-error-container mb-1">Churn Rate</div>
+<div class="font-h2 text-h2 text-error">2.4%</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Export Data Engine Section -->
+<div class="bg-surface-container-low rounded-2xl p-lg border border-outline-variant relative overflow-hidden">
+<!-- Decorative background elements -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary-container/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+<div class="absolute bottom-0 left-0 w-48 h-48 bg-secondary-container/20 rounded-full blur-2xl translate-y-1/3 -translate-x-1/4"></div>
+<div class="relative z-10">
+<div class="mb-md">
+<h2 class="font-h2 text-h2 text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">download</span>
+                            Export Data Engine
+                        </h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1 max-w-2xl">Configure your parameters to generate comprehensive CSV or Excel reports for external analysis and auditing.</p>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-md border border-outline-variant shadow-sm flex flex-col md:flex-row gap-lg">
+<!-- Configuration Form -->
+<div class="flex-1 flex flex-col gap-md">
+<!-- Data Type -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2">Data Type</label>
+<div class="grid grid-cols-3 gap-3">
+<label class="cursor-pointer">
+<input checked="" class="peer sr-only" name="dataType" type="radio"/>
+<div class="text-center py-2 px-3 rounded-lg border border-outline-variant text-on-surface-variant font-label-md peer-checked:border-primary peer-checked:bg-primary-container peer-checked:text-on-primary-container transition-colors">Users</div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="dataType" type="radio"/>
+<div class="text-center py-2 px-3 rounded-lg border border-outline-variant text-on-surface-variant font-label-md peer-checked:border-primary peer-checked:bg-primary-container peer-checked:text-on-primary-container transition-colors">Payments</div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="dataType" type="radio"/>
+<div class="text-center py-2 px-3 rounded-lg border border-outline-variant text-on-surface-variant font-label-md peer-checked:border-primary peer-checked:bg-primary-container peer-checked:text-on-primary-container transition-colors">Test Results</div>
+</label>
+</div>
+</div>
+<!-- Date Range -->
+<div class="grid grid-cols-2 gap-md">
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2">Start Date</label>
+<input class="w-full rounded-lg border border-outline-variant bg-surface text-on-surface font-body-md py-2 px-3 focus:border-primary focus:ring-1 focus:ring-primary" type="date"/>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2">End Date</label>
+<input class="w-full rounded-lg border border-outline-variant bg-surface text-on-surface font-body-md py-2 px-3 focus:border-primary focus:ring-1 focus:ring-primary" type="date"/>
+</div>
+</div>
+</div>
+<!-- Format & Action -->
+<div class="md:w-64 flex flex-col gap-md border-t md:border-t-0 md:border-l border-outline-variant pt-md md:pt-0 md:pl-md">
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2">Export Format</label>
+<select class="w-full rounded-lg border border-outline-variant bg-surface text-on-surface font-body-md py-2 px-3 focus:border-primary focus:ring-1 focus:ring-primary">
+<option>.CSV (Comma Separated)</option>
+<option>.XLSX (Excel Workbook)</option>
+<option>.JSON (Raw Data)</option>
+</select>
+</div>
+<button class="mt-auto w-full bg-primary text-on-primary font-h3 text-h3 py-3 rounded-xl hover:bg-surface-tint shadow-[0_4px_12px_rgba(53,37,205,0.2)] hover:shadow-[0_8px_24px_rgba(53,37,205,0.3)] transition-all flex justify-center items-center gap-2">
+<span class="material-symbols-outlined">rocket_launch</span>
+                                Generate Export
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

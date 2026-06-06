@@ -1,0 +1,44 @@
+@startuml
+title speak-buddi — System Screen Flow
+start
+:Landing / Pricing;
+if (User authenticated?) then (no)
+  :Register / Login / Google OAuth;
+  :Onboarding Questions;
+  :Generate Personalized Roadmap;
+else (yes)
+  if (Onboarding completed?) then (no)
+    :Onboarding Questions;
+    :Generate Personalized Roadmap;
+  endif
+endif
+:Roadmap;
+:Topic Detail;
+fork
+  :Learn Vocabulary / Flashcards;
+fork again
+  :Vocabulary Test
+Multiple choice / Fill blank / Grammar mapping;
+fork again
+  :Translate Word;
+fork again
+  :Practice Pronunciation;
+fork again
+  :AI Conversation;
+end fork
+if (Free quota exceeded?) then (yes)
+  :Show quota banner;
+  :Pricing / Upgrade Pro;
+  if (Payment success?) then (yes)
+    :Activate Pro;
+  else (no)
+    :Keep Free Plan;
+  endif
+endif
+if (Admin?) then (yes)
+  :Admin Dashboard;
+  :Manage Topics / Words / Tests / Payment Plans;
+  :Analytics and Export;
+endif
+stop
+@enduml

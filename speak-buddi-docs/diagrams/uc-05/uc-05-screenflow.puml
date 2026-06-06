@@ -1,0 +1,51 @@
+@startuml uc-05-screenflow
+title UC05 — Student learns vocabulary by selected level/topic — Screen Flow
+skinparam activityDotColor red
+skinparam activityBackgroundColor #FEFEFE
+skinparam activityBorderColor #333333
+skinparam activityDiamondBackgroundColor #FEFEFE
+skinparam activityDiamondBorderColor #333333
+
+start
+:Open Vocabulary / Roadmap Topic;
+:Load authenticated user profile;
+if (Selected level A1-C2 exists?) then (yes)
+  :Show topics for selected level;
+  :Student selects topic;
+  :Request active vocabulary\n(level + topic);
+  if (Active content available?) then (yes)
+    :Display vocabulary/new words;
+    :Show meaning, example sentence,\ngrammar/tag notes if available;
+    :Student studies flashcards/list;
+    :Save word/topic progress\nwith selected level context;
+    if (Weekly crawl published updates?) then (yes)
+      :Refresh latest active vocabulary\nwithout resetting historical progress;
+    else (no)
+      :Keep current displayed content;
+    endif
+  else (no)
+    if (Cached active content exists?) then (yes)
+      :Show cached vocabulary content;
+      :Display non-blocking freshness notice;
+    else (no)
+      :Show empty state for selected level/topic;
+      :Suggest another topic or retry later;
+    endif
+  endif
+else (no)
+  :Prompt user to select level\nA1, A2, B1, B2, C1, or C2;
+endif
+
+partition "Background Content Sync" {
+  :Weekly crawler requests Langeek\nhttps://langeek.co/en-VI/vocab/level-based;
+  if (Crawl succeeds?) then (yes)
+    :Map topics/new words to A1-C2;
+    :Auto-publish active content;
+  else (no)
+    :Keep current cached/active content;
+    :Retry, log failure, notify Admin;
+  endif
+  :Admin may edit or disable\ncrawled content after publish;
+}
+stop
+@enduml

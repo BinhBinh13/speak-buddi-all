@@ -1,0 +1,18 @@
+@startuml
+title UC14 — Admin manages payment plans — Sequence
+actor "Admin" as Actor
+participant "AdminPaymentPlanPage" as UI
+participant "API Gateway" as API
+participant "PaymentPlanAdminService" as PaymentPlanAdminService
+database "MySQL" as DB
+
+Actor -> UI : submit payment plan form
+UI -> API : HTTPS request
+API -> PaymentPlanAdminService : route and authorize
+PaymentPlanAdminService -> DB : read/write PaymentPlan
+DB -->> PaymentPlanAdminService : data result
+
+PaymentPlanAdminService -->> API : response
+API -->> UI : JSON result
+UI -->> Actor : payment plan is saved or soft-disabled
+@enduml

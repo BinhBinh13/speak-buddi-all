@@ -1,0 +1,24 @@
+@startuml
+title UC10 — Student purchases paid plan/payment — Frontend Classes
+skinparam classAttributeIconSize 0
+class PricingPage {
+  - state: UIState
+  + render(): JSX
+  + handleSubmit(): void
+}
+class useUC10 {
+  + loading: boolean
+  + error: string | null
+  + execute(payload): Promise<Result>
+}
+class UC10ApiClient {
+  + request(payload): Promise<ApiResponse>
+}
+class UC10FormOrView {
+  + props: Props
+  + render(): JSX
+}
+PricingPage --> useUC10
+PricingPage --> UC10FormOrView
+useUC10 --> UC10ApiClient
+@enduml

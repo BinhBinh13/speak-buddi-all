@@ -1,0 +1,77 @@
+@startuml uc-05-sequence
+title UC05 — Student learns vocabulary by selected level/topic — Sequence
+skinparam sequenceParticipantBorderColor #333333
+skinparam sequenceLifeLineBorderColor #333333
+skinparam sequenceLifeLineBackgroundColor #FEFEFE
+
+actor "Student / Paid User" as Actor
+participant "VocabularyPage" as UI
+participant "VocabularyViewModel" as VM
+participant "API Gateway" as API
+participant "VocabularyController" as Controller
+participant "VocabularyService" as VocabService
+participant "ContentCatalogService" as CatalogService
+participant "ContentCrawlerService" as CrawlerService
+database "MySQL\nLevel/Topic/TopicWord/Progress" as DB
+collections "Active Content Cache" as Cache
+participant "Langeek Vocabulary Source" as Langeek <<external>>
+actor "Admin" as Admin
+
+== Learner opens level/topic vocabulary ==
+Actor -> UI : Open topic vocabulary
+UI -> VM : loadVocabulary(topicId)
+VM -> API : GET /api/v1/vocabulary?level={selectedLevel}&topicId={topicId}
+API -> Controller : authorize Student/Paid User
+Controller -> VocabService : getVocabulary(userId, selectedLevel, topicId)
+VocabService -> DB : read user selected level + topic access
+DB -->> VocabService : level and topic context
+VocabService -> CatalogService : findActiveWords(selectedLevel, topicId)
+CatalogService -> DB : query active topic_word\n(is_active=true, level, topic)
+DB -->> CatalogService : active vocabulary/new words
+
+alt active vocabulary exists
+  CatalogService -->> VocabService : active words + metadata
+else no active DB content or latest crawl unavailable
+  CatalogService -> Cache : getCachedActiveContent(level, topic)
+  Cache -->> CatalogService : cached words if available
+  CatalogService -->> VocabService : cached/fallback words or empty state
+end
+
+VocabService -->> Controller : vocabulary response\n(meanings, examples, grammar notes, source status)
+Controller -->> API : 200 OK
+API -->> VM : JSON vocabulary payload
+VM -->> UI : render vocabulary list/flashcards
+UI -->> Actor : Display words by selected level/topic
+
+== Learner saves progress ==
+Actor -> UI : Mark word learned / continue
+UI -> VM : saveProgress(wordId, status)
+VM -> API : POST /api/v1/vocabulary/progress
+API -> Controller : authorize request
+Controller -> VocabService : saveProgress(userId, level, topicId, wordId, status)
+VocabService -> DB : upsert user_word_progress\nupdate user_topic_progress
+DB -->> VocabService : saved
+VocabService -->> Controller : progress saved
+Controller -->> API : 200 OK
+API -->> VM : progress result
+VM -->> UI : update local progress
+
+== Weekly content sync affecting UC05 content ==
+CrawlerService -> Langeek : Crawl weekly\nhttps://langeek.co/en-VI/vocab/level-based
+alt crawl succeeds
+  Langeek -->> CrawlerService : level-based topics/new words
+  CrawlerService -> DB : map to A1-C2 topics/words\nauto-publish active content
+  CrawlerService -> Cache : refresh active content cache
+else crawl fails
+  Langeek -->> CrawlerService : unavailable/error
+  CrawlerService -> Cache : keep current cached/active content
+  CrawlerService -> DB : log failure + retry status
+  CrawlerService -->> Admin : notify failure and cache status
+end
+
+== Admin post-publish moderation ==
+Admin -> API : Edit/disable crawled topic_word
+API -> CatalogService : update active content status
+CatalogService -> DB : set is_active=false or edit content
+CatalogService -> Cache : invalidate/refresh cache
+@enduml

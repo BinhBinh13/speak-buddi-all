@@ -1,0 +1,15 @@
+@startuml
+title UC10 — Student purchases paid plan/payment — State Diagram
+[*] --> Idle
+Idle --> InProgress : select plan and confirm payment
+InProgress --> Validating : submit/request
+Validating --> Completed : success
+Validating --> Error : validation/integration/access error
+Error --> InProgress : retry/fix input
+Completed --> [*]
+state Completed {
+  [*] --> ResultVisible
+  ResultVisible --> Saved : PaymentTransaction updated/read
+  Saved --> [*]
+}
+@enduml

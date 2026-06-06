@@ -1,0 +1,18 @@
+@startuml
+title UC07 — Student translates English words — Sequence
+actor "Student" as Actor
+participant "TranslationWidget" as UI
+participant "API Gateway" as API
+participant "TranslationService" as TranslationService
+database "MySQL" as DB
+
+Actor -> UI : submit word for translation
+UI -> API : HTTPS request
+API -> TranslationService : route and authorize
+TranslationService -> DB : read/write TranslationHistory
+DB -->> TranslationService : data result
+
+TranslationService -->> API : response
+API -->> UI : JSON result
+UI -->> Actor : Vietnamese meaning is returned
+@enduml

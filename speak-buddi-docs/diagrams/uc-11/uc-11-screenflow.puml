@@ -1,0 +1,17 @@
+@startuml
+title UC11 — Paid User changes ElevenLabs voice/model — Screen Flow
+skinparam activityBackgroundColor #FEFEFE
+skinparam activityBorderColor #333333
+start
+:Open VoiceSettingsPage;
+:User attempts to select ElevenLabs voice/model;
+if (Access and input valid?) then (yes)
+  :Call VoicePreferenceService;
+  :Persist/read UserVoicePreference data if needed;
+  :Display success state;
+else (no)
+  :Show validation/access error;
+  :Keep user input where possible;
+endif
+stop
+@enduml

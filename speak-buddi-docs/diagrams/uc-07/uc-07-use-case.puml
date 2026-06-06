@@ -1,0 +1,11 @@
+@startuml
+title UC07 — Student translates English words — Use Case
+left to right direction
+skinparam packageStyle rectangle
+actor "Student" as Student
+actor "Paid User" as Paid_User
+rectangle "speak-buddi" {
+  Student -- (UC07: Student translates English words)
+  Paid_User -- (UC07: Student translates English words)
+}
+@enduml

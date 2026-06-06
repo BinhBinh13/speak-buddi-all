@@ -1,0 +1,56 @@
+@startuml uc-06-statediagram
+title UC06 — Vocabulary tests/activities by selected level/topic — State Diagram
+skinparam state {
+  BackgroundColor #FEFEFE
+  BorderColor #333333
+  FontName Helvetica
+}
+
+[*] --> NotStarted
+NotStarted --> LoadingContext : open topic test/activity
+
+LoadingContext --> LatestContentReady : active level/topic content found
+LoadingContext --> CachedContentReady : new crawl not ready/fails
+LoadingContext --> NoContentAvailable : no active/cached content
+
+LatestContentReady --> ActivityReady : build tasks from active content
+CachedContentReady --> ActivityReady : build tasks from cached content
+NoContentAvailable --> [*] : show empty state
+
+state "Activity In Progress" as InProgress {
+  [*] --> FlashcardTask
+  FlashcardTask --> MultipleChoiceTask : next item
+  MultipleChoiceTask --> FillBlankTask : next item
+  FillBlankTask --> GrammarMappingTask : next item
+  GrammarMappingTask --> ReviewAnswers : review
+  ReviewAnswers --> [*]
+}
+
+ActivityReady --> InProgress : start tasks
+InProgress --> PendingRequiredAnswers : submit with missing answers
+PendingRequiredAnswers --> InProgress : complete missing answers
+InProgress --> Evaluating : submit completed attempt
+Evaluating --> Scored : correct / total x 100%
+Scored --> Saved : persist attempt and answers
+Saved --> Completed : result displayed
+Completed --> [*]
+
+InProgress --> Cancelled : exit activity
+Cancelled --> [*]
+
+LatestContentReady --> RefreshedForNewAttempt : weekly sync published update
+RefreshedForNewAttempt --> ActivityReady : use latest active content
+
+note right of CachedContentReady
+  Uses current cached active content
+  when latest Langeek crawl output is
+  unavailable or not yet published.
+end note
+
+note bottom of Saved
+  Saved results keep user, selected level,
+  topic, question IDs, content version,
+  and score. Later content sync does not
+  modify previous attempt results.
+end note
+@enduml

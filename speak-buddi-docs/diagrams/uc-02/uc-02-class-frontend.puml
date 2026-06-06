@@ -1,0 +1,24 @@
+@startuml
+title UC02 — User registers/logs in/resets password/OAuth Google — Frontend Classes
+skinparam classAttributeIconSize 0
+class AuthPage {
+  - state: UIState
+  + render(): JSX
+  + handleSubmit(): void
+}
+class useUC02 {
+  + loading: boolean
+  + error: string | null
+  + execute(payload): Promise<Result>
+}
+class UC02ApiClient {
+  + request(payload): Promise<ApiResponse>
+}
+class UC02FormOrView {
+  + props: Props
+  + render(): JSX
+}
+AuthPage --> useUC02
+AuthPage --> UC02FormOrView
+useUC02 --> UC02ApiClient
+@enduml

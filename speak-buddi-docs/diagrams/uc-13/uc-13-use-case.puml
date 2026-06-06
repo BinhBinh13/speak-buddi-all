@@ -1,0 +1,55 @@
+@startuml uc-13-use-case
+title UC13 — Admin manages topic/vocabulary/tests and crawler content sync — Use Case
+left to right direction
+skinparam packageStyle rectangle
+skinparam backgroundColor #FEFEFE
+
+actor "Admin" as Admin
+actor "Weekly Scheduler" as Scheduler
+actor "Langeek Vocabulary Source" as Langeek
+
+rectangle "speak-buddi" {
+  usecase "UC13: Manage topic,\nvocabulary, tests,\nand crawler content sync" as UC13
+  usecase "Create/update\ntopic/vocabulary/test" as ManageContent
+  usecase "Soft-disable\nactive/crawled content" as DisableContent
+  usecase "Configure crawler\nsource, schedule, retry,\nand rate limit" as ConfigureCrawler
+  usecase "View sync status\nand crawl error logs" as ViewLogs
+  usecase "Run weekly\nLangeek crawl" as WeeklyCrawl
+  usecase "Check ToS, robots.txt,\ncopyright and rate limits" as Guardrails
+  usecase "Fetch level-based\ntopics/new words" as FetchLangeek
+  usecase "Map to A1-C2\nlevels and topics" as MapLevels
+  usecase "Auto-publish crawled\ncontent without Admin approval" as AutoPublish
+  usecase "Keep cached content,\nretry, log, notify Admin" as FailureHandling
+  usecase "Manual curation fallback\nif crawling not permitted" as ManualFallback
+}
+
+Admin -- UC13
+Admin -- ManageContent
+Admin -- DisableContent
+Admin -- ConfigureCrawler
+Admin -- ViewLogs
+Scheduler -- WeeklyCrawl
+Langeek -- FetchLangeek
+
+UC13 .> ManageContent : <<include>>
+UC13 .> DisableContent : <<include>>
+UC13 .> ConfigureCrawler : <<include>>
+UC13 .> ViewLogs : <<include>>
+WeeklyCrawl .> Guardrails : <<include>>
+WeeklyCrawl .> FetchLangeek : <<include>>
+WeeklyCrawl .> MapLevels : <<include>>
+WeeklyCrawl .> AutoPublish : <<include>>
+WeeklyCrawl .> FailureHandling : <<extend>>
+Guardrails .> ManualFallback : <<extend>>
+
+note right of Guardrails
+  Crawler must comply with Langeek
+  Terms of Service, robots.txt,
+  copyright/licensing, and rate limits.
+end note
+
+note bottom of AutoPublish
+  Successful weekly sync is published automatically;
+  Admin can edit or disable content after publish.
+end note
+@enduml

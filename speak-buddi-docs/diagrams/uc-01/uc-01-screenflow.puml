@@ -1,0 +1,17 @@
+@startuml
+title UC01 — Guest views landing/pricing — Screen Flow
+skinparam activityBackgroundColor #FEFEFE
+skinparam activityBorderColor #333333
+start
+:Open LandingPage;
+:User attempts to view public landing and pricing information;
+if (Access and input valid?) then (yes)
+  :Call LandingService;
+  :Persist/read PaymentPlan data if needed;
+  :Display success state;
+else (no)
+  :Show validation/access error;
+  :Keep user input where possible;
+endif
+stop
+@enduml

@@ -1,0 +1,27 @@
+@startuml
+title UC07 — Student translates English words — Backend Classes
+skinparam classAttributeIconSize 0
+class UC07Controller {
+  - service: TranslationService
+  + handle(request): Response
+}
+class TranslationService {
+  - repository: TranslationHistoryRepository
+  + execute(command): Result
+  + validate(command): void
+}
+class TranslationHistoryRepository {
+  + findById(id): TranslationHistory
+  + save(entity: TranslationHistory): TranslationHistory
+}
+class TranslationHistory {
+  - id: Long
+  - createdAt: DateTime
+  - updatedAt: DateTime
+}
+
+UC07Controller --> TranslationService
+TranslationService --> TranslationHistoryRepository
+TranslationHistoryRepository --> TranslationHistory
+
+@enduml

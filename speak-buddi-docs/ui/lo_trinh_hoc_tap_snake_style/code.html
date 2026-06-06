@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Roadmap - SpeakBuddi</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-container": "#ffd2be",
+                    "on-surface": "#1b1b24",
+                    "error-container": "#ffdad6",
+                    "on-secondary-container": "#00714d",
+                    "primary": "#3525cd",
+                    "inverse-primary": "#c3c0ff",
+                    "on-surface-variant": "#464555",
+                    "background": "#fcf8ff",
+                    "secondary-fixed-dim": "#4edea3",
+                    "secondary": "#006c49",
+                    "outline-variant": "#c7c4d8",
+                    "surface-container-high": "#eae6f4",
+                    "secondary-container": "#6cf8bb",
+                    "surface-tint": "#4d44e3",
+                    "on-error-container": "#93000a",
+                    "on-primary-fixed": "#0f0069",
+                    "on-tertiary-fixed": "#351000",
+                    "tertiary": "#7e3000",
+                    "on-error": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "surface-dim": "#dcd8e5",
+                    "inverse-surface": "#302f39",
+                    "on-secondary-fixed-variant": "#005236",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container": "#f0ecf9",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "on-primary-container": "#dad7ff",
+                    "tertiary-fixed-dim": "#ffb695",
+                    "tertiary-container": "#a44100",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed": "#6ffbbe",
+                    "inverse-on-surface": "#f3effc",
+                    "primary-fixed": "#e2dfff",
+                    "on-secondary": "#ffffff",
+                    "outline": "#777587",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "surface-container-highest": "#e4e1ee",
+                    "tertiary-fixed": "#ffdbcc",
+                    "on-tertiary-fixed-variant": "#7b2f00",
+                    "on-secondary-fixed": "#002113",
+                    "surface-variant": "#e4e1ee",
+                    "primary-container": "#4f46e5",
+                    "surface": "#fcf8ff",
+                    "surface-bright": "#fcf8ff",
+                    "error": "#ba1a1a",
+                    "surface-container-low": "#f5f2ff",
+                    "on-background": "#1b1b24"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "lg": "2rem",
+                    "margin-mobile": "16px",
+                    "xs": "0.5rem",
+                    "xl": "3rem",
+                    "gutter": "16px",
+                    "margin-desktop": "64px",
+                    "max-width": "1280px",
+                    "sm": "1rem",
+                    "md": "1.5rem",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Be Vietnam Pro"],
+                    "body-md": ["Be Vietnam Pro"],
+                    "h3": ["Be Vietnam Pro"],
+                    "display": ["Be Vietnam Pro"],
+                    "h2": ["Be Vietnam Pro"],
+                    "h1": ["Be Vietnam Pro"],
+                    "label-sm": ["Be Vietnam Pro"],
+                    "h1-mobile": ["Be Vietnam Pro"],
+                    "label-md": ["Be Vietnam Pro"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "display": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "h2": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "h1": ["32px", {"lineHeight": "1.25", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "h1-mobile": ["28px", {"lineHeight": "1.25", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "1.4", "fontWeight": "500"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen">
+<!-- TopNavBar -->
+<header class="bg-surface/80 dark:bg-surface-dim/80 border-b border-outline-variant dark:border-outline shadow-sm docked full-width top-0 fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-desktop h-16 max-w-max-width mx-auto backdrop-blur-md">
+<div class="flex items-center gap-xl">
+<!-- Brand Logo -->
+<div class="text-h2 font-h2 font-bold text-primary dark:text-inverse-primary tracking-tight">
+                SpeakBuddi
+            </div>
+<!-- Navigation Links -->
+<nav class="hidden md:flex gap-lg items-center">
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary font-label-md text-label-md transition-colors active:scale-95 duration-150" href="#">Dashboard</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary font-label-md text-label-md transition-colors active:scale-95 duration-150" href="#">Lessons</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary font-label-md text-label-md transition-colors active:scale-95 duration-150" href="#">Practice</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary font-label-md text-label-md transition-colors active:scale-95 duration-150" href="#">Community</a>
+</nav>
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-md">
+<!-- Custom AI Quota Pill requested by user -->
+<div class="hidden lg:flex items-center gap-xs bg-secondary-container text-on-secondary-container px-3 py-1.5 rounded-full font-label-sm text-label-sm shadow-sm">
+<span class="material-symbols-outlined text-[16px]">timer</span>
+                12:43 còn lại
+            </div>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-95 duration-150 relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="hidden md:block bg-primary text-on-primary font-label-md text-label-md px-4 py-2 rounded-xl shadow-sm hover:opacity-90 active:scale-95 transition-all">
+                Upgrade Pro
+            </button>
+<img alt="User profile avatar" class="w-10 h-10 rounded-full object-cover border border-outline-variant cursor-pointer" data-alt="A close up, high quality studio portrait of an optimistic young adult language learner. Soft, bright, diffused lighting illuminates their face, set against a clean, minimalist light-grey background. The mood is approachable and professional, matching a modern educational platform's clean aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-gu7tMEAwGisxwC4pjwi7QUZkIMcG0OWmGsISveZFlAODtq1aaPhZzd0X_VvOdC7ckBH0fmIFir8EDsN7klkmMc7oHIlkIKrButg5-VgKoIIw_1NHEws_7hZiVii0VmlRNb3wIVtrCEQz1HhwJmKtUfvk6y_Nnw9xXwHqaAAi3BRJ3Cipazt_vhw-qdtcJ54LhVr884HnPvt33rZg7LEdKqm3REFrj5GLVgurLpQeVooBsuWsieDMG6eZ4-SL7FfC5ZWJF1Xc4i63"/>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="hidden md:flex bg-surface-container-low dark:bg-surface-container-lowest border-r border-outline-variant docked left-0 h-full w-64 fixed top-16 h-[calc(100vh-64px)] p-md flex-col gap-xs z-40">
+<!-- User Info Header -->
+<div class="flex flex-col items-center mb-lg pt-sm">
+<div class="relative mb-3">
+<img alt="Student avatar" class="w-16 h-16 rounded-full object-cover shadow-sm border-2 border-primary-container" data-alt="A close up, high quality studio portrait of an optimistic young adult language learner. Soft, bright, diffused lighting illuminates their face, set against a clean, minimalist light-grey background. The mood is approachable and professional, matching a modern educational platform's clean aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWstVstHNCytIcCJfmUDgOnyq7HPz3MLu0Z8aDlLwEBkNlfHuE8jmEz0wUTpUx0yYqQ5wqsO1MSeQPL53xwtpdyXzh97KOQ8kSkQEvo6y1bcqslXQ105X4P1_JczbP7NdqJ-WPmpQCg3GUF9f-Dv1VhU-1cpdbQiGCGyQr-gpW5MJWsp_EHySvSezFXhM5LrZOKagrf9EJm3U7ftrUyHeHRC24zIjEe22FKT1hz7ssOE3twJ6503MIDXkGdVOLC1wBHwZuRf9ksvOo"/>
+<div class="absolute -bottom-1 -right-1 bg-primary text-on-primary font-label-sm text-label-sm px-2 py-0.5 rounded-full border-2 border-surface-container-low">B1</div>
+</div>
+<h3 class="font-h3 text-h3 text-on-surface text-center">Welcome back, Alex</h3>
+<p class="font-label-md text-label-md text-on-surface-variant text-center mt-1">Level B1 • Intermediate</p>
+<!-- Progress Summary -->
+<div class="w-full mt-4 bg-surface-container-highest rounded-full h-2.5 overflow-hidden">
+<div class="bg-primary h-2.5 rounded-full" style="width: 45%"></div>
+</div>
+<p class="font-label-sm text-label-sm text-primary w-full text-right mt-1">45% to B2</p>
+<button class="mt-4 w-full border border-outline text-primary hover:bg-primary-container hover:border-primary transition-colors font-label-md text-label-md py-2 rounded-xl">
+                View AI Stats
+            </button>
+</div>
+<div class="h-px w-full bg-outline-variant mb-4"></div>
+<!-- Main Navigation Links -->
+<div class="flex-1 flex flex-col gap-1">
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-xl flex items-center gap-3 px-4 py-3 font-label-md text-label-md transition-colors hover:translate-x-1 active:opacity-80 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+                Home
+            </a>
+<!-- Active State: Roadmap -->
+<a class="bg-primary-container dark:bg-primary text-on-primary-container dark:text-on-primary rounded-xl font-bold flex items-center gap-3 px-4 py-3 font-label-md text-label-md transition-all active:opacity-80 duration-200 shadow-sm relative overflow-hidden" href="#">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-r-full"></div>
+<span class="material-symbols-outlined icon-fill" data-icon="timeline">timeline</span>
+                Roadmap
+            </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-xl flex items-center gap-3 px-4 py-3 font-label-md text-label-md transition-colors hover:translate-x-1 active:opacity-80 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+                Vocabulary
+            </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-xl flex items-center gap-3 px-4 py-3 font-label-md text-label-md transition-colors hover:translate-x-1 active:opacity-80 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+                Analytics
+            </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-xl flex items-center gap-3 px-4 py-3 font-label-md text-label-md transition-colors hover:translate-x-1 active:opacity-80 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                Settings
+            </a>
+</div>
+<div class="h-px w-full bg-outline-variant my-2"></div>
+<!-- Footer Links -->
+<div class="flex flex-col gap-1">
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl flex items-center gap-3 px-4 py-2.5 font-label-md text-label-md transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="help">help</span>
+                Help Center
+            </a>
+<a class="text-on-surface-variant hover:bg-error-container hover:text-on-error-container rounded-xl flex items-center gap-3 px-4 py-2.5 font-label-md text-label-md transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="logout">logout</span>
+                Sign Out
+            </a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:pl-64 pt-16 min-h-screen pb-xl">
+<div class="max-w-4xl mx-auto p-margin-mobile md:p-lg lg:p-xl">
+<!-- Page Header -->
+<div class="mb-xl text-center md:text-left">
+<h1 class="font-h1 text-h1 text-on-surface mb-2 tracking-tight">Lộ trình của bạn — Intermediate (B1)</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto md:mx-0">
+                    Tiếp tục hành trình chinh phục tiếng Anh. Hoàn thành các chủ đề dưới đây để mở khóa chứng chỉ B1 và nâng cấp kỹ năng giao tiếp thực tế của bạn.
+                </p>
+</div>
+<!-- Snake Roadmap Layout -->
+<div class="flex flex-col items-center py-10 w-full overflow-hidden">
+<!-- Row 1: Left -->
+<div class="relative w-[320px] h-[160px]">
+<div class="absolute left-0 top-0 w-24 flex flex-col items-center">
+<div class="w-24 h-24 rounded-full bg-[#f87171] shadow-lg flex items-center justify-center text-4xl text-white relative z-10 hover:scale-105 transition-transform cursor-pointer">
+<span class="material-symbols-outlined text-[40px]">waving_hand</span>
+<div class="absolute top-0 right-0 w-7 h-7 bg-secondary rounded-full border-[3px] border-surface flex items-center justify-center text-on-secondary">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+</div>
+<div class="mt-3 font-h3 text-h3 text-on-surface whitespace-nowrap">Chào hỏi</div>
+</div>
+<svg class="absolute left-[48px] top-[48px] w-[224px] h-[160px] -z-0" fill="none" preserveaspectratio="none" stroke="#a7f3d0" stroke-linecap="round" stroke-width="4" viewbox="0 0 100 100">
+<path d="M 0 0 C 60 0, 40 100, 100 100"></path>
+</svg>
+</div>
+<!-- Row 2: Right -->
+<div class="relative w-[320px] h-[160px]">
+<div class="absolute right-0 top-0 w-24 flex flex-col items-center">
+<div class="w-24 h-24 rounded-full bg-[#06b6d4] shadow-lg flex items-center justify-center text-4xl text-white relative z-10 hover:scale-105 transition-transform cursor-pointer">
+<span class="material-symbols-outlined text-[40px]">record_voice_over</span>
+<div class="absolute top-0 right-0 w-7 h-7 bg-secondary rounded-full border-[3px] border-surface flex items-center justify-center text-on-secondary">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+</div>
+<div class="mt-3 font-h3 text-h3 text-on-surface whitespace-nowrap">Giới thiệu I</div>
+</div>
+<svg class="absolute right-[48px] top-[48px] w-[224px] h-[160px] -z-0" fill="none" preserveaspectratio="none" stroke="#a7f3d0" stroke-linecap="round" stroke-width="4" viewbox="0 0 100 100">
+<path d="M 100 0 C 40 0, 60 100, 0 100"></path>
+</svg>
+</div>
+<!-- Row 3: Left -->
+<div class="relative w-[320px] h-[160px]">
+<div class="absolute left-0 top-0 w-24 flex flex-col items-center">
+<div class="w-24 h-24 rounded-full bg-[#ec4899] shadow-lg flex items-center justify-center text-4xl text-white relative z-10 hover:scale-105 transition-transform cursor-pointer">
+<span class="material-symbols-outlined text-[40px]">flight_takeoff</span>
+<div class="absolute top-0 right-0 w-7 h-7 bg-secondary rounded-full border-[3px] border-surface flex items-center justify-center text-on-secondary">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+</div>
+<div class="mt-3 font-h3 text-h3 text-on-surface whitespace-nowrap">Du lịch &amp; Khám phá</div>
+</div>
+<svg class="absolute left-[48px] top-[48px] w-[224px] h-[160px] -z-0" fill="none" preserveaspectratio="none" stroke="#a7f3d0" stroke-linecap="round" stroke-width="4" viewbox="0 0 100 100">
+<path d="M 0 0 C 60 0, 40 100, 100 100"></path>
+</svg>
+</div>
+<!-- Row 4: Right (Active) -->
+<div class="relative w-[320px] h-[160px]">
+<div class="absolute right-0 top-0 w-24 flex flex-col items-center">
+<!-- Active state with ring -->
+<div class="w-24 h-24 rounded-full bg-[#f59e0b] shadow-[0_0_0_6px_rgba(252,248,255,1),0_0_0_10px_rgba(245,158,11,0.3)] flex items-center justify-center text-4xl text-white relative z-10 hover:scale-105 transition-transform cursor-pointer">
+<span class="material-symbols-outlined text-[40px]">work</span>
+</div>
+<div class="mt-4 font-h3 text-h3 text-on-surface whitespace-nowrap">Giao tiếp Công sở</div>
+</div>
+<!-- Path to locked node - grey out -->
+<svg class="absolute right-[48px] top-[48px] w-[224px] h-[160px] -z-0" fill="none" preserveaspectratio="none" stroke="#e4e1ee" stroke-linecap="round" stroke-width="4" viewbox="0 0 100 100">
+<path d="M 100 0 C 40 0, 60 100, 0 100"></path>
+</svg>
+</div>
+<!-- Row 5: Left (Locked) -->
+<div class="relative w-[320px] h-[120px]">
+<div class="absolute left-0 top-0 w-24 flex flex-col items-center grayscale-[0.5] opacity-70">
+<div class="w-24 h-24 rounded-full bg-surface-variant border-4 border-outline-variant flex items-center justify-center text-4xl text-on-surface-variant relative z-10">
+<span class="material-symbols-outlined text-[40px]">restaurant</span>
+<div class="absolute top-0 right-0 w-7 h-7 bg-surface-variant rounded-full border-[3px] border-surface flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[14px] font-bold">lock</span>
+</div>
+</div>
+<div class="mt-3 font-h3 text-h3 text-on-surface whitespace-nowrap">Văn hóa &amp; Đời sống</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

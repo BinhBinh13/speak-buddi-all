@@ -1,0 +1,17 @@
+@startuml
+title UC10 — Student purchases paid plan/payment — Screen Flow
+skinparam activityBackgroundColor #FEFEFE
+skinparam activityBorderColor #333333
+start
+:Open PricingPage;
+:User attempts to purchase a paid plan;
+if (Access and input valid?) then (yes)
+  :Call PaymentService;
+  :Persist/read PaymentTransaction data if needed;
+  :Display success state;
+else (no)
+  :Show validation/access error;
+  :Keep user input where possible;
+endif
+stop
+@enduml

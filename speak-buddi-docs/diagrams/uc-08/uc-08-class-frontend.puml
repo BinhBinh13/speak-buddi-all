@@ -1,0 +1,24 @@
+@startuml
+title UC08 — Student practices pronunciation — Frontend Classes
+skinparam classAttributeIconSize 0
+class PronunciationPage {
+  - state: UIState
+  + render(): JSX
+  + handleSubmit(): void
+}
+class useUC08 {
+  + loading: boolean
+  + error: string | null
+  + execute(payload): Promise<Result>
+}
+class UC08ApiClient {
+  + request(payload): Promise<ApiResponse>
+}
+class UC08FormOrView {
+  + props: Props
+  + render(): JSX
+}
+PronunciationPage --> useUC08
+PronunciationPage --> UC08FormOrView
+useUC08 --> UC08ApiClient
+@enduml

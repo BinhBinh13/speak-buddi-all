@@ -1,0 +1,62 @@
+@startuml uc-13-statediagram
+title UC13 — Admin manages topic/vocabulary/tests and crawler content sync — State Diagram
+skinparam backgroundColor #FEFEFE
+skinparam state {
+  BackgroundColor #FEFEFE
+  BorderColor #333333
+  FontName Helvetica
+}
+
+state "Active cached content" as Cached
+state "Admin editing" as AdminEditing
+state "Validating content/config" as Validating
+state "Saved / published" as Saved
+state "Soft-disabled" as SoftDisabled
+state "Validation error" as ValidationError
+state "Weekly sync scheduled" as Scheduled
+state "Guardrail check" as GuardrailCheck
+state "Crawling Langeek" as Crawling
+state "Mapping to A1-C2" as Mapping
+state "Auto-published" as AutoPublished
+state "Retry pending" as RetryPending
+state "Failure logged" as FailureLogged
+state "Admin notified" as AdminNotified
+state "Manual curation fallback" as ManualFallback
+
+[*] --> Cached : Current active content available
+
+Cached --> AdminEditing : Admin opens console
+AdminEditing --> Validating : Submit content/test/config change
+Validating --> Saved : Valid create/update/config
+Validating --> ValidationError : Duplicate/missing/invalid fields
+ValidationError --> AdminEditing : Fix input and resubmit
+Saved --> Cached : Active content/config refreshed
+
+Cached --> SoftDisabled : Admin confirms disable
+SoftDisabled --> Cached : is_active=false; hidden from learners
+
+Cached --> Scheduled : Weekly schedule fires
+Scheduled --> GuardrailCheck : Load crawler config
+GuardrailCheck --> Crawling : ToS/robots/copyright/rate limit permitted
+GuardrailCheck --> ManualFallback : Crawling not permitted or legal risk
+
+Crawling --> Mapping : Langeek reachable; parse succeeds
+Crawling --> RetryPending : Langeek down or crawl error
+Mapping --> AutoPublished : Topics/new words mapped to A1-C2
+AutoPublished --> Cached : Publish without Admin approval
+
+RetryPending --> FailureLogged : Retry policy applied
+FailureLogged --> AdminNotified : Log source URL, reason,\nlast success, retry, cache status
+AdminNotified --> Cached : Keep cached content active
+ManualFallback --> Cached : Manual curation/import path
+
+note right of GuardrailCheck
+  Guardrails: ToS, robots.txt,
+  copyright/licensing, and rate limits.
+end note
+
+note bottom of Cached
+  Crawl failure must not remove or hide
+  currently active cached learning content.
+end note
+@enduml

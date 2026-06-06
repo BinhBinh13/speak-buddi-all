@@ -1,0 +1,15 @@
+@startuml
+title UC09 — Student/Paid User converses with AI — Use Case
+left to right direction
+skinparam packageStyle rectangle
+actor "Student" as Student
+actor "Paid User" as Paid_User
+actor "Anthropic API" as Anthropic_API
+actor "ElevenLabs API" as ElevenLabs_API
+rectangle "speak-buddi" {
+  Student -- (UC09: Student/Paid User converses with AI)
+  Paid_User -- (UC09: Student/Paid User converses with AI)
+  (UC09: Student/Paid User converses with AI) ..> Anthropic_API : uses
+  (UC09: Student/Paid User converses with AI) ..> ElevenLabs_API : uses
+}
+@enduml

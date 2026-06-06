@@ -1,0 +1,46 @@
+@startuml uc-06-screenflow
+title UC06 — Vocabulary tests/activities by selected level/topic — Screen Flow
+skinparam activityDotColor red
+skinparam activityBackgroundColor #FEFEFE
+skinparam activityBorderColor #333333
+skinparam activityDiamondBackgroundColor #FEFEFE
+skinparam activityDiamondBorderColor #333333
+
+start
+:Open topic test/activity screen;
+:Read user's selected level\n(A1, A2, B1, B2, C1, C2);
+
+if (Selected level and topic valid?) then (yes)
+  :Request activity set for\nselected level + topic;
+
+  if (Latest active crawled/Admin content ready?) then (yes)
+    :Use active topic vocabulary,\nquestions, and grammar mappings;
+  else (no)
+    :Use current cached active content\nfor the same level/topic;
+  endif
+
+  if (Vocabulary/questions available?) then (yes)
+    :Build activity set\n- flashcard\n- multiple choice\n- fill-in-the-blank\n- grammar mapping;
+    :Display activity cards;
+    :Learner answers tasks;
+
+    if (All required answers completed?) then (yes)
+      :Submit attempt;
+      :Evaluate answers and calculate\nscore = correct / total x 100%;
+      :Save attempt by user,\nlevel, topic, activity, and content version;
+      :Show score, corrections,\nand next activity action;
+    else (no)
+      :Disable submit or highlight\nmissing answers;
+      :Keep current answers\nfor learner completion;
+    endif
+  else (no)
+    :Show no active vocabulary/test content\nfor selected level/topic;
+    :Suggest another topic or retry later;
+  endif
+else (no)
+  :Show access/validation error;
+  :Ask learner to complete onboarding\nor choose a valid topic;
+endif
+
+stop
+@enduml

@@ -1,0 +1,29 @@
+@startuml
+title UC08 — Student practices pronunciation — Backend Classes
+skinparam classAttributeIconSize 0
+class UC08Controller {
+  - service: PronunciationService
+  + handle(request): Response
+}
+class PronunciationService {
+  - repository: PronunciationAttemptRepository
+  + execute(command): Result
+  + validate(command): void
+}
+class PronunciationAttemptRepository {
+  + findById(id): PronunciationAttempt
+  + save(entity: PronunciationAttempt): PronunciationAttempt
+}
+class PronunciationAttempt {
+  - id: Long
+  - createdAt: DateTime
+  - updatedAt: DateTime
+}
+class ElevenLabs_APIClient {
+  +sendRequest(payload): ExternalResult
+}
+UC08Controller --> PronunciationService
+PronunciationService --> PronunciationAttemptRepository
+PronunciationAttemptRepository --> PronunciationAttempt
+PronunciationService --> ElevenLabs_APIClient
+@enduml

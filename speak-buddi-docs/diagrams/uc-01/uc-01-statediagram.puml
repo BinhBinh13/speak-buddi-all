@@ -1,0 +1,15 @@
+@startuml
+title UC01 — Guest views landing/pricing — State Diagram
+[*] --> Idle
+Idle --> InProgress : open website landing page
+InProgress --> Validating : submit/request
+Validating --> Completed : success
+Validating --> Error : validation/integration/access error
+Error --> InProgress : retry/fix input
+Completed --> [*]
+state Completed {
+  [*] --> ResultVisible
+  ResultVisible --> Saved : PaymentPlan updated/read
+  Saved --> [*]
+}
+@enduml

@@ -1,0 +1,63 @@
+/* S1.1: global reset + a11y (NFR §4.8) */
+
+/* ── Ngăn horizontal scroll toàn trang ─────────────────────────────────── */
+html {
+  overflow-x: hidden;
+}
+
+/* ── Box-sizing global ──────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* ── Focus visible toàn cục (§4.8-5) ───────────────────────────────────── */
+/* Loại bỏ outline mặc định xấu, thay bằng outline rõ ràng khi keyboard nav */
+:focus {
+  outline: none;
+}
+:focus-visible {
+  outline: 3px solid #3525cd;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+#root {
+  width: 100%;           /* ← full width thay vì 1126px */
+  max-width: 100%;
+  margin: 0 auto;
+  /* border-inline: 1px solid var(--border); ← xoá hoặc comment dòng này */
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+html, body, #root {
+  height: 100%;
+}
+body {
+  margin: 0;
+  background-color: #FAFAF7; /* ← thêm màu nền của SpeakBuddi */
+}
+.topbar {
+  height: 72px;
+  background: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 32px;
+
+  border-bottom: 1px solid #F0F0E8;
+}
+
+.topbar nav {
+  display: flex;
+  gap: 32px;
+}
+
+.topbar a {
+  color: #1A3445;
+  text-decoration: none;
+  font-weight: 500;
+}

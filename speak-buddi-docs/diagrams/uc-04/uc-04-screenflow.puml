@@ -1,0 +1,43 @@
+@startuml uc-04-screenflow
+title UC04 — Student views personalized roadmap by selected level — Screen Flow
+skinparam activityDotColor red
+skinparam activityBackgroundColor #FEFEFE
+skinparam activityBorderColor #333333
+skinparam activityDiamondBackgroundColor #FEFEFE
+skinparam activityDiamondBorderColor #333333
+
+start
+:Open RoadmapPage;
+:User attempts to view personalized learning roadmap;
+
+if (Authenticated Student/Paid User?) then (yes)
+  :Read selected level from profile/onboarding;
+  if (Valid A1-C2 level selected?) then (yes)
+    :Call RoadmapService\nGET /roadmap for selected level;
+    :Query active level topics, vocabulary,\nand activity/test metadata;
+    :Apply user topic progress for selected level;
+
+    if (Latest Langeek crawl content active?) then (yes)
+      :Use auto-published Langeek\ntopic/new-word content;
+      :Skip Admin approval gate;
+    else (crawl failed/down)
+      :Use current cached active content;
+      :Keep selected level and progress unchanged;
+    endif
+
+    if (Matching topics exist?) then (yes)
+      :Display roadmap grouped by topic\nwith vocabulary/activity entry points;
+    else (no)
+      :Display empty/fallback roadmap state\nfor selected level;
+    endif
+  else (no)
+    :Show level-required message;
+    :Navigate to onboarding/profile\nto select A1-C2 level;
+  endif
+else (no)
+  :Block roadmap access;
+  :Redirect to Login Screen;
+endif
+
+stop
+@enduml

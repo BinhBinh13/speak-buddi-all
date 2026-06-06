@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Translate - SpeakBuddi</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container": "#f0ecf9",
+                        "on-tertiary-fixed": "#351000",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#dcd8e5",
+                        "secondary-fixed": "#6ffbbe",
+                        "primary-container": "#4f46e5",
+                        "on-error": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "secondary": "#006c49",
+                        "surface-variant": "#e4e1ee",
+                        "tertiary": "#7e3000",
+                        "inverse-primary": "#c3c0ff",
+                        "surface": "#fcf8ff",
+                        "on-error-container": "#93000a",
+                        "inverse-on-surface": "#f3effc",
+                        "secondary-fixed-dim": "#4edea3",
+                        "on-surface-variant": "#464555",
+                        "tertiary-fixed-dim": "#ffb695",
+                        "error-container": "#ffdad6",
+                        "primary": "#3525cd",
+                        "outline-variant": "#c7c4d8",
+                        "surface-container-high": "#eae6f4",
+                        "inverse-surface": "#302f39",
+                        "outline": "#777587",
+                        "surface-container-low": "#f5f2ff",
+                        "on-secondary-fixed": "#002113",
+                        "on-secondary-fixed-variant": "#005236",
+                        "on-primary-fixed": "#0f0069",
+                        "on-primary-container": "#dad7ff",
+                        "on-tertiary-container": "#ffd2be",
+                        "surface-container-highest": "#e4e1ee",
+                        "surface-bright": "#fcf8ff",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "tertiary-fixed": "#ffdbcc",
+                        "on-tertiary-fixed-variant": "#7b2f00",
+                        "on-surface": "#1b1b24",
+                        "on-secondary-container": "#00714d",
+                        "primary-fixed": "#e2dfff",
+                        "on-primary-fixed-variant": "#3323cc",
+                        "on-background": "#1b1b24",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "background": "#fcf8ff",
+                        "secondary-container": "#6cf8bb",
+                        "tertiary-container": "#a44100",
+                        "surface-tint": "#4d44e3",
+                        "on-secondary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "64px",
+                        "max-width": "1280px",
+                        "xs": "0.5rem",
+                        "sm": "1rem",
+                        "base": "4px",
+                        "md": "1.5rem",
+                        "xl": "3rem",
+                        "lg": "2rem",
+                        "gutter": "16px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Be Vietnam Pro"],
+                        "label-sm": ["Be Vietnam Pro"],
+                        "h1": ["Be Vietnam Pro"],
+                        "display": ["Be Vietnam Pro"],
+                        "body-lg": ["Be Vietnam Pro"],
+                        "body-md": ["Be Vietnam Pro"],
+                        "h2": ["Be Vietnam Pro"],
+                        "h1-mobile": ["Be Vietnam Pro"],
+                        "h3": ["Be Vietnam Pro"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "label-sm": ["12px", { "lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "h1": ["32px", { "lineHeight": "1.25", "fontWeight": "700" }],
+                        "display": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "h2": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "h1-mobile": ["28px", { "lineHeight": "1.25", "fontWeight": "700" }],
+                        "h3": ["20px", { "lineHeight": "1.4", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .filled-icon {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for translation boxes */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c7c4d8;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #777587;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant/30 shadow-sm">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop h-16 max-w-max-width mx-auto">
+<div class="flex items-center gap-4">
+<!-- Mobile Menu Trigger (Visual only) -->
+<button class="lg:hidden p-2 text-on-surface-variant hover:bg-surface-variant rounded-full transition-colors">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="font-h2 text-h2 font-bold text-primary">SpeakBuddi</div>
+<!-- Search Bar Placeholder (per JSON hint) -->
+<div class="hidden md:flex items-center bg-surface-container-low border border-outline-variant/50 rounded-full px-4 py-1.5 ml-4">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px] mr-2">search</span>
+<input class="bg-transparent border-none outline-none font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant w-48" placeholder="Search..." type="text"/>
+</div>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">AI Tutor</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Roadmap</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Vocab</a>
+<a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors" href="#">Tests</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:bg-surface-variant rounded-full transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<img alt="User profile picture" class="w-8 h-8 rounded-full border border-outline-variant cursor-pointer hover:ring-2 ring-primary/30 transition-all" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrAHoBv1aaqExOQ0aRMOTziNe2uBlbS2hjZak8pUECXqghkhDgYv87Sl0wkvq4B6dRFPg5nXM70mq68Qd8h8XGWSdpFUDf_uPwjn2bVU3mwIa5hFtVh7gpn4RF1laZef8FpiBLBh9O70gT87TFCytJ3b39eeeqPoHp_DuBBLl0wPw1K3vc-Lj5SKdU9DfYZP-Z_01xK498vNS94lWBA0I3vspJoyix0bKPHOpqzXi5f-ZCtJ5eFQ_AE5kfUjh8WtLv-PbC51qQw9t8"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 hidden lg:flex flex-col bg-surface-container-low border-r border-outline-variant/30">
+<div class="p-6 border-b border-outline-variant/30">
+<div class="flex items-center gap-3 mb-2">
+<img alt="User avatar" class="w-10 h-10 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBn4b53f6Lo3VYN21zzDJYqPeIpb0ZCsanoXvWVqUn9heLtACfk1EGytyUnLBqNVFns5EH9Mskkul0gJyztV4r_JGzL7rURMA3NcnXRDDGufvhVWhegE7ogdY0TckoIS9wfccMvUpd-uHbc26oZoUaNQ_351tn33xEH75getBRThk_dAPVcxXRoP12R8QlFMUOk3WxEQCXwa18VwAZuBFjYbkdt6z8SbLKTT7q6OeVS7-d0l-x6J5KH8yNbhJbSCxZRT_O95ItMn8ix"/>
+<div>
+<div class="font-label-md text-label-md font-bold text-on-surface">Welcome back</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Level B2 Student</div>
+</div>
+</div>
+<button class="w-full mt-4 bg-surface-variant hover:bg-primary-container hover:text-on-primary-container text-primary font-label-md text-label-md py-2 rounded-lg transition-colors border border-primary/20">
+                Upgrade to Pro
+            </button>
+</div>
+<nav class="flex flex-col p-4 gap-2 flex-1 overflow-y-auto">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-label-md text-label-md text-on-surface-variant hover:bg-surface-variant/50 hover:translate-x-1 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-label-md text-label-md text-on-surface-variant hover:bg-surface-variant/50 hover:translate-x-1 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">route</span>
+                My Path
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-label-md text-label-md text-on-surface-variant hover:bg-surface-variant/50 hover:translate-x-1 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">style</span>
+                Study Deck
+            </a>
+<!-- Active State: AI Practice (Closest context for translation tool) -->
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-xl font-semibold hover:translate-x-1 transition-all duration-200 shadow-sm" href="#">
+<span class="material-symbols-outlined filled-icon">psychology</span>
+                AI Practice
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl font-label-md text-label-md text-on-surface-variant hover:bg-surface-variant/50 hover:translate-x-1 transition-all duration-200 mt-auto" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</nav>
+</aside>
+<!-- Main Content -->
+<main class="pt-16 lg:ml-64 min-h-screen flex flex-col">
+<div class="flex-1 w-full max-w-5xl mx-auto p-margin-mobile md:p-8 flex flex-col gap-8">
+<!-- Page Header -->
+<header>
+<h1 class="font-h1-mobile md:font-h1 text-h1-mobile md:text-h1 text-on-surface mb-2">Translator</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Instantly translate text, practice pronunciation, and expand your vocabulary.</p>
+</header>
+<!-- Translator Bento Card -->
+<div class="bg-surface-container-lowest rounded-[24px] shadow-[0px_4px_12px_rgba(53,37,205,0.04)] border border-outline-variant/30 overflow-hidden flex flex-col">
+<!-- Language Selection Bar -->
+<div class="flex items-center justify-between border-b border-outline-variant/30 p-2 bg-surface/50">
+<button class="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl hover:bg-surface-variant/50 font-label-md text-label-md text-primary transition-colors group">
+                        English
+                        <span class="material-symbols-outlined text-[18px] text-on-surface-variant group-hover:text-primary transition-colors">expand_more</span>
+</button>
+<button class="p-2 rounded-full bg-surface hover:bg-surface-variant text-on-surface-variant shadow-sm border border-outline-variant/20 transition-all hover:rotate-180 duration-300 z-10 mx-2">
+<span class="material-symbols-outlined">swap_horiz</span>
+</button>
+<button class="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl hover:bg-surface-variant/50 font-label-md text-label-md text-primary transition-colors group">
+                        Vietnamese
+                        <span class="material-symbols-outlined text-[18px] text-on-surface-variant group-hover:text-primary transition-colors">expand_more</span>
+</button>
+</div>
+<!-- Input / Output Split Area -->
+<div class="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-outline-variant/30">
+<!-- Source Input -->
+<div class="flex-1 flex flex-col p-4 md:p-6 min-h-[240px] bg-transparent relative group">
+<textarea class="w-full flex-1 resize-none bg-transparent border-none outline-none font-body-lg text-body-lg text-on-surface placeholder:text-on-surface-variant/60 focus:ring-0 p-0" placeholder="Enter text to translate..."></textarea>
+<!-- Input Actions -->
+<div class="flex items-center justify-between mt-4">
+<button class="p-2 rounded-full text-on-surface-variant hover:text-primary hover:bg-primary-container/20 transition-colors" title="Listen">
+<span class="material-symbols-outlined">volume_up</span>
+</button>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant/60">0 / 5000</span>
+<button class="p-2 rounded-full text-on-surface-variant hover:text-error hover:bg-error-container/50 transition-colors" title="Clear text">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Target Output -->
+<div class="flex-1 flex flex-col p-4 md:p-6 min-h-[240px] bg-surface-container/30 relative">
+<!-- Placeholder State (Visible when no input) -->
+<div class="absolute inset-0 flex items-center justify-center text-on-surface-variant/40 pointer-events-none">
+<span class="font-body-lg text-body-lg">Translation will appear here</span>
+</div>
+<!-- Actual Output Content (Hidden in this static mockup, but structure is here) -->
+<div class="flex-1 font-body-lg text-body-lg text-on-surface z-10 invisible">
+                            Bản dịch sẽ xuất hiện ở đây.
+                        </div>
+<!-- Output Actions -->
+<div class="flex items-center justify-between mt-4 z-10">
+<button class="p-2 rounded-full text-on-surface-variant hover:text-primary hover:bg-primary-container/20 transition-colors" title="Listen to translation">
+<span class="material-symbols-outlined">volume_up</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-fixed-variant transition-colors shadow-sm" title="Copy to clipboard">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+                                Copy
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- History Section -->
+<section class="mt-4">
+<div class="flex items-center justify-between mb-4">
+<h2 class="font-h3 text-h3 text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">history</span>
+                        Recent Translations
+                    </h2>
+<button class="font-label-sm text-label-sm text-primary hover:underline">Clear all</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- History Item 1 -->
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 shadow-sm hover:shadow-[0px_8px_24px_rgba(53,37,205,0.06)] hover:border-primary/30 transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-variant/50 px-2 py-1 rounded-md">EN → VI</span>
+<button class="text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity hover:text-primary">
+<span class="material-symbols-outlined text-[20px]">content_copy</span>
+</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface mb-1 line-clamp-1">The quick brown fox jumps over the lazy dog.</p>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-1">Con cáo nâu nhanh nhẹn nhảy qua con chó lười biếng.</p>
+</div>
+<!-- History Item 2 -->
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 shadow-sm hover:shadow-[0px_8px_24px_rgba(53,37,205,0.06)] hover:border-primary/30 transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-variant/50 px-2 py-1 rounded-md">VI → EN</span>
+<button class="text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity hover:text-primary">
+<span class="material-symbols-outlined text-[20px]">content_copy</span>
+</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface mb-1 line-clamp-1">Học ngoại ngữ mở ra nhiều cơ hội mới.</p>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-1">Learning foreign languages opens up many new opportunities.</p>
+</div>
+</div>
+</section>
+</div>
+</main>
+<script>
+        // Simple script to handle textarea auto-resize
+        const textarea = document.querySelector('textarea');
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    </script>
+</body></html>

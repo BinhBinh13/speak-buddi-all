@@ -1,0 +1,15 @@
+@startuml
+title UC09 — Student/Paid User converses with AI — State Diagram
+[*] --> Idle
+Idle --> InProgress : start AI conversation session
+InProgress --> Validating : submit/request
+Validating --> Completed : success
+Validating --> Error : validation/integration/access error
+Error --> InProgress : retry/fix input
+Completed --> [*]
+state Completed {
+  [*] --> ResultVisible
+  ResultVisible --> Saved : SpeakingSession updated/read
+  Saved --> [*]
+}
+@enduml

@@ -1,0 +1,106 @@
+@startuml uc-06-class-frontend
+title UC06 — Vocabulary tests/activities by selected level/topic — Frontend Classes
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+package "frontend.uc06" {
+  class VocabularyActivityPage {
+    - selectedLevel: CEFRLevel
+    - topicId: UUID
+    - activityState: ActivityState
+    + onLoad(): void
+    + onSubmit(): void
+    + render(): JSX
+  }
+
+  class useSelectedLevel {
+    + selectedLevel: CEFRLevel
+    + isLoaded: boolean
+    + requireOnboarding(): void
+  }
+
+  class useVocabularyActivity {
+    - apiClient: VocabularyActivityApiClient
+    - validator: ActivityAnswerValidator
+    + state: ActivityState
+    + loadActivities(topicId: UUID, level: CEFRLevel): Promise<void>
+    + setAnswer(questionId: UUID, answer: Answer): void
+    + submitAttempt(): Promise<QuizResultDto>
+  }
+
+  class VocabularyActivityApiClient {
+    + fetchActivities(topicId: UUID, level: CEFRLevel): Promise<ActivitySetDto>
+    + submitAttempt(payload: SubmitAttemptPayload): Promise<QuizResultDto>
+  }
+
+  class ActivityAnswerValidator {
+    + findMissingRequiredAnswers(tasks: List<ActivityTask>, answers: AnswerMap): List<UUID>
+    + canSubmit(tasks: List<ActivityTask>, answers: AnswerMap): boolean
+  }
+
+  class ActivityRenderer {
+    + renderTask(task: ActivityTask): JSX
+    + renderTaskList(tasks: List<ActivityTask>): JSX
+  }
+
+  class FlashcardTask {
+    + revealMeaning(): void
+    + markKnown(): void
+    + markReview(): void
+  }
+
+  class MultipleChoiceTask {
+    + selectOption(optionId: UUID): void
+  }
+
+  class FillInBlankTask {
+    + updateAnswer(text: string): void
+  }
+
+  class GrammarMappingTask {
+    + linkWordToGrammar(wordId: UUID, grammarId: UUID): void
+  }
+
+  class CacheFallbackBanner {
+    - visible: boolean
+    + render(): JSX
+  }
+
+  class QuizResultPanel {
+    - score: number
+    + renderFeedback(): JSX
+    + renderNextAction(): JSX
+  }
+
+  class ActivityState {
+    + selectedLevel: CEFRLevel
+    + topicId: UUID
+    + contentVersion: string
+    + usingCachedContent: boolean
+    + tasks: List<ActivityTask>
+    + answers: AnswerMap
+    + missingAnswerIds: List<UUID>
+  }
+
+  enum QuestionType {
+    FLASHCARD
+    MULTIPLE_CHOICE
+    FILL_IN_THE_BLANK
+    GRAMMAR_MAPPING
+  }
+}
+
+VocabularyActivityPage --> useSelectedLevel
+VocabularyActivityPage --> useVocabularyActivity
+VocabularyActivityPage --> ActivityRenderer
+VocabularyActivityPage --> CacheFallbackBanner
+VocabularyActivityPage --> QuizResultPanel
+useVocabularyActivity --> VocabularyActivityApiClient
+useVocabularyActivity --> ActivityAnswerValidator
+useVocabularyActivity --> ActivityState
+ActivityRenderer --> FlashcardTask
+ActivityRenderer --> MultipleChoiceTask
+ActivityRenderer --> FillInBlankTask
+ActivityRenderer --> GrammarMappingTask
+ActivityState --> QuestionType
+@enduml

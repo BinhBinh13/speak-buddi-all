@@ -1,0 +1,40 @@
+@startuml
+title UC03 — Student selects level during onboarding to create personalized roadmap — Screen Flow
+skinparam activityDotColor red
+skinparam activityBackgroundColor #FEFEFE
+skinparam activityBorderColor #333333
+skinparam activityDiamondBackgroundColor #FEFEFE
+skinparam activityDiamondBorderColor #333333
+
+start
+:Open Onboarding/Profile Level screen;
+if (Existing selected level?) then (profile update)
+  :Show current selected level;
+else (new onboarding)
+  :Show onboarding questions;
+endif
+
+:Student manually selects level\nA1, A2, B1, B2, C1, or C2;
+note right
+  Manual level selection only;
+  no scored assessment flow is used.
+end note
+:Enter required onboarding answers\n(e.g. learning goal/topic preference);
+
+if (Selected level and required answers valid?) then (yes)
+  :Submit onboarding/profile payload;
+  :Save selected level and onboarding profile;
+  :Load active topics, vocabulary,\nand activities for selected level\n(Langeek-crawled/Admin-managed cache);
+  if (Active level content available?) then (yes)
+    :Generate personalized roadmap\nfrom selected level, topics,\nvocabulary, and activities;
+  else (no)
+    :Create fallback/empty roadmap state\nwhile keeping selected level saved;
+  endif
+  :Show roadmap ready / continue to roadmap;
+else (no)
+  :Highlight missing or invalid fields;
+  :Keep user input on onboarding form;
+endif
+
+stop
+@enduml

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SpeakBuddi - Bảng giá</title>
+<!-- Google Fonts & Material Icons -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed-variant": "#005236",
+                    "surface-variant": "#e4e1ee",
+                    "on-primary-container": "#dad7ff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error": "#ffffff",
+                    "on-surface-variant": "#464555",
+                    "on-primary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed": "#0f0069",
+                    "on-secondary": "#ffffff",
+                    "secondary-fixed": "#6ffbbe",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "surface": "#fcf8ff",
+                    "surface-container-high": "#eae6f4",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "inverse-primary": "#c3c0ff",
+                    "secondary-fixed-dim": "#4edea3",
+                    "tertiary-fixed": "#ffdbcc",
+                    "outline": "#777587",
+                    "tertiary-container": "#a44100",
+                    "inverse-surface": "#302f39",
+                    "surface-dim": "#dcd8e5",
+                    "on-tertiary-container": "#ffd2be",
+                    "error-container": "#ffdad6",
+                    "primary": "#3525cd",
+                    "inverse-on-surface": "#f3effc",
+                    "on-secondary-container": "#00714d",
+                    "surface-bright": "#fcf8ff",
+                    "primary-container": "#4f46e5",
+                    "on-surface": "#1b1b24",
+                    "surface-container-low": "#f5f2ff",
+                    "surface-container": "#f0ecf9",
+                    "on-tertiary-fixed-variant": "#7b2f00",
+                    "secondary-container": "#6cf8bb",
+                    "outline-variant": "#c7c4d8",
+                    "background": "#fcf8ff",
+                    "secondary": "#006c49",
+                    "on-tertiary": "#ffffff",
+                    "on-tertiary-fixed": "#351000",
+                    "surface-tint": "#4d44e3",
+                    "on-error-container": "#93000a",
+                    "on-secondary-fixed": "#002113",
+                    "on-background": "#1b1b24",
+                    "surface-container-highest": "#e4e1ee",
+                    "tertiary": "#7e3000",
+                    "primary-fixed": "#e2dfff",
+                    "tertiary-fixed-dim": "#ffb695"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-desktop": "64px",
+                    "margin-mobile": "16px",
+                    "sm": "1rem",
+                    "xl": "3rem",
+                    "base": "4px",
+                    "xs": "0.5rem",
+                    "max-width": "1280px",
+                    "gutter": "16px",
+                    "lg": "2rem",
+                    "md": "1.5rem"
+            },
+            "fontFamily": {
+                    "label-md": ["Be Vietnam Pro"],
+                    "label-sm": ["Be Vietnam Pro"],
+                    "body-md": ["Be Vietnam Pro"],
+                    "h1-mobile": ["Be Vietnam Pro"],
+                    "body-lg": ["Be Vietnam Pro"],
+                    "display": ["Be Vietnam Pro"],
+                    "h1": ["Be Vietnam Pro"],
+                    "h3": ["Be Vietnam Pro"],
+                    "h2": ["Be Vietnam Pro"]
+            },
+            "fontSize": {
+                    "label-md": ["14px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                    "label-sm": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "h1-mobile": ["28px", {"lineHeight": "1.25", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "display": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "h1": ["32px", {"lineHeight": "1.25", "fontWeight": "700"}],
+                    "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "h2": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom gold gradient utility for the specific Pro requirement */
+        .bg-gold-gradient {
+            background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);
+        }
+        .text-gold-gradient {
+            background: linear-gradient(135deg, #FBBF24 0%, #D97706 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md antialiased min-h-screen flex flex-col">
+<!-- TopNavBar Component -->
+<header class="bg-surface/80 backdrop-blur-md docked full-width top-0 sticky z-50 shadow-sm transition-all duration-300">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto py-4">
+<!-- Brand -->
+<div class="font-display text-h2 text-primary tracking-tight">
+                SpeakBuddi
+            </div>
+<!-- Navigation Links (Web) -->
+<nav class="hidden md:flex items-center gap-md">
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-200 font-label-md text-label-md" href="#">Tính năng</a>
+<a class="text-primary border-b-2 border-primary font-bold font-label-md text-label-md" href="#">Bảng giá</a>
+</nav>
+<!-- Actions -->
+<div class="flex items-center gap-sm">
+<a class="hidden md:block text-on-surface-variant hover:text-primary transition-colors duration-200 font-label-md text-label-md" href="#">Đăng nhập</a>
+<button class="bg-primary text-on-primary rounded-full px-4 py-2 font-label-md text-label-md hover:bg-surface-tint transition-all duration-200 shadow-[0_4px_12px_rgba(53,37,205,0.2)]">
+                    Bắt đầu miễn phí
+                </button>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow flex flex-col items-center py-xl px-margin-mobile md:px-margin-desktop w-full max-w-max-width mx-auto">
+<!-- Pricing Header -->
+<div class="text-center w-full max-w-2xl mx-auto mb-xl">
+<h1 class="font-h1 text-h1 text-on-surface mb-sm">Bảng giá</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+                Chọn gói học phù hợp với mục tiêu của bạn. Nâng cấp bất cứ lúc nào để tận dụng tối đa sức mạnh AI.
+            </p>
+</div>
+<!-- Pricing Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg w-full max-w-4xl mx-auto">
+<!-- Free Plan -->
+<div class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant flex flex-col hover:shadow-md transition-shadow duration-300">
+<div class="mb-lg">
+<h3 class="font-h3 text-h3 text-on-surface mb-xs">Miễn phí</h3>
+<div class="flex items-baseline gap-xs">
+<span class="font-display text-[40px] leading-tight font-bold text-on-surface">0đ</span>
+</div>
+</div>
+<div class="flex-grow">
+<ul class="flex flex-col gap-sm">
+<li class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-secondary text-[20px]" data-icon="check">check</span>
+<span class="font-body-md text-body-md text-on-surface-variant">AI 15 phút / 5 giờ</span>
+</li>
+<li class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-secondary text-[20px]" data-icon="check">check</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Học từ vựng</span>
+</li>
+<li class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-secondary text-[20px]" data-icon="check">check</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Luyện phát âm</span>
+</li>
+<li class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-secondary text-[20px]" data-icon="check">check</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Bản đồ học tập</span>
+</li>
+</ul>
+</div>
+<button class="mt-xl w-full border-2 border-primary text-primary rounded-full py-3 px-4 font-label-md text-label-md hover:bg-surface-container-low transition-colors duration-200">
+                    Bắt đầu ngay
+                </button>
+</div>
+<!-- Pro Plan (Most Popular) -->
+<div class="relative bg-gold-gradient p-[2px] rounded-xl shadow-[0_8px_24px_rgba(251,191,36,0.2)] flex flex-col transform md:-translate-y-4">
+<!-- Badge -->
+<div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold-gradient text-on-primary px-4 py-1 rounded-full shadow-sm z-10 whitespace-nowrap">
+<span class="font-label-sm text-label-sm uppercase tracking-wider">Phổ biến</span>
+</div>
+<div class="bg-surface-container-lowest rounded-[10px] p-lg flex flex-col h-full relative overflow-hidden">
+<!-- Decorative ambient light -->
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
+<div class="mb-lg relative z-10">
+<h3 class="font-h3 text-h3 text-on-surface mb-xs flex items-center gap-xs">
+                            Pro
+                            <span class="material-symbols-outlined text-[#F59E0B] text-[20px]" data-icon="star" data-weight="fill" style="font-variation-settings: 'FILL' 1;">star</span>
+</h3>
+<div class="flex items-baseline gap-xs">
+<span class="font-display text-[40px] leading-tight font-bold text-primary">149.000đ</span>
+<span class="font-body-md text-body-md text-on-surface-variant">/ tháng</span>
+</div>
+</div>
+<div class="flex-grow relative z-10">
+<ul class="flex flex-col gap-sm">
+<li class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="check">check</span>
+<span class="font-body-md text-body-md text-on-surface font-medium">AI không giới hạn</span>
+</li>
+<li class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="check">check</span>
+<span class="font-body-md text-body-md text-on-surface">Đổi giọng đọc AI</span>
+</li>
+<li class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="check">check</span>
+<span class="font-body-md text-body-md text-on-surface">Mô hình AI cao cấp</span>
+</li>
+<li class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="check">check</span>
+<span class="font-body-md text-body-md text-on-surface">Tải báo cáo chi tiết</span>
+</li>
+</ul>
+</div>
+<button class="mt-xl w-full bg-primary text-on-primary rounded-full py-3 px-4 font-label-md text-label-md hover:bg-surface-tint shadow-md transition-all duration-200 relative z-10">
+                        Nâng cấp Pro
+                    </button>
+</div>
+</div>
+</div>
+<!-- FAQ Section -->
+<div class="w-full max-w-3xl mx-auto mt-[80px]">
+<h2 class="font-h2 text-h2 text-on-surface text-center mb-lg">Câu hỏi thường gặp</h2>
+<div class="flex flex-col gap-sm">
+<!-- FAQ Item 1 -->
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant p-md shadow-sm">
+<h4 class="font-h3 text-[18px] text-on-surface mb-xs">Tôi có thể hủy gói đăng ký bất cứ lúc nào không?</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Có, bạn có thể quản lý và hủy gói đăng ký của mình bất cứ lúc nào trong phần Cài đặt tài khoản. Quá trình hủy sẽ có hiệu lực vào cuối chu kỳ thanh toán hiện tại.</p>
+</div>
+<!-- FAQ Item 2 -->
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant p-md shadow-sm">
+<h4 class="font-h3 text-[18px] text-on-surface mb-xs">Mô hình AI cao cấp khác gì so với bản miễn phí?</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Mô hình AI cao cấp cung cấp phản hồi nhanh hơn, ngữ điệu tự nhiên hơn, hiểu ngữ cảnh phức tạp tốt hơn và khả năng nhận diện phát âm chính xác hơn đáng kể so với bản tiêu chuẩn.</p>
+</div>
+<!-- FAQ Item 3 -->
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant p-md shadow-sm">
+<h4 class="font-h3 text-[18px] text-on-surface mb-xs">Phương thức thanh toán được chấp nhận?</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Chúng tôi chấp nhận chuyển khoản ngân hàng (VietQR), ví điện tử MoMo, ZaloPay và thẻ tín dụng/ghi nợ quốc tế (Visa, Mastercard).</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Component -->
+<footer class="w-full py-xl mt-xl bg-surface-container-lowest border-t border-outline-variant">
+<div class="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-md">
+<!-- Brand & Copyright -->
+<div class="flex flex-col items-center md:items-start gap-xs">
+<div class="font-h3 text-h3 text-primary">SpeakBuddi</div>
+<p class="font-body-md text-body-md text-on-surface-variant text-center md:text-left">
+                    © 2024 SpeakBuddi. Nền tảng học Tiếng Anh cho người Việt.
+                </p>
+</div>
+<!-- Links -->
+<nav class="flex flex-wrap justify-center gap-md">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-secondary underline transition-colors duration-300" href="#">Điều khoản</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-secondary underline transition-colors duration-300" href="#">Bảo mật</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-secondary underline transition-colors duration-300" href="#">Liên hệ</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-secondary underline transition-colors duration-300" href="#">Trợ giúp</a>
+</nav>
+</div>
+</footer>
+</body></html>

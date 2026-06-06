@@ -1,0 +1,60 @@
+@startuml
+title UC03 — Student selects level during onboarding to create personalized roadmap — Sequence
+skinparam sequenceParticipantBorderColor #333333
+skinparam sequenceLifeLineBorderColor #333333
+skinparam sequenceLifeLineBackgroundColor #FEFEFE
+
+actor "Student" as Student
+participant "OnboardingPage" as UI
+participant "LevelSelector" as LevelSelector
+participant "API Gateway" as API
+participant "OnboardingService" as OnboardingService
+participant "UserProfileRepository" as ProfileRepository
+participant "ContentCatalogService" as ContentCatalogService
+participant "RoadmapService" as RoadmapService
+database "MySQL" as DB
+
+Student -> UI : Open onboarding/profile level screen
+UI -> LevelSelector : Render A1-C2 options
+note right of LevelSelector
+  Student chooses level manually.
+  No scored assessment flow is called.
+end note
+Student -> UI : Select level + enter onboarding answers
+UI -> UI : Validate required fields locally
+
+alt missing/invalid selected level or answers
+  UI -->> Student : Highlight validation errors
+else valid input
+  UI -> API : POST /api/v1/onboarding\nselectedLevel, answers
+  API -> OnboardingService : Authorize and route request
+  OnboardingService -> OnboardingService : Validate selectedLevel in {A1,A2,B1,B2,C1,C2}
+  OnboardingService -> ProfileRepository : Save selected level + onboarding answers
+  ProfileRepository -> DB : UPSERT user_profile
+  DB -->> ProfileRepository : Saved UserProfile
+  ProfileRepository -->> OnboardingService : UserProfile
+
+  OnboardingService -> ContentCatalogService : getActiveContentByLevel(selectedLevel)
+  ContentCatalogService -> DB : SELECT active topics/vocabulary/activities\nWHERE level = selectedLevel
+  DB -->> ContentCatalogService : Active level content\n(Langeek-crawled/Admin-managed)
+  ContentCatalogService -->> OnboardingService : Level content set
+
+  alt active level content exists
+    OnboardingService -> RoadmapService : generate(profile, selectedLevel, content)
+    RoadmapService -> DB : INSERT/UPDATE personalized_roadmap
+    DB -->> RoadmapService : Roadmap saved
+    RoadmapService -->> OnboardingService : Roadmap summary
+    OnboardingService -->> API : 200 OK roadmap ready
+    API -->> UI : JSON roadmap summary
+    UI -->> Student : Show roadmap ready / continue to roadmap
+  else no active content for selected level
+    OnboardingService -> RoadmapService : createFallback(profile, selectedLevel)
+    RoadmapService -> DB : Save fallback roadmap state
+    DB -->> RoadmapService : Fallback state saved
+    RoadmapService -->> OnboardingService : Fallback roadmap summary
+    OnboardingService -->> API : 200 OK selected level saved with fallback
+    API -->> UI : JSON fallback roadmap summary
+    UI -->> Student : Show fallback/empty roadmap notice
+  end
+end
+@enduml

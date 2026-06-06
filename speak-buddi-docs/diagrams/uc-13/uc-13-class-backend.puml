@@ -1,0 +1,226 @@
+@startuml uc-13-class-backend
+title UC13 — Admin manages topic/vocabulary/tests and crawler content sync — Backend Classes
+skinparam backgroundColor #FEFEFE
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+package "Admin API" {
+  class AdminContentController {
+    - contentService: ContentAdminService
+    - crawlerConfigService: CrawlerConfigService
+    - crawlLogService: CrawlLogService
+    + saveTopic(request): Response
+    + saveVocabulary(request): Response
+    + saveTest(request): Response
+    + disableContent(id): Response
+    + updateCrawlerConfig(request): Response
+    + getSyncStatus(): Response
+    + listCrawlLogs(filter): Response
+  }
+}
+
+package "Content Management" {
+  class ContentAdminService {
+    - topicRepository: TopicRepository
+    - vocabularyRepository: VocabularyRepository
+    - testRepository: VocabularyTestRepository
+    + createOrUpdateTopic(command): Topic
+    + createOrUpdateVocabulary(command): VocabularyWord
+    + createOrUpdateTest(command): VocabularyTest
+    + softDisableContent(contentId): void
+    + validateContent(command): void
+  }
+
+  class AutoPublishService {
+    - topicRepository: TopicRepository
+    - vocabularyRepository: VocabularyRepository
+    - testRepository: VocabularyTestRepository
+    + publishCrawledBatch(batch): PublishResult
+    + refreshActiveContentCache(): void
+  }
+}
+
+package "Crawler Sync" {
+  class CrawlerConfigService {
+    - configRepository: CrawlerConfigRepository
+    + getActiveConfig(): CrawlerConfig
+    + updateConfig(command): CrawlerConfig
+    + validateScheduleAndRateLimit(config): void
+  }
+
+  class ContentCrawlerJob {
+    - configService: CrawlerConfigService
+    - guardrailService: ComplianceGuardrailService
+    - crawlerClient: LangeekCrawlerClient
+    - mappingService: ContentMappingService
+    - autoPublishService: AutoPublishService
+    - crawlLogService: CrawlLogService
+    - notificationService: AdminNotificationService
+    + runWeeklySync(): void
+    + retryFailedJob(jobId): void
+    + handleFailure(error): void
+  }
+
+  class ComplianceGuardrailService {
+    + verifyTermsAndRobots(sourceUrl): GuardrailResult
+    + enforceRateLimit(config): void
+    + checkCopyrightPolicy(sourceUrl): GuardrailResult
+  }
+
+  class LangeekCrawlerClient {
+    + fetchLevelBasedPages(sourceUrl): RawCrawlPayload
+    + parsePages(payload): ParsedContent
+  }
+
+  class ContentMappingService {
+    + mapToCefrLevels(parsed): CrawledContentBatch
+    + mapTopicsAndWords(parsed): CrawledContentBatch
+    + detectDuplicates(batch): DuplicateReport
+  }
+
+  class CrawlLogService {
+    - crawlLogRepository: CrawlLogRepository
+    + recordSuccess(job): CrawlLog
+    + recordFailure(job, error): CrawlLog
+    + getLatestStatus(): CrawlStatusView
+  }
+
+  class AdminNotificationService {
+    + notifyCrawlerFailure(log): void
+    + notifyGuardrailRisk(log): void
+  }
+}
+
+package "Repositories" {
+  class TopicRepository {
+    + findById(id): Topic
+    + findActiveByLevel(level): List<Topic>
+    + save(entity: Topic): Topic
+  }
+  class VocabularyRepository {
+    + findByTopic(topicId): List<VocabularyWord>
+    + save(entity: VocabularyWord): VocabularyWord
+  }
+  class VocabularyTestRepository {
+    + findByTopic(topicId): List<VocabularyTest>
+    + save(entity: VocabularyTest): VocabularyTest
+  }
+  class CrawlerConfigRepository {
+    + findActive(): CrawlerConfig
+    + save(config): CrawlerConfig
+  }
+  class CrawlLogRepository {
+    + save(log): CrawlLog
+    + findLatest(): CrawlLog
+  }
+}
+
+package "Domain" {
+  enum CEFRLevel {
+    A1
+    A2
+    B1
+    B2
+    C1
+    C2
+  }
+
+  enum CrawlStatus {
+    SCHEDULED
+    RUNNING
+    SUCCEEDED
+    FAILED
+    RETRY_PENDING
+    DISABLED_BY_GUARDRAIL
+  }
+
+  class Topic {
+    - id: UUID
+    - title: String
+    - level: CEFRLevel
+    - source: String
+    - isActive: boolean
+    - createdAt: DateTime
+    - updatedAt: DateTime
+  }
+
+  class VocabularyWord {
+    - id: UUID
+    - topicId: UUID
+    - word: String
+    - meaningVi: String
+    - level: CEFRLevel
+    - source: String
+    - isActive: boolean
+  }
+
+  class VocabularyTest {
+    - id: UUID
+    - topicId: UUID
+    - activityType: String
+    - question: String
+    - isActive: boolean
+  }
+
+  class CrawlerConfig {
+    - id: UUID
+    - sourceUrl: String
+    - weeklySchedule: String
+    - retryPolicy: String
+    - rateLimitPerMinute: int
+    - obeyRobotsTxt: boolean
+    - autoPublish: boolean
+    - enabled: boolean
+  }
+
+  class CrawlLog {
+    - id: UUID
+    - sourceUrl: String
+    - status: CrawlStatus
+    - failureReason: String
+    - lastSuccessfulSyncAt: DateTime
+    - retryStatus: String
+    - cacheStatus: String
+    - createdAt: DateTime
+  }
+}
+
+AdminContentController --> ContentAdminService
+AdminContentController --> CrawlerConfigService
+AdminContentController --> CrawlLogService
+ContentAdminService --> TopicRepository
+ContentAdminService --> VocabularyRepository
+ContentAdminService --> VocabularyTestRepository
+ContentCrawlerJob --> CrawlerConfigService
+ContentCrawlerJob --> ComplianceGuardrailService
+ContentCrawlerJob --> LangeekCrawlerClient
+ContentCrawlerJob --> ContentMappingService
+ContentCrawlerJob --> AutoPublishService
+ContentCrawlerJob --> CrawlLogService
+ContentCrawlerJob --> AdminNotificationService
+CrawlerConfigService --> CrawlerConfigRepository
+CrawlLogService --> CrawlLogRepository
+AutoPublishService --> TopicRepository
+AutoPublishService --> VocabularyRepository
+AutoPublishService --> VocabularyTestRepository
+TopicRepository --> Topic
+VocabularyRepository --> VocabularyWord
+VocabularyTestRepository --> VocabularyTest
+CrawlerConfigRepository --> CrawlerConfig
+CrawlLogRepository --> CrawlLog
+Topic --> CEFRLevel
+VocabularyWord --> CEFRLevel
+CrawlLog --> CrawlStatus
+
+note right of ComplianceGuardrailService
+  Enforces ToS, robots.txt,
+  copyright/licensing, and rate-limit guardrails.
+  If not permitted, crawler is disabled and
+  manual curation fallback is required.
+end note
+
+note bottom of AutoPublishService
+  Successful Langeek sync is auto-published;
+  Admin can edit or soft-disable content after publish.
+end note
+@enduml

@@ -1,0 +1,17 @@
+@startuml
+title UC12 — Admin views analytics/reporting/export — Screen Flow
+skinparam activityBackgroundColor #FEFEFE
+skinparam activityBorderColor #333333
+start
+:Open AdminAnalyticsPage;
+:User attempts to view analytics and export reports;
+if (Access and input valid?) then (yes)
+  :Call AnalyticsService;
+  :Persist/read ReportExportHistory data if needed;
+  :Display success state;
+else (no)
+  :Show validation/access error;
+  :Keep user input where possible;
+endif
+stop
+@enduml

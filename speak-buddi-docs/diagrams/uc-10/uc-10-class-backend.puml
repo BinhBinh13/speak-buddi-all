@@ -1,0 +1,33 @@
+@startuml
+title UC10 — Student purchases paid plan/payment — Backend Classes
+skinparam classAttributeIconSize 0
+class UC10Controller {
+  - service: PaymentService
+  + handle(request): Response
+}
+class PaymentService {
+  - repository: PaymentTransactionRepository
+  + execute(command): Result
+  + validate(command): void
+}
+class PaymentTransactionRepository {
+  + findById(id): PaymentTransaction
+  + save(entity: PaymentTransaction): PaymentTransaction
+}
+class PaymentTransaction {
+  - id: Long
+  - createdAt: DateTime
+  - updatedAt: DateTime
+}
+class Payment_ProviderClient {
+  +sendRequest(payload): ExternalResult
+}
+class ResendClient {
+  +sendRequest(payload): ExternalResult
+}
+UC10Controller --> PaymentService
+PaymentService --> PaymentTransactionRepository
+PaymentTransactionRepository --> PaymentTransaction
+PaymentService --> Payment_ProviderClient
+PaymentService --> ResendClient
+@enduml

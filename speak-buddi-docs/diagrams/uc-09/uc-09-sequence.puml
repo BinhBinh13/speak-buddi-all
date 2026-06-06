@@ -1,0 +1,22 @@
+@startuml
+title UC09 — Student/Paid User converses with AI — Sequence
+actor "Student" as Actor
+participant "ConversationPage" as UI
+participant "API Gateway" as API
+participant "AIConversationService" as AIConversationService
+database "MySQL" as DB
+participant "Anthropic API" as Anthropic_API
+participant "ElevenLabs API" as ElevenLabs_API
+Actor -> UI : start AI conversation session
+UI -> API : HTTPS request
+API -> AIConversationService : route and authorize
+AIConversationService -> DB : read/write SpeakingSession
+DB -->> AIConversationService : data result
+AIConversationService -> Anthropic_API : integration request
+Anthropic_API -->> AIConversationService : integration response
+AIConversationService -> ElevenLabs_API : integration request
+ElevenLabs_API -->> AIConversationService : integration response
+AIConversationService -->> API : response
+API -->> UI : JSON result
+UI -->> Actor : AI response and optional audio are returned
+@enduml

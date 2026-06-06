@@ -1,0 +1,106 @@
+@startuml
+title speak-buddi — Entity Relationship Overview
+hide circle
+skinparam linetype ortho
+entity users { * id : BIGINT
+--
+email
+role
+status }
+entity user_profile { * user_id : BIGINT
+--
+target_level_id
+learning_goal }
+entity level { * id : BIGINT
+--
+code
+name }
+entity topic { * id : BIGINT
+--
+level_id
+name
+is_active }
+entity topic_word { * id : BIGINT
+--
+topic_id
+word
+meaning_vi
+is_active }
+entity vocabulary_test { * id : BIGINT
+--
+topic_id
+title
+is_active }
+entity quiz_question { * id : BIGINT
+--
+vocabulary_test_id
+question_type }
+entity quiz_answer { * id : BIGINT
+--
+quiz_question_id
+is_correct }
+entity quiz_attempt { * id : BIGINT
+--
+user_id
+vocabulary_test_id
+score_percent }
+entity speaking_session { * id : BIGINT
+--
+user_id
+duration_seconds }
+entity ai_quota_window { * id : BIGINT
+--
+user_id
+used_seconds
+max_seconds }
+entity pronunciation_attempt { * id : BIGINT
+--
+user_id
+overall_score }
+entity payment_plan { * id : BIGINT
+--
+code
+price
+is_active }
+entity user_subscription { * id : BIGINT
+--
+user_id
+payment_plan_id
+status }
+entity payment_transaction { * id : BIGINT
+--
+user_id
+status
+amount }
+entity elevenlabs_voice_model { * id : BIGINT
+--
+provider_voice_id
+name }
+entity user_voice_preference { * user_id : BIGINT
+--
+elevenlabs_voice_model_id }
+entity translation_history { * id : BIGINT
+--
+user_id
+source_text }
+users ||--|| user_profile
+level ||--o{ topic
+topic ||--o{ topic_word
+topic ||--o{ vocabulary_test
+vocabulary_test ||--o{ quiz_question
+quiz_question ||--o{ quiz_answer
+users ||--o{ quiz_attempt
+vocabulary_test ||--o{ quiz_attempt
+users ||--o{ speaking_session
+users ||--o{ ai_quota_window
+ai_quota_window ||--o{ speaking_session
+users ||--o{ pronunciation_attempt
+speaking_session ||--o{ pronunciation_attempt
+payment_plan ||--o{ user_subscription
+users ||--o{ user_subscription
+users ||--o{ payment_transaction
+payment_plan ||--o{ payment_transaction
+users ||--|| user_voice_preference
+elevenlabs_voice_model ||--o{ user_voice_preference
+users ||--o{ translation_history
+@enduml

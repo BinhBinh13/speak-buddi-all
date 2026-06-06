@@ -1,0 +1,15 @@
+@startuml
+title UC07 — Student translates English words — State Diagram
+[*] --> Idle
+Idle --> InProgress : submit word for translation
+InProgress --> Validating : submit/request
+Validating --> Completed : success
+Validating --> Error : validation/integration/access error
+Error --> InProgress : retry/fix input
+Completed --> [*]
+state Completed {
+  [*] --> ResultVisible
+  ResultVisible --> Saved : TranslationHistory updated/read
+  Saved --> [*]
+}
+@enduml

@@ -1,0 +1,24 @@
+@startuml
+title UC12 — Admin views analytics/reporting/export — Frontend Classes
+skinparam classAttributeIconSize 0
+class AdminAnalyticsPage {
+  - state: UIState
+  + render(): JSX
+  + handleSubmit(): void
+}
+class useUC12 {
+  + loading: boolean
+  + error: string | null
+  + execute(payload): Promise<Result>
+}
+class UC12ApiClient {
+  + request(payload): Promise<ApiResponse>
+}
+class UC12FormOrView {
+  + props: Props
+  + render(): JSX
+}
+AdminAnalyticsPage --> useUC12
+AdminAnalyticsPage --> UC12FormOrView
+useUC12 --> UC12ApiClient
+@enduml

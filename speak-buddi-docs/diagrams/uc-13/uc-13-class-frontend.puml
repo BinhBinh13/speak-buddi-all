@@ -1,0 +1,118 @@
+@startuml uc-13-class-frontend
+title UC13 — Admin manages topic/vocabulary/tests and crawler content sync — Frontend Classes
+skinparam backgroundColor #FEFEFE
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+package "frontend/admin/content" {
+  class AdminContentCrawlerPage {
+    - selectedTab: ContentAdminTab
+    - viewModel: AdminContentCrawlerViewModel
+    + onLoad(): void
+    + onRefreshStatus(): void
+    + render(): JSX
+  }
+
+  class ContentEditorPanel {
+    - draft: ContentDraft
+    + onSubmit(): void
+    + onValidate(): ValidationResult
+    + render(): JSX
+  }
+
+  class CrawlerConfigPanel {
+    - configDraft: CrawlerConfigForm
+    + onSaveConfig(): void
+    + onValidateRateLimit(): ValidationResult
+    + render(): JSX
+  }
+
+  class SyncStatusPanel {
+    - lastSuccessfulSyncAt: DateTime
+    - retryStatus: string
+    - cacheStatus: string
+    + renderStatus(): JSX
+  }
+
+  class CrawlLogTable {
+    - logs: CrawlLogRow[]
+    + filterByStatus(status): void
+    + render(): JSX
+  }
+
+  class DisableContentDialog {
+    - contentId: string
+    + onConfirmDisable(): void
+    + render(): JSX
+  }
+
+  class GuardrailNoticeBanner {
+    - message: string
+    - sourceUrl: string
+    + showComplianceRisk(): JSX
+    + showManualCurationFallback(): JSX
+  }
+
+  class AdminContentCrawlerViewModel {
+    + contentItems: Observable<List<ContentItem>>
+    + crawlerConfig: Observable<CrawlerConfigForm>
+    + syncStatus: Observable<SyncStatus>
+    + crawlLogs: Observable<List<CrawlLogRow>>
+    + isLoading: boolean
+    + error: string | null
+    + loadInitialData(): Promise<void>
+  }
+
+  class useAdminContent {
+    + saveContent(draft): Promise<ContentItem>
+    + disableContent(id): Promise<void>
+    + validateDraft(draft): ValidationResult
+  }
+
+  class useCrawlerConfig {
+    + loadConfig(): Promise<CrawlerConfigForm>
+    + saveConfig(config): Promise<CrawlerConfigForm>
+    + validateGuardrailFields(config): ValidationResult
+  }
+
+  class useCrawlerSyncStatus {
+    + loadStatus(): Promise<SyncStatus>
+    + loadLogs(filter): Promise<CrawlLogRow[]>
+    + refresh(): Promise<void>
+  }
+
+  class AdminContentApiClient {
+    + getContent(filter): Promise<ContentItem[]>
+    + saveContent(payload): Promise<ContentItem>
+    + disableContent(id): Promise<void>
+    + getCrawlerConfig(): Promise<CrawlerConfigForm>
+    + saveCrawlerConfig(payload): Promise<CrawlerConfigForm>
+    + getSyncStatus(): Promise<SyncStatus>
+    + getCrawlLogs(filter): Promise<CrawlLogRow[]>
+  }
+}
+
+AdminContentCrawlerPage --> AdminContentCrawlerViewModel
+AdminContentCrawlerPage --> ContentEditorPanel
+AdminContentCrawlerPage --> CrawlerConfigPanel
+AdminContentCrawlerPage --> SyncStatusPanel
+AdminContentCrawlerPage --> CrawlLogTable
+AdminContentCrawlerPage --> GuardrailNoticeBanner
+ContentEditorPanel --> useAdminContent
+DisableContentDialog --> useAdminContent
+CrawlerConfigPanel --> useCrawlerConfig
+SyncStatusPanel --> useCrawlerSyncStatus
+CrawlLogTable --> useCrawlerSyncStatus
+AdminContentCrawlerViewModel --> useAdminContent
+AdminContentCrawlerViewModel --> useCrawlerConfig
+AdminContentCrawlerViewModel --> useCrawlerSyncStatus
+useAdminContent --> AdminContentApiClient
+useCrawlerConfig --> AdminContentApiClient
+useCrawlerSyncStatus --> AdminContentApiClient
+
+note right of GuardrailNoticeBanner
+  UI reminds Admin that crawling must comply with
+  ToS, robots.txt, copyright/licensing and rate limits.
+  If crawling is blocked, use manual curation fallback.
+end note
+@enduml

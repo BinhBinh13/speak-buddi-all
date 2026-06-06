@@ -1,0 +1,27 @@
+@startuml
+title UC12 — Admin views analytics/reporting/export — Backend Classes
+skinparam classAttributeIconSize 0
+class UC12Controller {
+  - service: AnalyticsService
+  + handle(request): Response
+}
+class AnalyticsService {
+  - repository: ReportExportHistoryRepository
+  + execute(command): Result
+  + validate(command): void
+}
+class ReportExportHistoryRepository {
+  + findById(id): ReportExportHistory
+  + save(entity: ReportExportHistory): ReportExportHistory
+}
+class ReportExportHistory {
+  - id: Long
+  - createdAt: DateTime
+  - updatedAt: DateTime
+}
+
+UC12Controller --> AnalyticsService
+AnalyticsService --> ReportExportHistoryRepository
+ReportExportHistoryRepository --> ReportExportHistory
+
+@enduml

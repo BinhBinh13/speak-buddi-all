@@ -1,0 +1,13 @@
+@startuml
+title UC08 — Student practices pronunciation — Use Case
+left to right direction
+skinparam packageStyle rectangle
+actor "Student" as Student
+actor "Paid User" as Paid_User
+actor "ElevenLabs API" as ElevenLabs_API
+rectangle "speak-buddi" {
+  Student -- (UC08: Student practices pronunciation)
+  Paid_User -- (UC08: Student practices pronunciation)
+  (UC08: Student practices pronunciation) ..> ElevenLabs_API : uses
+}
+@enduml

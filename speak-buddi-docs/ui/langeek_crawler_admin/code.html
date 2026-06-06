@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Langeek Crawler Admin</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface-variant": "#464555",
+                    "inverse-primary": "#c3c0ff",
+                    "surface-tint": "#4d44e3",
+                    "surface-container-highest": "#e4e1ee",
+                    "outline": "#777587",
+                    "surface-bright": "#fcf8ff",
+                    "on-background": "#1b1b24",
+                    "inverse-on-surface": "#f3effc",
+                    "on-primary-fixed": "#0f0069",
+                    "surface": "#fcf8ff",
+                    "on-error-container": "#93000a",
+                    "on-secondary": "#ffffff",
+                    "surface-container": "#f0ecf9",
+                    "surface-container-high": "#eae6f4",
+                    "on-secondary-fixed-variant": "#005236",
+                    "on-primary-container": "#dad7ff",
+                    "surface-dim": "#dcd8e5",
+                    "error": "#ba1a1a",
+                    "primary-fixed": "#e2dfff",
+                    "tertiary-container": "#a44100",
+                    "surface-variant": "#e4e1ee",
+                    "on-surface": "#1b1b24",
+                    "on-tertiary": "#ffffff",
+                    "on-tertiary-fixed": "#351000",
+                    "inverse-surface": "#302f39",
+                    "secondary-container": "#6cf8bb",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "tertiary": "#7e3000",
+                    "outline-variant": "#c7c4d8",
+                    "secondary": "#006c49",
+                    "primary": "#3525cd",
+                    "on-tertiary-fixed-variant": "#7b2f00",
+                    "tertiary-fixed-dim": "#ffb695",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-container": "#4f46e5",
+                    "background": "#fcf8ff",
+                    "on-primary": "#ffffff",
+                    "surface-container-low": "#f5f2ff",
+                    "secondary-fixed": "#6ffbbe",
+                    "on-secondary-fixed": "#002113",
+                    "secondary-fixed-dim": "#4edea3",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed": "#ffdbcc",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "on-error": "#ffffff",
+                    "on-tertiary-container": "#ffd2be",
+                    "on-secondary-container": "#00714d"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-desktop": "64px",
+                    "md": "1.5rem",
+                    "xs": "0.5rem",
+                    "margin-mobile": "16px",
+                    "xl": "3rem",
+                    "max-width": "1280px",
+                    "base": "4px",
+                    "lg": "2rem",
+                    "gutter": "16px",
+                    "sm": "1rem"
+            },
+            "fontFamily": {
+                    "display": ["Be Vietnam Pro"],
+                    "h1-mobile": ["Be Vietnam Pro"],
+                    "h1": ["Be Vietnam Pro"],
+                    "body-md": ["Be Vietnam Pro"],
+                    "label-md": ["Be Vietnam Pro"],
+                    "h3": ["Be Vietnam Pro"],
+                    "label-sm": ["Be Vietnam Pro"],
+                    "body-lg": ["Be Vietnam Pro"],
+                    "h2": ["Be Vietnam Pro"]
+            },
+            "fontSize": {
+                    "display": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "h1-mobile": ["28px", {"lineHeight": "1.25", "fontWeight": "700"}],
+                    "h1": ["32px", {"lineHeight": "1.25", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                    "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "h2": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}]
+            }
+          }
+        }
+      }
+    </script>
+<!-- Google Fonts & Material Symbols -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md antialiased min-h-screen flex">
+<!-- SideNavBar (Shared Component) -->
+<aside class="bg-surface-container-low dark:bg-surface-container-lowest h-full w-64 fixed left-0 top-0 shadow-sm flex flex-col h-screen py-md px-xs z-20">
+<!-- Header -->
+<div class="px-sm pb-md border-b border-surface-variant mb-xs">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined">shield_person</span>
+</div>
+<div>
+<h2 class="font-h3 text-h3 font-bold text-primary dark:text-inverse-primary">VietLearn Admin</h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Enterprise Control</p>
+</div>
+</div>
+</div>
+<!-- Navigation Tabs -->
+<nav class="flex-1 overflow-y-auto py-xs space-y-1">
+<!-- Active Tab (Closest match to Intent: Admin/Overview) -->
+<a class="flex items-center gap-3 px-sm py-2 rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined icon-fill" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Overview</span>
+</a>
+<a class="flex items-center gap-3 px-sm py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant font-medium hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors scale-98 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="auto_stories">auto_stories</span>
+<span class="font-label-md text-label-md">Topics</span>
+</a>
+<a class="flex items-center gap-3 px-sm py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant font-medium hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors scale-98 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="font-label-md text-label-md">Vocabulary</span>
+</a>
+<a class="flex items-center gap-3 px-sm py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant font-medium hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors scale-98 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="quiz">quiz</span>
+<span class="font-label-md text-label-md">Tests</span>
+</a>
+<a class="flex items-center gap-3 px-sm py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant font-medium hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors scale-98 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+<a class="flex items-center gap-3 px-sm py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant font-medium hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors scale-98 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-label-md text-label-md">Payments</span>
+</a>
+<a class="flex items-center gap-3 px-sm py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant font-medium hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors scale-98 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="flag">flag</span>
+<span class="font-label-md text-label-md">Reports</span>
+</a>
+</nav>
+<!-- Footer -->
+<div class="mt-auto pt-md border-t border-surface-variant space-y-1">
+<a class="flex items-center gap-3 px-sm py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-sm py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+<div class="px-sm pt-xs">
+<button class="w-full py-2 bg-primary-container text-on-primary-container rounded-lg font-label-md text-label-md font-bold hover:opacity-90 transition-opacity">Manage Plan</button>
+</div>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<div class="flex-1 ml-64 flex flex-col min-h-screen relative">
+<!-- TopNavBar (Shared Component) -->
+<header class="bg-surface/80 dark:bg-surface-bright/80 backdrop-blur-md docked full-width top-0 sticky border-b border-outline-variant dark:border-outline flex justify-between items-center w-full px-margin-desktop py-base z-10 transition-all duration-200 h-16">
+<div class="flex items-center">
+<span class="font-h3 text-h3 font-bold text-on-surface dark:text-on-surface">Dashboard</span>
+</div>
+<!-- Search & Actions -->
+<div class="flex items-center gap-4">
+<div class="relative hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="pl-10 pr-4 py-1.5 rounded-full border border-outline-variant bg-surface text-on-surface font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all w-64" placeholder="Search..." type="text"/>
+</div>
+<button class="text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<img alt="Administrator Profile" class="w-8 h-8 rounded-full border border-outline-variant cursor-pointer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCa5F0Ev8b78e-i7IPMhgiebnRTrbt1DYOfggKcvsQdo8NKN2bVtYHHQ7UGVfMZ2ylNfYYE2XztKi3oR_kbOn42OqsppcMbCdgkSPC9wzNjJPy2nKgbWBsKK62U8iIn-3BD2INul9VuPn4KudaxxL4DFd5rX_AbEk73WuBRnw5z6Eto8O7nO7VxobqtMRrK2CLAAMCnsVM6GnMfxNPh3egXeUUIiqKv2SpO1WWlY6PnGJFStTkjtPM5sU5WlDrWlh8IjPMpVfLosp4-"/>
+</div>
+</header>
+<!-- Canvas Area -->
+<main class="flex-1 p-margin-desktop max-w-max-width mx-auto w-full">
+<div class="mb-8">
+<h1 class="font-h1 text-h1 text-on-background mb-2">Content Crawler Tool</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Ingest, analyze, and map external resources to the vocabulary database.</p>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Input Panel (Col span 4) -->
+<div class="lg:col-span-4 flex flex-col gap-gutter">
+<!-- URL Input Card -->
+<div class="bg-surface rounded-xl shadow-[0_4px_12px_rgba(77,68,227,0.04)] border border-surface-variant p-md">
+<div class="flex items-center gap-2 mb-4 text-primary">
+<span class="material-symbols-outlined icon-fill">language</span>
+<h2 class="font-h3 text-h3">New Crawl Job</h2>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6">Enter a source URL to begin extraction.</p>
+<div class="space-y-4">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1 uppercase tracking-wider">Source URL</label>
+<input class="w-full p-3 rounded-lg border border-outline-variant bg-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md text-body-md" placeholder="https://example.com/article" type="url"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1 uppercase tracking-wider">Target Domain</label>
+<select class="w-full p-3 rounded-lg border border-outline-variant bg-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md text-body-md text-on-surface">
+<option>Vocabulary (B1 - Intermediate)</option>
+<option>Grammar Structures</option>
+<option>Reading Comprehension</option>
+</select>
+</div>
+<button class="w-full py-3 bg-primary text-on-primary rounded-full font-label-md text-label-md font-bold hover:bg-surface-tint shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 mt-2">
+<span class="material-symbols-outlined">play_arrow</span>
+                                Start Crawler
+                            </button>
+</div>
+</div>
+<!-- Quick Stats -->
+<div class="bg-primary-container text-on-primary-container rounded-xl p-md shadow-sm relative overflow-hidden">
+<div class="absolute right-0 top-0 opacity-10 pointer-events-none text-9xl">
+<span class="material-symbols-outlined">data_exploration</span>
+</div>
+<h3 class="font-label-md text-label-md font-bold mb-1 opacity-80">This Week's Intake</h3>
+<p class="font-display text-display font-bold">1,420</p>
+<p class="font-label-sm text-label-sm mt-1">New tokens extracted</p>
+</div>
+</div>
+<!-- Preview & Logs (Col span 8) -->
+<div class="lg:col-span-8 flex flex-col gap-gutter">
+<!-- Extracted Data Preview (Glassmorphism-lite) -->
+<div class="bg-surface rounded-xl shadow-[0_4px_12px_rgba(77,68,227,0.04)] border border-surface-variant flex flex-col h-[500px] overflow-hidden">
+<div class="px-md py-4 border-b border-surface-variant flex justify-between items-center bg-surface-container-lowest/50 backdrop-blur-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">preview</span>
+<h2 class="font-h3 text-h3 text-on-surface">Extraction Preview</h2>
+</div>
+<div class="flex gap-2">
+<button class="px-4 py-1.5 border-2 border-primary text-primary rounded-full font-label-md text-label-md hover:bg-primary-container transition-colors">Discard</button>
+<button class="px-4 py-1.5 bg-primary text-on-primary rounded-full font-label-md text-label-md hover:bg-surface-tint shadow-sm transition-colors">Commit to DB</button>
+</div>
+</div>
+<div class="flex-1 p-md overflow-y-auto bg-surface-container-low font-mono text-sm text-on-surface-variant">
+<!-- Mock JSON Data -->
+<pre><code>{
+  "job_id": "crl_982347x",
+  "status": "pending_review",
+  "source_url": "https://lang-blog.com/daily-idioms",
+  "extracted_entities": [
+    {
+      "token": "Bite the bullet",
+      "type": "idiom",
+      "cefr_estimate": "B2",
+      "context": "She had to bite the bullet and pay the fine.",
+      "confidence_score": 0.94
+    },
+    {
+      "token": "Procrastination",
+      "type": "noun",
+      "cefr_estimate": "C1",
+      "context": "His constant procrastination led to missed deadlines.",
+      "confidence_score": 0.88
+    }
+  ],
+  "meta": {
+    "word_count": 450,
+    "readability_index": 12.4
+  }
+}</code></pre>
+</div>
+</div>
+<!-- Recent Jobs Log -->
+<div class="bg-surface rounded-xl shadow-[0_4px_12px_rgba(77,68,227,0.04)] border border-surface-variant p-md">
+<h2 class="font-h3 text-h3 text-on-surface mb-4">Recent Crawl Logs</h2>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-surface-variant text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+<th class="pb-2 font-medium">Job ID / Target</th>
+<th class="pb-2 font-medium">Date</th>
+<th class="pb-2 font-medium">Status</th>
+<th class="pb-2 font-medium">Yield</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md">
+<tr class="border-b border-surface-container hover:bg-surface-container-lowest transition-colors">
+<td class="py-3">
+<div class="font-medium text-on-surface">TechCrunch Article</div>
+<div class="text-xs text-on-surface-variant">crl_8821a</div>
+</td>
+<td class="py-3 text-on-surface-variant">Today, 10:24 AM</td>
+<td class="py-3">
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> Success
+                                            </span>
+</td>
+<td class="py-3 text-on-surface font-medium">42 tokens</td>
+</tr>
+<tr class="border-b border-surface-container hover:bg-surface-container-lowest transition-colors">
+<td class="py-3">
+<div class="font-medium text-on-surface">BBC News Global</div>
+<div class="text-xs text-on-surface-variant">crl_8820b</div>
+</td>
+<td class="py-3 text-on-surface-variant">Yesterday, 14:15 PM</td>
+<td class="py-3">
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">error</span> Failed
+                                            </span>
+</td>
+<td class="py-3 text-on-surface-variant">-</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

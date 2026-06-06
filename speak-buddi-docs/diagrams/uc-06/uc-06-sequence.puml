@@ -1,0 +1,87 @@
+@startuml uc-06-sequence
+title UC06 — Vocabulary tests/activities by selected level/topic — Sequence
+skinparam sequenceParticipantBorderColor #333333
+skinparam sequenceLifeLineBorderColor #333333
+skinparam sequenceLifeLineBackgroundColor #FEFEFE
+
+actor "Student / Paid User" as Student
+participant "VocabularyActivityPage" as Page
+participant "useVocabularyActivity" as ViewModel
+participant "API Gateway" as API
+participant "VocabularyActivityController" as Controller
+participant "VocabularyActivityService" as ActivityService
+participant "ContentSelectionService" as ContentService
+participant "GrammarMappingService" as GrammarService
+participant "ScoringService" as ScoringService
+database "MySQL\nprofiles/topics/words/tests/attempts" as DB
+database "Content Cache\nactive fallback" as Cache
+
+Student -> Page : Open topic test/activity
+Page -> ViewModel : loadActivities(topicId)
+ViewModel -> API : GET /api/v1/topics/{topicId}/activities\n?level={selectedLevel}
+API -> Controller : authorize learner and route
+Controller -> ActivityService : startActivity(userId, selectedLevel, topicId)
+ActivityService -> DB : Read profile selected_level\nand topic access
+DB -->> ActivityService : level/topic context
+
+ActivityService -> ContentService : loadActivityContent(level, topicId)
+ContentService -> DB : Query active topic words,\nvocabulary tests, grammar data
+
+alt Active crawled/Admin content is ready
+  DB -->> ContentService : ContentPackage(source=Langeek/Admin,\ncontentVersion=current)
+  ContentService -->> ActivityService : active content package
+else New crawl content not ready or crawl failed
+  DB -->> ContentService : no newer active package
+  ContentService -> Cache : Read cached active content\nfor level + topic
+  Cache -->> ContentService : cached ContentPackage
+  ContentService -->> ActivityService : fallback content package
+else No active or cached content
+  DB -->> ContentService : empty result
+  ContentService -->> ActivityService : no content
+end
+
+alt Content package available
+  ActivityService -> GrammarService : build grammar mappings(words)
+  GrammarService -->> ActivityService : grammar mapping tasks
+  ActivityService -> ActivityService : Generate flashcard,\nmultiple choice, fill-in-the-blank,\ngrammar mapping tasks
+  ActivityService -->> Controller : ActivitySet(tasks, contentVersion,\nusingCachedContent)
+  Controller -->> API : 200 OK
+  API -->> ViewModel : ActivitySet JSON
+  ViewModel -->> Page : render tasks and fallback banner if needed
+  Page -->> Student : Display activities by level/topic
+
+  Student -> Page : Answer tasks and submit
+  Page -> ViewModel : validateRequiredAnswers(answers)
+
+  alt Missing required answers
+    ViewModel -->> Page : validation errors
+    Page -->> Student : Highlight missing answers / disable submit
+  else All required answers completed
+    ViewModel -> API : POST /api/v1/quiz-attempts\nanswers + level/topic/contentVersion
+    API -> Controller : route submit attempt
+    Controller -> ActivityService : submitAttempt(command)
+    ActivityService -> ScoringService : evaluate(answers, questions)
+    ScoringService -->> ActivityService : score and per-question feedback
+    ActivityService -> DB : INSERT quiz_attempt\nand quiz_attempt_answer
+    DB -->> ActivityService : attemptId
+    ActivityService -->> Controller : QuizResult(score, feedback)
+    Controller -->> API : 200 OK
+    API -->> ViewModel : QuizResult JSON
+    ViewModel -->> Page : update result state
+    Page -->> Student : Show score, corrections, next action
+  end
+else No content available
+  ActivityService -->> Controller : Empty activity response
+  Controller -->> API : 200 OK
+  API -->> ViewModel : no active content
+  ViewModel -->> Page : empty state
+  Page -->> Student : Show no activities for selected level/topic
+end
+
+note over ActivityService, DB
+  Saved attempts include user, selected level,
+  topic, test/activity, question IDs, score,
+  and content version. Later weekly sync
+  does not modify previous attempt results.
+end note
+@enduml

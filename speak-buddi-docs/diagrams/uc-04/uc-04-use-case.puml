@@ -1,0 +1,40 @@
+@startuml uc-04-use-case
+title UC04 — Student views personalized roadmap by selected level — Use Case
+left to right direction
+skinparam packageStyle rectangle
+skinparam backgroundColor #FEFEFE
+
+actor "Student" as Student
+actor "Paid User" as PaidUser
+actor "Langeek Vocabulary Source" as Langeek
+
+rectangle "speak-buddi" {
+  usecase "UC04: View personalized\nroadmap by selected level" as UC04
+  usecase "Read selected\nA1-C2 level" as ReadLevel
+  usecase "Load active topics,\nvocabulary, activities" as LoadContent
+  usecase "Use current cached content\nwhen crawl fails/down" as CacheFallback
+  usecase "Use auto-published\nLangeek crawled content" as AutoPublishContent
+
+  Student -- UC04
+  PaidUser -- UC04
+
+  UC04 ..> ReadLevel : <<include>>
+  UC04 ..> LoadContent : <<include>>
+  LoadContent ..> AutoPublishContent : <<include>>
+  CacheFallback ..> LoadContent : <<extend>>
+}
+
+Langeek --> AutoPublishContent : weekly crawl source
+
+note right of AutoPublishContent
+  Crawled topic/new-word data is
+  mapped to A1, A2, B1, B2,
+  C1, C2 and published automatically.
+  Roadmap does not wait for Admin approval.
+end note
+
+note bottom of CacheFallback
+  If Langeek is unavailable or crawl fails,
+  UC04 still displays active cached content.
+end note
+@enduml

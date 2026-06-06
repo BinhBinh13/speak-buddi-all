@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Học Từ Vựng - SpeakBuddi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-container": "#a44100",
+                      "surface-container-highest": "#e4e1ee",
+                      "error": "#ba1a1a",
+                      "surface-bright": "#fcf8ff",
+                      "inverse-primary": "#c3c0ff",
+                      "on-primary-fixed": "#0f0069",
+                      "on-error-container": "#93000a",
+                      "surface": "#fcf8ff",
+                      "on-surface": "#1b1b24",
+                      "on-secondary-container": "#00714d",
+                      "surface-container-low": "#f5f2ff",
+                      "inverse-on-surface": "#f3effc",
+                      "tertiary-fixed": "#ffdbcc",
+                      "primary-fixed": "#e2dfff",
+                      "on-surface-variant": "#464555",
+                      "on-background": "#1b1b24",
+                      "tertiary-fixed-dim": "#ffb695",
+                      "on-secondary": "#ffffff",
+                      "surface-container-high": "#eae6f4",
+                      "secondary-fixed-dim": "#4edea3",
+                      "on-primary-container": "#dad7ff",
+                      "surface-container": "#f0ecf9",
+                      "background": "#fcf8ff",
+                      "secondary-container": "#6cf8bb",
+                      "on-tertiary-container": "#ffd2be",
+                      "error-container": "#ffdad6",
+                      "on-error": "#ffffff",
+                      "on-primary-fixed-variant": "#3323cc",
+                      "on-tertiary-fixed-variant": "#7b2f00",
+                      "primary": "#3525cd",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary": "#006c49",
+                      "outline": "#777587",
+                      "on-secondary-fixed-variant": "#005236",
+                      "on-secondary-fixed": "#002113",
+                      "tertiary": "#7e3000",
+                      "surface-dim": "#dcd8e5",
+                      "on-tertiary-fixed": "#351000",
+                      "secondary-fixed": "#6ffbbe",
+                      "surface-tint": "#4d44e3",
+                      "primary-container": "#4f46e5",
+                      "outline-variant": "#c7c4d8",
+                      "on-tertiary": "#ffffff",
+                      "inverse-surface": "#302f39",
+                      "on-primary": "#ffffff",
+                      "surface-variant": "#e4e1ee",
+                      "primary-fixed-dim": "#c3c0ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "3rem",
+                      "lg": "2rem",
+                      "base": "4px",
+                      "margin-mobile": "16px",
+                      "gutter": "16px",
+                      "md": "1.5rem",
+                      "max-width": "1280px",
+                      "sm": "1rem",
+                      "margin-desktop": "64px",
+                      "xs": "0.5rem"
+              },
+              "fontFamily": {
+                      "label-sm": [
+                              "Be Vietnam Pro"
+                      ],
+                      "display": [
+                              "Be Vietnam Pro"
+                      ],
+                      "h1": [
+                              "Be Vietnam Pro"
+                      ],
+                      "h2": [
+                              "Be Vietnam Pro"
+                      ],
+                      "label-md": [
+                              "Be Vietnam Pro"
+                      ],
+                      "h3": [
+                              "Be Vietnam Pro"
+                      ],
+                      "body-lg": [
+                              "Be Vietnam Pro"
+                      ],
+                      "h1-mobile": [
+                              "Be Vietnam Pro"
+                      ],
+                      "body-md": [
+                              "Be Vietnam Pro"
+                      ]
+              },
+              "fontSize": {
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "h1": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.25",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "h2": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "h3": [
+                              "20px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "h1-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "1.25",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        body {
+            background-color: #F9FAFB;
+        }
+        
+        .flip-card-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        
+        .flip-card-front, .flip-card-back {
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
+        
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+        
+        /* Ensure specific icons have fill weight if needed */
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-x-hidden md:pl-64">
+<!-- TopNavBar Web (hidden on mobile) -->
+<header class="hidden md:flex bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md shadow-sm fixed top-0 w-full z-40 left-0">
+<div class="flex justify-between items-center w-full px-margin-desktop py-4 max-w-max-width mx-auto pl-[280px]">
+<div class="font-h2 text-h2 font-bold text-primary dark:text-inverse-primary tracking-tight">
+                SpeakBuddi
+            </div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-inverse-primary transition-colors cursor-pointer active:opacity-70 flex items-center justify-center p-2 rounded-full hover:bg-surface-variant">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+</button>
+<button class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-inverse-primary transition-colors cursor-pointer active:opacity-70 flex items-center justify-center p-2 rounded-full hover:bg-surface-variant">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="w-10 h-10 rounded-full bg-surface-variant overflow-hidden border-2 border-surface-variant">
+<img alt="User profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSn_QS9dN91cdZ92HWq8DfiNZ8wFtqpAQlPnXaEzqyT_7FaZux-NSyOWKpCpc8fHYfmXLnDlHNUem3SuvgN7iWi89Gnfga29YCEnWRTwKHyNCkJSibHtSY11wc1k25soqbDO0iIMxChvmcLvc1jJDWEUPbNkTZBH3qRocrcEON0mxHZS4er5MufbNsNCAiNsAuy4vX2K2k8n43FBvg5r4C1myQIhqHdE-4-V0lyQ4pZUuc1WurqoDf4s_IDERnunc8W3U8agROYwun"/>
+</button>
+</div>
+</div>
+</header>
+<!-- SideNavBar (Web only) -->
+<nav class="hidden md:flex bg-surface-container dark:bg-surface-container-high shadow-md h-screen w-64 fixed left-0 top-0 z-50 flex-col p-4 gap-2">
+<div class="flex items-center gap-3 px-4 py-6 mb-4">
+<div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-on-primary font-bold">
+                SB
+            </div>
+<div>
+<h1 class="font-h3 text-h3 font-bold text-primary dark:text-inverse-primary">SpeakBuddi</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant">English Learning</p>
+</div>
+</div>
+<a class="flex items-center gap-3 text-on-surface-variant dark:text-surface-variant px-4 py-3 hover:bg-surface-container-highest dark:hover:bg-inverse-surface rounded-xl transition-all scale-95 active:scale-100 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+            Home
+        </a>
+<a class="flex items-center gap-3 text-on-surface-variant dark:text-surface-variant px-4 py-3 hover:bg-surface-container-highest dark:hover:bg-inverse-surface rounded-xl transition-all scale-95 active:scale-100 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+            Roadmap
+        </a>
+<!-- Active Tab -->
+<a class="flex items-center gap-3 bg-primary-container dark:bg-primary text-on-primary-container dark:text-on-primary rounded-xl px-4 py-3 scale-95 active:scale-100 transition-transform duration-200 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="translate" data-weight="fill">translate</span>
+            Vocabulary
+        </a>
+<a class="flex items-center gap-3 text-on-surface-variant dark:text-surface-variant px-4 py-3 hover:bg-surface-container-highest dark:hover:bg-inverse-surface rounded-xl transition-all scale-95 active:scale-100 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+            Analytics
+        </a>
+<a class="flex items-center gap-3 text-on-surface-variant dark:text-surface-variant px-4 py-3 hover:bg-surface-container-highest dark:hover:bg-inverse-surface rounded-xl transition-all scale-95 active:scale-100 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+            Settings
+        </a>
+<div class="mt-auto px-2">
+<button class="w-full py-3 bg-primary text-on-primary rounded-xl font-label-md text-label-md font-bold shadow-[0_4px_14px_0_rgba(79,70,229,0.39)] hover:shadow-[0_6px_20px_rgba(79,70,229,0.23)] hover:bg-primary/90 transition-all">
+                Upgrade to Pro
+            </button>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="w-full min-h-screen pt-4 md:pt-[100px] pb-24 md:pb-12 px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto flex flex-col items-center justify-center">
+<!-- Header & Progress Section -->
+<div class="w-full max-w-2xl mb-8 flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<button class="md:hidden flex items-center justify-center p-2 rounded-full bg-surface shadow-sm text-on-surface-variant" onclick="window.history.back()">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<div class="flex-1 md:text-left text-center px-4">
+<h1 class="font-h2 text-h2 md:font-h1 md:text-h1 text-on-background">Du lịch &amp; Khám phá</h1>
+<div class="flex items-center justify-center md:justify-start gap-2 mt-2">
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-full font-label-sm text-label-sm">B1</span>
+<span class="text-on-surface-variant font-label-md text-label-md">50 từ</span>
+</div>
+</div>
+<div class="w-10 md:hidden"></div> <!-- Spacer for mobile centering -->
+</div>
+<!-- Global Progress Bar -->
+<div class="w-full bg-surface-container-highest rounded-full h-2.5 mt-2">
+<div class="bg-primary h-2.5 rounded-full transition-all duration-500 ease-out" style="width: 40%"></div>
+</div>
+<div class="flex justify-between font-label-sm text-label-sm text-on-surface-variant">
+<span>12 / 50 từ</span>
+<span>40%</span>
+</div>
+</div>
+<!-- Central Flashcard Area -->
+<div class="w-full max-w-2xl perspective-1000">
+<!-- Glassmorphism Card Container -->
+<div class="relative w-full aspect-[4/5] md:aspect-video rounded-[32px] bg-surface shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-surface-variant overflow-hidden flex flex-col items-center justify-center p-8 transition-transform hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+<!-- Background decorative element -->
+<div class="absolute -top-24 -right-24 w-48 h-48 bg-primary/5 rounded-full blur-3xl"></div>
+<div class="absolute -bottom-24 -left-24 w-64 h-64 bg-secondary/5 rounded-full blur-3xl"></div>
+<div class="relative z-10 w-full h-full flex flex-col items-center justify-between">
+<!-- Top Actions -->
+<div class="w-full flex justify-between items-start">
+<span class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-md font-label-sm text-label-sm font-medium tracking-widest uppercase">Danh từ</span>
+<button aria-label="Play audio" class="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary/20 transition-colors shadow-sm" onclick="playAudio()">
+<span class="material-symbols-outlined" data-weight="fill" style="font-size: 28px;">volume_up</span>
+</button>
+</div>
+<!-- Word & Phonetic -->
+<div class="flex flex-col items-center gap-2 text-center my-auto">
+<h2 class="font-display text-display text-primary tracking-tight">Departure</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant font-mono bg-surface-container px-4 py-2 rounded-lg">/dɪˈpɑːrtʃər/</p>
+</div>
+<!-- Meanings & Examples -->
+<div class="w-full flex flex-col gap-4 items-center">
+<!-- Vietnamese Meaning (Always visible) -->
+<div class="font-h3 text-h3 text-on-background text-center font-medium">
+                            Sự khởi hành
+                        </div>
+<!-- English Meaning Toggle -->
+<div class="w-full">
+<button class="w-full py-2 flex items-center justify-center gap-2 text-primary font-label-md text-label-md hover:bg-surface-variant rounded-lg transition-colors" id="toggleMeaning" onclick="toggleEngMeaning()">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+                                Hiện nghĩa tiếng Anh
+                            </button>
+<div class="hidden text-center mt-2 p-4 bg-surface-container-low rounded-xl font-body-md text-body-md text-on-surface-variant" id="engMeaning">
+                                "The act of leaving a place"
+                            </div>
+</div>
+<!-- Example Sentence -->
+<div class="w-full p-4 border border-surface-variant rounded-2xl bg-surface/50 text-center">
+<p class="font-body-md text-body-md text-on-background italic">"Please check the <span class="font-semibold text-primary">departure</span> board for your flight details."</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Buttons (Learn/Know) -->
+<div class="grid grid-cols-2 gap-4 mt-8">
+<button class="group py-4 rounded-2xl border-2 border-outline-variant hover:border-[#F59E0B] hover:bg-[#FFFBEB] text-on-surface-variant hover:text-[#B45309] font-label-md text-label-md font-bold transition-all flex flex-col items-center justify-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">school</span>
+                    Cần luyện thêm
+                </button>
+<button class="group py-4 rounded-2xl bg-[#059669] text-white hover:bg-[#047857] shadow-[0_4px_14px_0_rgba(5,150,105,0.39)] hover:shadow-[0_6px_20px_rgba(5,150,105,0.23)] font-label-md text-label-md font-bold transition-all flex flex-col items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[24px] group-hover:scale-110 transition-transform">check_circle</span>
+                    Đã thuộc
+                </button>
+</div>
+<!-- Bottom CTA -->
+<div class="mt-8 w-full flex justify-center">
+<button class="py-3 px-8 bg-surface border border-outline-variant text-on-surface-variant font-label-md text-label-md rounded-full hover:bg-surface-variant transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">quiz</span>
+                    Làm bài kiểm tra
+                </button>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile only) -->
+<nav class="md:hidden bg-surface dark:bg-inverse-surface shadow-[0_-4px_12px_rgba(0,0,0,0.04)] docked full-width bottom-0 rounded-t-xl fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-margin-mobile py-2 pb-safe">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high active:scale-90 transition-transform duration-150 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span class="font-label-sm text-label-sm text-[10px]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high active:scale-90 transition-transform duration-150 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="map">map</span>
+<span class="font-label-sm text-label-sm text-[10px]">Roadmap</span>
+</a>
+<!-- Active Tab Mobile -->
+<a class="flex flex-col items-center justify-center bg-primary-container dark:bg-primary text-on-primary-container dark:text-on-primary rounded-full px-4 py-1 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="translate" data-weight="fill">translate</span>
+<span class="font-label-sm text-label-sm text-[10px]">Vocab</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high active:scale-90 transition-transform duration-150 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="insights">insights</span>
+<span class="font-label-sm text-label-sm text-[10px]">Stats</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high active:scale-90 transition-transform duration-150 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="settings">settings</span>
+<span class="font-label-sm text-label-sm text-[10px]">Settings</span>
+</a>
+</nav>
+<script>
+        function toggleEngMeaning() {
+            const meaningDiv = document.getElementById('engMeaning');
+            const toggleBtn = document.getElementById('toggleMeaning');
+            
+            if (meaningDiv.classList.contains('hidden')) {
+                meaningDiv.classList.remove('hidden');
+                meaningDiv.classList.add('animate-fade-in');
+                toggleBtn.innerHTML = `<span class="material-symbols-outlined text-[18px]">visibility_off</span> Ẩn nghĩa tiếng Anh`;
+            } else {
+                meaningDiv.classList.add('hidden');
+                toggleBtn.innerHTML = `<span class="material-symbols-outlined text-[18px]">visibility</span> Hiện nghĩa tiếng Anh`;
+            }
+        }
+
+        function playAudio() {
+            // Placeholder for audio play logic
+            const btn = document.querySelector('[aria-label="Play audio"]');
+            btn.classList.add('scale-90');
+            setTimeout(() => btn.classList.remove('scale-90'), 150);
+        }
+    </script>
+</body></html>

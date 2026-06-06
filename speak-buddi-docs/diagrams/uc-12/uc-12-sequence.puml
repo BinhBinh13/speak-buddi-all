@@ -1,0 +1,18 @@
+@startuml
+title UC12 — Admin views analytics/reporting/export — Sequence
+actor "Admin" as Actor
+participant "AdminAnalyticsPage" as UI
+participant "API Gateway" as API
+participant "AnalyticsService" as AnalyticsService
+database "MySQL" as DB
+
+Actor -> UI : open admin analytics/export screen
+UI -> API : HTTPS request
+API -> AnalyticsService : route and authorize
+AnalyticsService -> DB : read/write ReportExportHistory
+DB -->> AnalyticsService : data result
+
+AnalyticsService -->> API : response
+API -->> UI : JSON result
+UI -->> Actor : metrics and Excel/PDF exports are produced
+@enduml

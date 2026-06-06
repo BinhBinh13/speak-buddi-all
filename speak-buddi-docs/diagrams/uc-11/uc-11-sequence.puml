@@ -1,0 +1,19 @@
+@startuml
+title UC11 — Paid User changes ElevenLabs voice/model — Sequence
+actor "Paid User" as Actor
+participant "VoiceSettingsPage" as UI
+participant "API Gateway" as API
+participant "VoicePreferenceService" as VoicePreferenceService
+database "MySQL" as DB
+participant "ElevenLabs API" as ElevenLabs_API
+Actor -> UI : save voice preference
+UI -> API : HTTPS request
+API -> VoicePreferenceService : route and authorize
+VoicePreferenceService -> DB : read/write UserVoicePreference
+DB -->> VoicePreferenceService : data result
+VoicePreferenceService -> ElevenLabs_API : integration request
+ElevenLabs_API -->> VoicePreferenceService : integration response
+VoicePreferenceService -->> API : response
+API -->> UI : JSON result
+UI -->> Actor : voice preference is saved
+@enduml

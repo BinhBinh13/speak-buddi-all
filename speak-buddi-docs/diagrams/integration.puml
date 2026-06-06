@@ -1,0 +1,34 @@
+@startuml
+title speak-buddi — External Integration Diagram
+skinparam componentStyle uml2
+component "speak-buddi Backend" as API
+component "Auth Module" as Auth
+component "AI Conversation Module" as AI
+component "Pronunciation Module" as Pron
+component "Payment Module" as Payment
+component "Notification Module" as Notify
+cloud "Anthropic API
+REST/JSON API Key" as Anthropic
+cloud "ElevenLabs API
+REST/JSON + Audio API Key" as Eleven
+cloud "Payment Provider
+TBD + Webhook" as Pay
+cloud "Resend
+REST/JSON API Key" as Resend
+database "MySQL" as DB
+API --> Auth
+API --> AI
+API --> Pron
+API --> Payment
+API --> Notify
+Auth --> DB
+AI --> DB
+Pron --> DB
+Payment --> DB
+AI --> Anthropic : real-time request/response
+AI --> Eleven : TTS/audio request
+Pron --> Eleven : pronunciation/TTS support
+Payment --> Pay : payment initiation
+Pay --> Payment : webhook/callback
+Notify --> Resend : event-driven email
+@enduml

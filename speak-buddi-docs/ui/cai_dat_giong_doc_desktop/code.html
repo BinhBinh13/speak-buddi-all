@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Voice Settings - SpeakBuddi</title>
+<!-- Google Fonts: Be Vietnam Pro -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container": "#f0ecf9",
+                        "on-tertiary-fixed": "#351000",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#dcd8e5",
+                        "secondary-fixed": "#6ffbbe",
+                        "primary-container": "#4f46e5",
+                        "on-error": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "secondary": "#006c49",
+                        "surface-variant": "#e4e1ee",
+                        "tertiary": "#7e3000",
+                        "inverse-primary": "#c3c0ff",
+                        "surface": "#fcf8ff",
+                        "on-error-container": "#93000a",
+                        "inverse-on-surface": "#f3effc",
+                        "secondary-fixed-dim": "#4edea3",
+                        "on-surface-variant": "#464555",
+                        "tertiary-fixed-dim": "#ffb695",
+                        "error-container": "#ffdad6",
+                        "primary": "#3525cd",
+                        "outline-variant": "#c7c4d8",
+                        "surface-container-high": "#eae6f4",
+                        "inverse-surface": "#302f39",
+                        "outline": "#777587",
+                        "surface-container-low": "#f5f2ff",
+                        "on-secondary-fixed": "#002113",
+                        "on-secondary-fixed-variant": "#005236",
+                        "on-primary-fixed": "#0f0069",
+                        "on-primary-container": "#dad7ff",
+                        "on-tertiary-container": "#ffd2be",
+                        "surface-container-highest": "#e4e1ee",
+                        "surface-bright": "#fcf8ff",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "tertiary-fixed": "#ffdbcc",
+                        "on-tertiary-fixed-variant": "#7b2f00",
+                        "on-surface": "#1b1b24",
+                        "on-secondary-container": "#00714d",
+                        "primary-fixed": "#e2dfff",
+                        "on-primary-fixed-variant": "#3323cc",
+                        "on-background": "#1b1b24",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "background": "#fcf8ff",
+                        "secondary-container": "#6cf8bb",
+                        "tertiary-container": "#a44100",
+                        "surface-tint": "#4d44e3",
+                        "on-secondary": "#ffffff"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "margin-desktop": "64px",
+                        "max-width": "1280px",
+                        "xs": "0.5rem",
+                        "sm": "1rem",
+                        "base": "4px",
+                        "md": "1.5rem",
+                        "xl": "3rem",
+                        "lg": "2rem",
+                        "gutter": "16px",
+                        "margin-mobile": "16px"
+                    },
+                    fontFamily: {
+                        "label-md": ["Be Vietnam Pro"],
+                        "label-sm": ["Be Vietnam Pro"],
+                        "h1": ["Be Vietnam Pro"],
+                        "display": ["Be Vietnam Pro"],
+                        "body-lg": ["Be Vietnam Pro"],
+                        "body-md": ["Be Vietnam Pro"],
+                        "h2": ["Be Vietnam Pro"],
+                        "h1-mobile": ["Be Vietnam Pro"],
+                        "h3": ["Be Vietnam Pro"]
+                    },
+                    fontSize: {
+                        "label-md": ["14px", { lineHeight: "1.4", fontWeight: "500" }],
+                        "label-sm": ["12px", { lineHeight: "1.2", letterSpacing: "0.05em", fontWeight: "600" }],
+                        "h1": ["32px", { lineHeight: "1.25", fontWeight: "700" }],
+                        "display": ["48px", { lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "body-lg": ["18px", { lineHeight: "1.6", fontWeight: "400" }],
+                        "body-md": ["16px", { lineHeight: "1.6", fontWeight: "400" }],
+                        "h2": ["24px", { lineHeight: "1.3", fontWeight: "600" }],
+                        "h1-mobile": ["28px", { lineHeight: "1.25", fontWeight: "700" }],
+                        "h3": ["20px", { lineHeight: "1.4", fontWeight: "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom Gold Gradient for Pro Badge per style guidance */
+        .pro-gradient {
+            background: linear-gradient(135deg, #FFD700 0%, #FDB931 100%);
+            color: #4A3500;
+        }
+        .pro-border {
+            border: 2px solid transparent;
+            background-image: linear-gradient(white, white), linear-gradient(135deg, #FFD700 0%, #FDB931 100%);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col antialiased">
+<!-- TopNavBar Component -->
+<nav class="bg-surface/80 dark:bg-surface-container-high/80 backdrop-blur-md fixed top-0 w-full z-50 border-b border-outline-variant/30 dark:border-outline/20 shadow-sm">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop h-16 max-w-max-width mx-auto">
+<!-- Brand -->
+<div class="flex items-center gap-4">
+<span class="font-h2 text-h2 font-bold text-primary dark:text-primary-fixed">SpeakBuddi</span>
+</div>
+<!-- Navigation Links (Desktop) -->
+<div class="hidden md:flex items-center gap-8">
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant/80 hover:text-primary dark:hover:text-primary-fixed transition-colors active:scale-95 transition-transform duration-150" href="#">AI Tutor</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant/80 hover:text-primary dark:hover:text-primary-fixed transition-colors active:scale-95 transition-transform duration-150" href="#">Roadmap</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant/80 hover:text-primary dark:hover:text-primary-fixed transition-colors active:scale-95 transition-transform duration-150" href="#">Vocab</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant/80 hover:text-primary dark:hover:text-primary-fixed transition-colors active:scale-95 transition-transform duration-150" href="#">Tests</a>
+</div>
+<!-- Trailing Icons / Search -->
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors active:scale-95 rounded-full hover:bg-surface-variant/50">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden border border-outline-variant">
+<!-- Placeholder for User Profile Picture -->
+<span class="material-symbols-outlined w-full h-full flex items-center justify-center text-on-surface-variant" data-icon="person">person</span>
+</div>
+</div>
+</div>
+</nav>
+<div class="flex flex-1 pt-16 max-w-max-width mx-auto w-full">
+<!-- SideNavBar Component -->
+<aside class="bg-surface-container-low dark:bg-surface-container-lowest fixed left-0 top-16 h-full w-64 hidden lg:flex flex-col z-40 border-r border-outline-variant/30">
+<div class="flex flex-col p-4 gap-2 h-full">
+<!-- User Context -->
+<div class="px-4 py-6 mb-4">
+<div class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-3">
+<span class="font-h3 text-h3">JS</span>
+</div>
+<h2 class="font-h3 text-h3 font-bold text-primary">Welcome back</h2>
+<p class="font-label-md text-label-md text-on-surface-variant">Level B2 Student</p>
+</div>
+<!-- Navigation Links -->
+<nav class="flex flex-col gap-1 flex-1">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline hover:bg-surface-variant/50 hover:translate-x-1 transition-all duration-200 active:scale-98 rounded-xl font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                        Dashboard
+                    </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline hover:bg-surface-variant/50 hover:translate-x-1 transition-all duration-200 active:scale-98 rounded-xl font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="route">route</span>
+                        My Path
+                    </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline hover:bg-surface-variant/50 hover:translate-x-1 transition-all duration-200 active:scale-98 rounded-xl font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="style">style</span>
+                        Study Deck
+                    </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline hover:bg-surface-variant/50 hover:translate-x-1 transition-all duration-200 active:scale-98 rounded-xl font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" data-icon="psychology">psychology</span>
+                        AI Practice
+                    </a>
+<!-- Active State for Settings -->
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-xl font-semibold font-label-md text-label-md transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                        Settings
+                    </a>
+</nav>
+<!-- CTA -->
+<div class="mt-auto p-4">
+<button class="w-full py-3 px-4 rounded-xl pro-gradient font-label-md text-label-md font-bold shadow-sm hover:shadow-md transition-shadow active:scale-95 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" data-icon="workspace_premium" data-weight="fill" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+                        Upgrade to Pro
+                    </button>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 lg:ml-64 p-margin-mobile md:p-margin-desktop bg-surface min-h-[calc(100vh-4rem)]">
+<div class="max-w-4xl mx-auto">
+<!-- Page Header -->
+<header class="mb-xl">
+<h1 class="font-h1 text-h1 text-on-surface mb-xs">Voice Settings</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Customize your AI tutor's voice, accent, and speaking style to optimize your listening practice.</p>
+</header>
+<!-- Settings Grid (Bento Style) -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Voice Selection Section -->
+<section class="md:col-span-12 bg-surface-container-lowest rounded-xl p-lg shadow-[0px_4px_12px_rgba(53,37,205,0.04)] border border-outline-variant/20 mb-lg">
+<div class="flex justify-between items-center mb-md">
+<h2 class="font-h3 text-h3 text-on-surface">Tutor Voices</h2>
+<span class="bg-surface-container py-1 px-3 rounded-full font-label-sm text-label-sm text-on-surface-variant">Selected: Emma (UK)</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-sm">
+<!-- Voice Card: US Female (Selected) -->
+<div class="relative p-md rounded-xl border-2 border-primary bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors flex flex-col gap-sm">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="face_3">face_3</span>
+</div>
+<div>
+<h3 class="font-label-md text-label-md text-on-surface font-bold">Sarah</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">US English</p>
+</div>
+</div>
+<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[16px]" data-icon="check">check</span>
+</div>
+</div>
+<div class="mt-auto flex justify-end">
+<button class="p-2 text-primary hover:bg-primary-container/20 rounded-full transition-colors active:scale-95" title="Preview Voice">
+<span class="material-symbols-outlined" data-icon="play_circle" data-weight="fill" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+</button>
+</div>
+</div>
+<!-- Voice Card: UK Male (Pro) -->
+<div class="relative p-md rounded-xl border border-outline-variant hover:border-outline bg-surface-container-lowest cursor-pointer hover:shadow-sm transition-all flex flex-col gap-sm overflow-hidden pro-border">
+<div class="absolute top-0 right-0 bg-tertiary-container text-on-tertiary-container px-2 py-1 rounded-bl-lg font-label-sm text-label-sm font-bold flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px]" data-icon="star" data-weight="fill" style="font-variation-settings: 'FILL' 1;">star</span> PRO
+                                </div>
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-3 mt-1">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="face">face</span>
+</div>
+<div>
+<h3 class="font-label-md text-label-md text-on-surface font-bold">James</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">UK English</p>
+</div>
+</div>
+</div>
+<div class="mt-auto flex justify-end">
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-variant rounded-full transition-colors active:scale-95" title="Preview Voice">
+<span class="material-symbols-outlined" data-icon="play_circle">play_circle</span>
+</button>
+</div>
+</div>
+<!-- Voice Card: AU Female -->
+<div class="relative p-md rounded-xl border border-outline-variant hover:border-primary/50 bg-surface-container-lowest cursor-pointer hover:shadow-sm transition-all flex flex-col gap-sm">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="face_4">face_4</span>
+</div>
+<div>
+<h3 class="font-label-md text-label-md text-on-surface font-bold">Chloe</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">AU English</p>
+</div>
+</div>
+</div>
+<div class="mt-auto flex justify-end">
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-variant rounded-full transition-colors active:scale-95" title="Preview Voice">
+<span class="material-symbols-outlined" data-icon="play_circle">play_circle</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Speed & Playback Settings (Split Columns) -->
+<section class="md:col-span-7 bg-surface-container-lowest rounded-xl p-lg shadow-[0px_4px_12px_rgba(53,37,205,0.04)] border border-outline-variant/20">
+<div class="mb-md">
+<h2 class="font-h3 text-h3 text-on-surface mb-xs">Speaking Rate</h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Adjust how fast the AI speaks during lessons.</p>
+</div>
+<!-- Segmented Control for Speed -->
+<div class="bg-surface-container p-1 rounded-lg flex items-center w-full mt-6">
+<button class="flex-1 py-2 px-3 rounded-md font-label-md text-label-md text-on-surface-variant hover:bg-surface-variant/50 transition-colors">0.5x</button>
+<button class="flex-1 py-2 px-3 rounded-md font-label-md text-label-md text-on-surface-variant hover:bg-surface-variant/50 transition-colors">0.75x</button>
+<button class="flex-1 py-2 px-3 bg-surface-container-lowest shadow-sm rounded-md font-label-md text-label-md font-bold text-primary">1.0x</button>
+<button class="flex-1 py-2 px-3 rounded-md font-label-md text-label-md text-on-surface-variant hover:bg-surface-variant/50 transition-colors">1.25x</button>
+<button class="flex-1 py-2 px-3 rounded-md font-label-md text-label-md text-on-surface-variant hover:bg-surface-variant/50 transition-colors flex items-center justify-center gap-1">
+                                1.5x
+                            </button>
+</div>
+</section>
+<section class="md:col-span-5 bg-surface-container-lowest rounded-xl p-lg shadow-[0px_4px_12px_rgba(53,37,205,0.04)] border border-outline-variant/20 flex flex-col justify-center">
+<h2 class="font-h3 text-h3 text-on-surface mb-xs">Auto-Play</h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-md">Automatically pronounce new vocabulary when revealed.</p>
+<!-- Toggle Switch -->
+<label class="flex items-center justify-between cursor-pointer p-3 bg-surface-container rounded-lg border border-outline-variant/30 hover:bg-surface-variant/50 transition-colors">
+<span class="font-label-md text-label-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="volume_up">volume_up</span>
+                                Enable Auto-Play
+                            </span>
+<div class="relative">
+<input checked="" class="sr-only" type="checkbox"/>
+<div class="block bg-primary w-10 h-6 rounded-full transition-colors"></div>
+<div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform transform translate-x-4 shadow-sm"></div>
+</div>
+</label>
+</section>
+</div>
+<!-- Action Footer -->
+<div class="mt-xl flex flex-col sm:flex-row justify-end items-center gap-4 pt-6 border-t border-outline-variant/20">
+<button class="w-full sm:w-auto px-6 py-3 rounded-lg font-label-md text-label-md font-semibold text-on-surface hover:bg-surface-variant transition-colors active:scale-95">
+                        Reset to Default
+                    </button>
+<button class="w-full sm:w-auto px-8 py-3 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-semibold shadow-sm hover:shadow-md hover:bg-primary-fixed-variant transition-all active:scale-95 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" data-icon="save">save</span>
+                        Save Changes
+                    </button>
+</div>
+</div>
+</main>
+</div>
+<!-- Footer Component -->
+<footer class="bg-surface-container-highest dark:bg-inverse-surface w-full relative mt-auto border-t border-outline-variant/20">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-mobile md:px-margin-desktop py-8 gap-4 max-w-max-width mx-auto">
+<div class="flex flex-col items-center md:items-start gap-2">
+<span class="font-h3 text-h3 font-bold text-primary">SpeakBuddi</span>
+<p class="font-label-sm text-label-sm text-on-surface dark:text-inverse-on-surface text-center md:text-left">
+                    © 2024 SpeakBuddi. Master English naturally.
+                </p>
+</div>
+<div class="flex flex-wrap justify-center gap-6">
+<a class="font-label-sm text-label-sm text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors cursor-pointer" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors cursor-pointer" href="#">Terms of Service</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors cursor-pointer" href="#">Help Center</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors cursor-pointer" href="#">Contact Us</a>
+</div>
+</div>
+</footer>
+</body></html>

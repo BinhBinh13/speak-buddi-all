@@ -1,0 +1,9 @@
+@startuml
+title UC14 — Admin manages payment plans — Use Case
+left to right direction
+skinparam packageStyle rectangle
+actor "Admin" as Admin
+rectangle "speak-buddi" {
+  Admin -- (UC14: Admin manages payment plans)
+}
+@enduml

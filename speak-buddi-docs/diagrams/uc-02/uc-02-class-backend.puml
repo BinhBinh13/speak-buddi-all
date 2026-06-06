@@ -1,0 +1,33 @@
+@startuml
+title UC02 — User registers/logs in/resets password/OAuth Google — Backend Classes
+skinparam classAttributeIconSize 0
+class UC02Controller {
+  - service: AuthService
+  + handle(request): Response
+}
+class AuthService {
+  - repository: UserRepository
+  + execute(command): Result
+  + validate(command): void
+}
+class UserRepository {
+  + findById(id): User
+  + save(entity: User): User
+}
+class User {
+  - id: Long
+  - createdAt: DateTime
+  - updatedAt: DateTime
+}
+class Google_OAuthClient {
+  +sendRequest(payload): ExternalResult
+}
+class ResendClient {
+  +sendRequest(payload): ExternalResult
+}
+UC02Controller --> AuthService
+AuthService --> UserRepository
+UserRepository --> User
+AuthService --> Google_OAuthClient
+AuthService --> ResendClient
+@enduml

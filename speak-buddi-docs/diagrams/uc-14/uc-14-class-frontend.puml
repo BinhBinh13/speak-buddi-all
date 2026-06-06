@@ -1,0 +1,24 @@
+@startuml
+title UC14 — Admin manages payment plans — Frontend Classes
+skinparam classAttributeIconSize 0
+class AdminPaymentPlanPage {
+  - state: UIState
+  + render(): JSX
+  + handleSubmit(): void
+}
+class useUC14 {
+  + loading: boolean
+  + error: string | null
+  + execute(payload): Promise<Result>
+}
+class UC14ApiClient {
+  + request(payload): Promise<ApiResponse>
+}
+class UC14FormOrView {
+  + props: Props
+  + render(): JSX
+}
+AdminPaymentPlanPage --> useUC14
+AdminPaymentPlanPage --> UC14FormOrView
+useUC14 --> UC14ApiClient
+@enduml

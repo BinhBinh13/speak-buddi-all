@@ -1,0 +1,135 @@
+@startuml uc-05-class-frontend
+title UC05 — Student learns vocabulary by selected level/topic — Frontend Classes
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+package "frontend.learning" {
+  class VocabularyPage {
+    - selectedLevel: CefrLevel
+    - topicId: string
+    - viewModel: VocabularyViewModel
+    + onLoad(): void
+    + onTopicChange(topicId: string): void
+    + onRetry(): void
+    + render(): JSX
+  }
+
+  class LevelTopicSelector {
+    + levels: CefrLevel[]
+    + topics: TopicSummary[]
+    + selectedLevel: CefrLevel
+    + selectedTopicId: string
+    + onLevelRequired(): void
+    + onSelectTopic(topicId: string): void
+    + render(): JSX
+  }
+
+  class VocabularyList {
+    + words: VocabularyWord[]
+    + sourceStatus: ContentSourceStatus
+    + onOpenWord(wordId: string): void
+    + render(): JSX
+  }
+
+  class VocabularyCard {
+    + word: VocabularyWord
+    + showMeaning: boolean
+    + showExample(): void
+    + showGrammarNote(): void
+    + markLearned(): void
+    + render(): JSX
+  }
+
+  class ContentFreshnessBanner {
+    + status: ContentSourceStatus
+    + lastSuccessfulCrawlAt: Date
+    + cacheStatus: string
+    + render(): JSX
+  }
+}
+
+package "frontend.state" {
+  class VocabularyViewModel {
+    + isLoading: boolean
+    + error: string | null
+    + selectedLevel: CefrLevel
+    + selectedTopicId: string
+    + words: VocabularyWord[]
+    + sourceStatus: ContentSourceStatus
+    + loadVocabulary(level: CefrLevel, topicId: string): Promise<void>
+    + saveProgress(wordId: string, status: ProgressStatus): Promise<void>
+    + refreshAfterContentUpdate(): Promise<void>
+  }
+
+  class UserProfileStore {
+    + selectedLevel: CefrLevel | null
+    + requireLevelSelection(): boolean
+    + updateSelectedLevel(level: CefrLevel): void
+  }
+}
+
+package "frontend.api" {
+  class VocabularyApiClient {
+    + getVocabulary(level: CefrLevel, topicId: string): Promise<VocabularyResponse>
+    + saveProgress(request: ProgressRequest): Promise<ProgressResponse>
+  }
+
+  class ApiClient {
+    + get(path: string, params: object): Promise<ApiResponse>
+    + post(path: string, body: object): Promise<ApiResponse>
+  }
+}
+
+package "frontend.models" {
+  enum CefrLevel {
+    A1
+    A2
+    B1
+    B2
+    C1
+    C2
+  }
+
+  class VocabularyWord {
+    + id: string
+    + topicId: string
+    + level: CefrLevel
+    + word: string
+    + meaning: string
+    + example: string
+    + grammarNote: string
+    + isActive: boolean
+  }
+
+  class VocabularyResponse {
+    + words: VocabularyWord[]
+    + sourceStatus: ContentSourceStatus
+    + fromCache: boolean
+    + lastSuccessfulCrawlAt: Date
+  }
+
+  enum ContentSourceStatus {
+    ACTIVE
+    CACHED_FALLBACK
+    EMPTY
+    DISABLED_BY_ADMIN
+  }
+}
+
+VocabularyPage --> VocabularyViewModel
+VocabularyPage --> LevelTopicSelector
+VocabularyPage --> VocabularyList
+VocabularyPage --> ContentFreshnessBanner
+LevelTopicSelector --> UserProfileStore
+VocabularyList --> VocabularyCard
+VocabularyList --> VocabularyWord
+VocabularyCard --> VocabularyViewModel : save progress
+ContentFreshnessBanner --> ContentSourceStatus
+VocabularyViewModel --> UserProfileStore
+VocabularyViewModel --> VocabularyApiClient
+VocabularyViewModel --> VocabularyResponse
+VocabularyApiClient --> ApiClient
+VocabularyResponse --> VocabularyWord
+VocabularyResponse --> ContentSourceStatus
+VocabularyWord --> CefrLevel
+@enduml

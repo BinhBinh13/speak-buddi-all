@@ -1,0 +1,17 @@
+@startuml
+title UC07 — Student translates English words — Screen Flow
+skinparam activityBackgroundColor #FEFEFE
+skinparam activityBorderColor #333333
+start
+:Open TranslationWidget;
+:User attempts to translate an English word;
+if (Access and input valid?) then (yes)
+  :Call TranslationService;
+  :Persist/read TranslationHistory data if needed;
+  :Display success state;
+else (no)
+  :Show validation/access error;
+  :Keep user input where possible;
+endif
+stop
+@enduml

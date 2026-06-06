@@ -1,0 +1,9 @@
+@startuml
+title UC01 — Guest views landing/pricing — Use Case
+left to right direction
+skinparam packageStyle rectangle
+actor "Guest" as Guest
+rectangle "speak-buddi" {
+  Guest -- (UC01: Guest views landing/pricing)
+}
+@enduml

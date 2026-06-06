@@ -1,0 +1,38 @@
+@startuml
+title speak-buddi — Deployment Overview (v1.0.0, TBD Infrastructure)
+actor "Desktop/Mobile Browser" as Browser
+node "Hosting / Cloud Provider
+TBD" as Cloud {
+  node "Production Environment" {
+    component "Responsive Web App" as Web
+    component "Backend API" as API
+    database "MySQL Database
+Hosting TBD" as DB
+    storage "Audio/Object Storage
+Provider TBD" as Storage
+  }
+  node "Development Environment" {
+    component "Dev Web/API" as Dev
+    database "Dev MySQL" as DevDB
+  }
+}
+cloud "Anthropic API" as Anthropic
+cloud "ElevenLabs API" as Eleven
+cloud "Payment Provider
+TBD" as Pay
+cloud "Resend Email" as Resend
+Browser --> Web : HTTPS
+Web --> API : HTTPS/JSON
+API --> DB : SQL
+API --> Storage : audio files
+API --> Anthropic : HTTPS/JSON
+API --> Eleven : HTTPS/JSON + audio
+API --> Pay : HTTPS/webhook
+API --> Resend : HTTPS/JSON
+Dev --> DevDB
+note right of Cloud
+  Region: TBD
+  CI/CD: TBD
+  Environments: Development + Production
+end note
+@enduml

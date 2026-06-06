@@ -1,0 +1,27 @@
+@startuml
+title UC01 — Guest views landing/pricing — Backend Classes
+skinparam classAttributeIconSize 0
+class UC01Controller {
+  - service: LandingService
+  + handle(request): Response
+}
+class LandingService {
+  - repository: PaymentPlanRepository
+  + execute(command): Result
+  + validate(command): void
+}
+class PaymentPlanRepository {
+  + findById(id): PaymentPlan
+  + save(entity: PaymentPlan): PaymentPlan
+}
+class PaymentPlan {
+  - id: Long
+  - createdAt: DateTime
+  - updatedAt: DateTime
+}
+
+UC01Controller --> LandingService
+LandingService --> PaymentPlanRepository
+PaymentPlanRepository --> PaymentPlan
+
+@enduml

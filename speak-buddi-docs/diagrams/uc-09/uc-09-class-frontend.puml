@@ -1,0 +1,24 @@
+@startuml
+title UC09 — Student/Paid User converses with AI — Frontend Classes
+skinparam classAttributeIconSize 0
+class ConversationPage {
+  - state: UIState
+  + render(): JSX
+  + handleSubmit(): void
+}
+class useUC09 {
+  + loading: boolean
+  + error: string | null
+  + execute(payload): Promise<Result>
+}
+class UC09ApiClient {
+  + request(payload): Promise<ApiResponse>
+}
+class UC09FormOrView {
+  + props: Props
+  + render(): JSX
+}
+ConversationPage --> useUC09
+ConversationPage --> UC09FormOrView
+useUC09 --> UC09ApiClient
+@enduml

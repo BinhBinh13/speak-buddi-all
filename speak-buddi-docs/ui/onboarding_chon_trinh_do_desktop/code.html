@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SpeakBuddi - Onboarding Step 2</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#f3effc",
+                    "on-background": "#1b1b24",
+                    "surface-container-highest": "#e4e1ee",
+                    "secondary-container": "#6cf8bb",
+                    "on-primary-fixed": "#0f0069",
+                    "on-secondary-fixed": "#002113",
+                    "inverse-surface": "#302f39",
+                    "on-secondary-fixed-variant": "#005236",
+                    "tertiary-container": "#a44100",
+                    "error": "#ba1a1a",
+                    "surface-container-low": "#f5f2ff",
+                    "surface-bright": "#fcf8ff",
+                    "on-tertiary-container": "#ffd2be",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-fixed": "#ffdbcc",
+                    "tertiary": "#7e3000",
+                    "surface-dim": "#dcd8e5",
+                    "primary-fixed": "#e2dfff",
+                    "on-error": "#ffffff",
+                    "secondary-fixed": "#6ffbbe",
+                    "error-container": "#ffdad6",
+                    "surface-container": "#f0ecf9",
+                    "outline": "#777587",
+                    "surface-tint": "#4d44e3",
+                    "secondary-fixed-dim": "#4edea3",
+                    "surface-variant": "#e4e1ee",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "on-surface-variant": "#464555",
+                    "primary-container": "#4f46e5",
+                    "on-tertiary-fixed-variant": "#7b2f00",
+                    "primary": "#3525cd",
+                    "background": "#fcf8ff",
+                    "on-tertiary-fixed": "#351000",
+                    "surface-container-high": "#eae6f4",
+                    "on-primary": "#ffffff",
+                    "surface": "#fcf8ff",
+                    "on-primary-container": "#dad7ff",
+                    "inverse-primary": "#c3c0ff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "tertiary-fixed-dim": "#ffb695",
+                    "secondary": "#006c49",
+                    "on-surface": "#1b1b24",
+                    "outline-variant": "#c7c4d8",
+                    "on-secondary-container": "#00714d",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "on-error-container": "#93000a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "max-width": "1280px",
+                    "base": "4px",
+                    "margin-mobile": "16px",
+                    "lg": "2rem",
+                    "md": "1.5rem",
+                    "xl": "3rem",
+                    "margin-desktop": "64px",
+                    "sm": "1rem",
+                    "xs": "0.5rem",
+                    "gutter": "16px"
+            },
+            "fontFamily": {
+                    "body-md": ["Be Vietnam Pro"],
+                    "body-lg": ["Be Vietnam Pro"],
+                    "h1": ["Be Vietnam Pro"],
+                    "h3": ["Be Vietnam Pro"],
+                    "h1-mobile": ["Be Vietnam Pro"],
+                    "label-md": ["Be Vietnam Pro"],
+                    "display": ["Be Vietnam Pro"],
+                    "label-sm": ["Be Vietnam Pro"],
+                    "h2": ["Be Vietnam Pro"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "h1": ["32px", {"lineHeight": "1.25", "fontWeight": "700"}],
+                    "h3": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "h1-mobile": ["28px", {"lineHeight": "1.25", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                    "display": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "h2": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .option-card input:checked + div {
+            border-color: #3525cd;
+            background-color: #f5f2ff;
+            box-shadow: 0px 8px 24px rgba(53, 37, 205, 0.08);
+        }
+        .option-card input:checked + div .check-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .check-icon {
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md">
+<!-- Header / Progress Area -->
+<header class="w-full max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop py-md">
+<div class="flex items-center justify-between mb-sm">
+<button class="text-on-surface hover:text-primary transition-colors flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-variant">
+<span class="material-symbols-outlined" data-icon="arrow_back" data-weight="fill" style="font-variation-settings: 'FILL' 1;">arrow_back</span>
+</button>
+<div class="text-label-md font-label-md text-on-surface-variant">Bước 2 / 3</div>
+<button class="text-primary font-label-md text-label-md hover:opacity-80 transition-opacity">Bỏ qua</button>
+</div>
+<!-- Progress Bar -->
+<div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 66%;"></div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow flex flex-col w-full max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop py-lg pb-32">
+<div class="max-w-2xl mx-auto w-full">
+<h1 class="text-h1-mobile font-h1-mobile md:text-h1 md:font-h1 text-center mb-xs text-on-background">Trình độ tiếng Anh hiện tại của bạn?</h1>
+<p class="text-body-md font-body-md text-on-surface-variant text-center mb-xl">Giúp chúng tôi cá nhân hóa lộ trình học phù hợp nhất với bạn.</p>
+<!-- Assessment Options (Bento Grid Style) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Option 1: A1 -->
+<label class="option-card cursor-pointer group">
+<input class="sr-only" name="english_level" type="radio" value="a1"/>
+<div class="h-full border border-outline-variant rounded-xl p-md bg-surface-container-lowest shadow-[0px_4px_12px_rgba(53,37,205,0.04)] hover:shadow-[0px_8px_24px_rgba(53,37,205,0.06)] transition-all duration-300 relative overflow-hidden flex flex-col">
+<div class="flex justify-between items-start mb-sm">
+<div class="flex items-center gap-2">
+<span class="bg-[#e0f2fe] text-[#0284c7] px-3 py-1 rounded-full text-label-sm font-label-sm uppercase tracking-wider">A1</span>
+<h3 class="text-h3 font-h3 text-on-surface">Mới bắt đầu</h3>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center bg-surface group-hover:border-primary-container transition-colors relative z-10">
+<span class="material-symbols-outlined check-icon text-primary text-[16px]" data-icon="check" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant flex-grow">Tôi chỉ biết một vài từ vựng cơ bản và chưa thể giao tiếp.</p>
+<div class="absolute -bottom-6 -right-6 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-[120px]" data-icon="school">school</span>
+</div>
+</div>
+</label>
+<!-- Option 2: A2 -->
+<label class="option-card cursor-pointer group">
+<input class="sr-only" name="english_level" type="radio" value="a2"/>
+<div class="h-full border border-outline-variant rounded-xl p-md bg-surface-container-lowest shadow-[0px_4px_12px_rgba(53,37,205,0.04)] hover:shadow-[0px_8px_24px_rgba(53,37,205,0.06)] transition-all duration-300 relative overflow-hidden flex flex-col">
+<div class="flex justify-between items-start mb-sm">
+<div class="flex items-center gap-2">
+<span class="bg-[#dcfce7] text-[#166534] px-3 py-1 rounded-full text-label-sm font-label-sm uppercase tracking-wider">A2</span>
+<h3 class="text-h3 font-h3 text-on-surface">Cơ bản</h3>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center bg-surface group-hover:border-primary-container transition-colors relative z-10">
+<span class="material-symbols-outlined check-icon text-primary text-[16px]" data-icon="check" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant flex-grow">Tôi có thể hiểu và giao tiếp những tình huống quen thuộc đơn giản.</p>
+<div class="absolute -bottom-6 -right-6 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-[120px]" data-icon="forum">forum</span>
+</div>
+</div>
+</label>
+<!-- Option 3: B1/B2 -->
+<label class="option-card cursor-pointer group md:col-span-2">
+<input class="sr-only" name="english_level" type="radio" value="b1b2"/>
+<div class="h-full border border-outline-variant rounded-xl p-md bg-surface-container-lowest shadow-[0px_4px_12px_rgba(53,37,205,0.04)] hover:shadow-[0px_8px_24px_rgba(53,37,205,0.06)] transition-all duration-300 relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center gap-md">
+<div class="flex-grow">
+<div class="flex items-center gap-2 mb-sm">
+<span class="bg-[#fef9c3] text-[#854d0e] px-3 py-1 rounded-full text-label-sm font-label-sm uppercase tracking-wider">B1/B2</span>
+<h3 class="text-h3 font-h3 text-on-surface">Trung cấp</h3>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant">Tôi có thể giao tiếp khá tự tin trong hầu hết các tình huống hàng ngày và công việc.</p>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center bg-surface group-hover:border-primary-container transition-colors relative z-10 shrink-0">
+<span class="material-symbols-outlined check-icon text-primary text-[16px]" data-icon="check" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="absolute -bottom-10 -right-4 opacity-5 group-hover:opacity-10 transition-opacity hidden sm:block">
+<span class="material-symbols-outlined text-[160px]" data-icon="chat_bubble">chat_bubble</span>
+</div>
+</div>
+</label>
+<!-- Option 4: C1/C2 -->
+<label class="option-card cursor-pointer group md:col-span-2">
+<input class="sr-only" name="english_level" type="radio" value="c1c2"/>
+<div class="h-full border border-outline-variant rounded-xl p-md bg-surface-container-lowest shadow-[0px_4px_12px_rgba(53,37,205,0.04)] hover:shadow-[0px_8px_24px_rgba(53,37,205,0.06)] transition-all duration-300 relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center gap-md">
+<div class="flex-grow">
+<div class="flex items-center gap-2 mb-sm">
+<span class="bg-[#f3e8ff] text-[#6b21a8] px-3 py-1 rounded-full text-label-sm font-label-sm uppercase tracking-wider">C1/C2</span>
+<h3 class="text-h3 font-h3 text-on-surface">Nâng cao</h3>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant">Tôi có thể diễn đạt lưu loát, tự nhiên và hiểu các văn bản phức tạp một cách dễ dàng.</p>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center bg-surface group-hover:border-primary-container transition-colors relative z-10 shrink-0">
+<span class="material-symbols-outlined check-icon text-primary text-[16px]" data-icon="check" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="absolute -bottom-10 -right-4 opacity-5 group-hover:opacity-10 transition-opacity hidden sm:block">
+<span class="material-symbols-outlined text-[160px]" data-icon="public">public</span>
+</div>
+</div>
+</label>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation / Action Area -->
+<div class="fixed bottom-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile py-md md:px-margin-desktop bg-surface dark:bg-inverse-surface shadow-[0px_-4px_12px_rgba(0,0,0,0.04)] border-t border-surface-container-highest">
+<div class="max-w-2xl mx-auto w-full flex gap-sm justify-between">
+<button class="flex items-center justify-center gap-2 px-6 py-3 rounded-xl border-2 border-primary text-primary font-label-md text-label-md hover:bg-surface-container-low transition-colors w-1/3">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+                Back
+            </button>
+<button class="flex items-center justify-center gap-2 px-8 py-3 rounded-xl bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors shadow-lg w-2/3">
+                Continue
+                <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</body></html>

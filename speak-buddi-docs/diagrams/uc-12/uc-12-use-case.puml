@@ -1,0 +1,9 @@
+@startuml
+title UC12 — Admin views analytics/reporting/export — Use Case
+left to right direction
+skinparam packageStyle rectangle
+actor "Admin" as Admin
+rectangle "speak-buddi" {
+  Admin -- (UC12: Admin views analytics/reporting/export)
+}
+@enduml

@@ -1,0 +1,90 @@
+@startuml
+title UC03 — Student selects level during onboarding to create personalized roadmap — Frontend Classes
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+package "frontend" {
+  class OnboardingPage {
+    - selectedLevel: EnglishLevel?
+    - formState: OnboardingFormState
+    - validationErrors: string[]
+    + render(): JSX
+    + handleLevelSelect(level: EnglishLevel): void
+    + handleSubmit(): Promise<void>
+  }
+
+  class LevelSelector {
+    + levels: EnglishLevel[]
+    + selectedLevel: EnglishLevel?
+    + onSelect(level: EnglishLevel): void
+    + render(): JSX
+  }
+
+  class OnboardingQuestionForm {
+    + learningGoal: string
+    + topicPreferences: string[]
+    + validate(): ValidationResult
+    + render(): JSX
+  }
+
+  class ProfileLevelSettings {
+    + currentLevel: EnglishLevel
+    + onUpdateLevel(level: EnglishLevel): Promise<void>
+    + render(): JSX
+  }
+
+  class RoadmapReadyPanel {
+    + summary: RoadmapSummary
+    + isFallback: boolean
+    + render(): JSX
+  }
+
+  class useOnboarding {
+    + loading: boolean
+    + error: string?
+    + complete(payload: OnboardingPayload): Promise<RoadmapSummary>
+    + updateLevel(payload: LevelUpdatePayload): Promise<RoadmapSummary>
+  }
+
+  class OnboardingApiClient {
+    + completeOnboarding(payload: OnboardingPayload): Promise<ApiResponse>
+    + updateSelectedLevel(payload: LevelUpdatePayload): Promise<ApiResponse>
+  }
+
+  class OnboardingPayload {
+    + selectedLevel: EnglishLevel
+    + learningGoal: string
+    + topicPreferences: string[]
+  }
+
+  enum EnglishLevel {
+    A1
+    A2
+    B1
+    B2
+    C1
+    C2
+  }
+}
+
+OnboardingPage --> LevelSelector
+OnboardingPage --> OnboardingQuestionForm
+OnboardingPage --> RoadmapReadyPanel
+OnboardingPage --> useOnboarding
+ProfileLevelSettings --> LevelSelector
+ProfileLevelSettings --> useOnboarding
+useOnboarding --> OnboardingApiClient
+OnboardingPayload --> EnglishLevel
+LevelSelector --> EnglishLevel
+
+note right of LevelSelector
+  Presents manual A1-C2 selection only.
+  No scoring quiz UI is used.
+end note
+
+note bottom of RoadmapReadyPanel
+  Displays roadmap generated from selected level
+  and active Langeek/Admin-managed topics,
+  vocabulary, and activities.
+end note
+@enduml

@@ -1,0 +1,22 @@
+@startuml
+title UC02 — User registers/logs in/resets password/OAuth Google — Sequence
+actor "Guest" as Actor
+participant "AuthPage" as UI
+participant "API Gateway" as API
+participant "AuthService" as AuthService
+database "MySQL" as DB
+participant "Google OAuth" as Google_OAuth
+participant "Resend" as Resend
+Actor -> UI : submit authentication request
+UI -> API : HTTPS request
+API -> AuthService : route and authorize
+AuthService -> DB : read/write User
+DB -->> AuthService : data result
+AuthService -> Google_OAuth : integration request
+Google_OAuth -->> AuthService : integration response
+AuthService -> Resend : integration request
+Resend -->> AuthService : integration response
+AuthService -->> API : response
+API -->> UI : JSON result
+UI -->> Actor : account/session is created or reset email is sent
+@enduml

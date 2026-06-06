@@ -1,0 +1,53 @@
+@startuml
+title speak-buddi — Layered Architecture
+skinparam componentStyle uml2
+package "Presentation Layer" {
+  component "Responsive Web UI" as Web
+  component "Admin UI" as AdminUI
+}
+package "Application/API Layer" {
+  component "Auth API" as AuthAPI
+  component "Learning API" as LearnAPI
+  component "Quiz API" as QuizAPI
+  component "Speech/AI API" as SpeechAPI
+  component "Payment API" as PaymentAPI
+  component "Admin/Analytics API" as AdminAPI
+}
+package "Domain Layer" {
+  component "User & Subscription Domain" as UserDomain
+  component "Roadmap & Content Domain" as ContentDomain
+  component "Quiz & Progress Domain" as QuizDomain
+  component "Conversation & Pronunciation Domain" as SpeechDomain
+  component "Reporting Domain" as ReportDomain
+}
+package "Data/Integration Layer" {
+  database "MySQL" as DB
+  storage "Audio/Object Storage" as Storage
+  cloud "Anthropic" as Anthropic
+  cloud "ElevenLabs" as Eleven
+  cloud "Payment Provider" as Pay
+  cloud "Resend" as Resend
+}
+Web --> AuthAPI
+Web --> LearnAPI
+Web --> QuizAPI
+Web --> SpeechAPI
+Web --> PaymentAPI
+AdminUI --> AdminAPI
+AuthAPI --> UserDomain
+PaymentAPI --> UserDomain
+LearnAPI --> ContentDomain
+QuizAPI --> QuizDomain
+SpeechAPI --> SpeechDomain
+AdminAPI --> ReportDomain
+UserDomain --> DB
+ContentDomain --> DB
+QuizDomain --> DB
+SpeechDomain --> DB
+SpeechDomain --> Storage
+SpeechDomain --> Anthropic
+SpeechDomain --> Eleven
+UserDomain --> Resend
+UserDomain --> Pay
+ReportDomain --> DB
+@enduml

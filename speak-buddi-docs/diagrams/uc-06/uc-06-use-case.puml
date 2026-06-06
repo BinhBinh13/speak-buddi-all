@@ -1,0 +1,49 @@
+@startuml uc-06-use-case
+title UC06 — Vocabulary tests/activities by selected level/topic — Use Case
+left to right direction
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #FEFEFE
+  BorderColor #333333
+}
+
+actor "Student" as Student
+actor "Paid User" as PaidUser
+
+rectangle "speak-buddi" {
+  usecase "UC06\nDo vocabulary tests/activities\nby selected level/topic" as UC06
+  usecase "Load selected A1-C2 level\nand topic context" as LoadContext
+  usecase "Load active vocabulary\nand grammar mappings" as LoadContent
+  usecase "Use cached active content\nwhen new crawl is not ready" as CacheFallback
+  usecase "Complete flashcard" as Flashcard
+  usecase "Complete multiple choice" as MultipleChoice
+  usecase "Complete fill-in-the-blank" as FillBlank
+  usecase "Complete grammar mapping" as GrammarMapping
+  usecase "Submit answers\nand save score" as SaveScore
+}
+
+Student -- UC06
+PaidUser -- UC06
+
+UC06 .> LoadContext : <<include>>
+UC06 .> LoadContent : <<include>>
+LoadContent .> CacheFallback : <<extend>>
+UC06 .> Flashcard : <<include>>
+UC06 .> MultipleChoice : <<include>>
+UC06 .> FillBlank : <<include>>
+UC06 .> GrammarMapping : <<include>>
+UC06 .> SaveScore : <<include>>
+
+note right of LoadContent
+  Vocabulary/test content is filtered by:
+  - selected level A1, A2, B1, B2, C1, C2
+  - selected topic
+  - active crawled or Admin-managed words/tests
+end note
+
+note right of CacheFallback
+  If latest Langeek crawl output is unavailable,
+  the learner-facing flow uses the current
+  cached active content instead of blocking.
+end note
+@enduml

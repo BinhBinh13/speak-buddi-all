@@ -1,0 +1,18 @@
+@startuml
+title UC01 — Guest views landing/pricing — Sequence
+actor "Guest" as Actor
+participant "LandingPage" as UI
+participant "API Gateway" as API
+participant "LandingService" as LandingService
+database "MySQL" as DB
+
+Actor -> UI : open website landing page
+UI -> API : HTTPS request
+API -> LandingService : route and authorize
+LandingService -> DB : read/write PaymentPlan
+DB -->> LandingService : data result
+
+LandingService -->> API : response
+API -->> UI : JSON result
+UI -->> Actor : public content and pricing are displayed
+@enduml

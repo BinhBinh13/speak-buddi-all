@@ -1,0 +1,13 @@
+@startuml
+title UC10 — Student purchases paid plan/payment — Use Case
+left to right direction
+skinparam packageStyle rectangle
+actor "Student" as Student
+actor "Payment Provider" as Payment_Provider
+actor "Resend" as Resend
+rectangle "speak-buddi" {
+  Student -- (UC10: Student purchases paid plan/payment)
+  (UC10: Student purchases paid plan/payment) ..> Payment_Provider : uses
+  (UC10: Student purchases paid plan/payment) ..> Resend : uses
+}
+@enduml

@@ -1,0 +1,24 @@
+@startuml
+title UC11 — Paid User changes ElevenLabs voice/model — Frontend Classes
+skinparam classAttributeIconSize 0
+class VoiceSettingsPage {
+  - state: UIState
+  + render(): JSX
+  + handleSubmit(): void
+}
+class useUC11 {
+  + loading: boolean
+  + error: string | null
+  + execute(payload): Promise<Result>
+}
+class UC11ApiClient {
+  + request(payload): Promise<ApiResponse>
+}
+class UC11FormOrView {
+  + props: Props
+  + render(): JSX
+}
+VoiceSettingsPage --> useUC11
+VoiceSettingsPage --> UC11FormOrView
+useUC11 --> UC11ApiClient
+@enduml

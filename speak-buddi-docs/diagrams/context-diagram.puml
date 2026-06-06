@@ -1,0 +1,36 @@
+@startuml
+title speak-buddi — Context Diagram
+left to right direction
+skinparam packageStyle rectangle
+actor Guest
+actor Student
+actor "Paid User" as PaidUser
+actor Admin
+actor "Payment Provider
+(TBD)" as Pay
+actor "Anthropic API" as Anthropic
+actor "ElevenLabs API" as Eleven
+actor "Resend Email" as Resend
+rectangle "speak-buddi
+Responsive English Learning Website" as System {
+  usecase "View public landing/pricing" as UC1
+  usecase "Learn vocabulary and tests" as UC2
+  usecase "Practice pronunciation" as UC3
+  usecase "AI conversation" as UC4
+  usecase "Payment/subscription" as UC5
+  usecase "Admin analytics/content" as UC6
+}
+Guest --> UC1
+Guest --> System : register/login
+Student --> UC2
+Student --> UC3
+Student --> UC4
+Student --> UC5
+PaidUser --> UC4
+PaidUser --> System : choose voice/model
+Admin --> UC6
+System --> Pay : payment request/webhook
+System --> Anthropic : AI analysis/response
+System --> Eleven : TTS/audio
+System --> Resend : email notifications
+@enduml

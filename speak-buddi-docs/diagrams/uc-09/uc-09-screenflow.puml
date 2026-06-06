@@ -1,0 +1,17 @@
+@startuml
+title UC09 — Student/Paid User converses with AI — Screen Flow
+skinparam activityBackgroundColor #FEFEFE
+skinparam activityBorderColor #333333
+start
+:Open ConversationPage;
+:User attempts to converse with AI;
+if (Access and input valid?) then (yes)
+  :Call AIConversationService;
+  :Persist/read SpeakingSession data if needed;
+  :Display success state;
+else (no)
+  :Show validation/access error;
+  :Keep user input where possible;
+endif
+stop
+@enduml

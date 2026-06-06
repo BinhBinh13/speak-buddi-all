@@ -1,0 +1,33 @@
+@startuml
+title UC09 — Student/Paid User converses with AI — Backend Classes
+skinparam classAttributeIconSize 0
+class UC09Controller {
+  - service: AIConversationService
+  + handle(request): Response
+}
+class AIConversationService {
+  - repository: SpeakingSessionRepository
+  + execute(command): Result
+  + validate(command): void
+}
+class SpeakingSessionRepository {
+  + findById(id): SpeakingSession
+  + save(entity: SpeakingSession): SpeakingSession
+}
+class SpeakingSession {
+  - id: Long
+  - createdAt: DateTime
+  - updatedAt: DateTime
+}
+class Anthropic_APIClient {
+  +sendRequest(payload): ExternalResult
+}
+class ElevenLabs_APIClient {
+  +sendRequest(payload): ExternalResult
+}
+UC09Controller --> AIConversationService
+AIConversationService --> SpeakingSessionRepository
+SpeakingSessionRepository --> SpeakingSession
+AIConversationService --> Anthropic_APIClient
+AIConversationService --> ElevenLabs_APIClient
+@enduml

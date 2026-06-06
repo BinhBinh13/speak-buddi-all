@@ -1,0 +1,196 @@
+@startuml uc-06-class-backend
+title UC06 — Vocabulary tests/activities by selected level/topic — Backend Classes
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+package "backend.uc06" {
+  class VocabularyActivityController {
+    - activityService: VocabularyActivityService
+    + getActivities(userId: UUID, topicId: UUID, level: CEFRLevel): ActivitySetDto
+    + submitAttempt(command: SubmitAttemptCommand): QuizResultDto
+  }
+
+  class VocabularyActivityService {
+    - contentSelectionService: ContentSelectionService
+    - grammarMappingService: GrammarMappingService
+    - scoringService: ScoringService
+    - attemptRepository: QuizAttemptRepository
+    + startActivity(userId: UUID, level: CEFRLevel, topicId: UUID): ActivitySetDto
+    + submitAttempt(command: SubmitAttemptCommand): QuizResultDto
+    + validateRequiredAnswers(command: SubmitAttemptCommand): void
+  }
+
+  class ContentSelectionService {
+    - userProfileRepository: UserProfileRepository
+    - topicRepository: TopicRepository
+    - topicWordRepository: TopicWordRepository
+    - vocabularyTestRepository: VocabularyTestRepository
+    - contentCacheRepository: ContentCacheRepository
+    + loadActivityContent(level: CEFRLevel, topicId: UUID): ContentPackage
+    + useCachedIfLatestUnavailable(level: CEFRLevel, topicId: UUID): ContentPackage
+    + ensureTopicMatchesSelectedLevel(level: CEFRLevel, topicId: UUID): void
+  }
+
+  class GrammarMappingService {
+    + buildMappings(words: List<TopicWord>): List<GrammarMapping>
+    + createGrammarMappingTasks(mappings: List<GrammarMapping>): List<QuizQuestion>
+  }
+
+  class ScoringService {
+    + evaluate(answers: List<QuizAnswer>, questions: List<QuizQuestion>): QuizResultDto
+    + calculateScore(correct: int, total: int): decimal
+  }
+
+  class UserProfileRepository {
+    + findSelectedLevel(userId: UUID): CEFRLevel
+  }
+
+  class TopicRepository {
+    + findActiveByIdAndLevel(topicId: UUID, level: CEFRLevel): Topic
+  }
+
+  class TopicWordRepository {
+    + findActiveWords(level: CEFRLevel, topicId: UUID): List<TopicWord>
+  }
+
+  class VocabularyTestRepository {
+    + findActiveTests(level: CEFRLevel, topicId: UUID): List<VocabularyTest>
+    + findQuestions(testIds: List<UUID>): List<QuizQuestion>
+  }
+
+  class ContentCacheRepository {
+    + findCachedActiveContent(level: CEFRLevel, topicId: UUID): ContentPackage
+  }
+
+  class QuizAttemptRepository {
+    + saveAttempt(attempt: QuizAttempt): QuizAttempt
+    + saveAnswers(answers: List<QuizAttemptAnswer>): void
+  }
+}
+
+package "domain" {
+  class UserProfile {
+    - userId: UUID
+    - selectedLevel: CEFRLevel
+  }
+
+  class Topic {
+    - id: UUID
+    - level: CEFRLevel
+    - name: string
+    - isActive: boolean
+  }
+
+  class TopicWord {
+    - id: UUID
+    - topicId: UUID
+    - level: CEFRLevel
+    - word: string
+    - meaning: string
+    - grammarTags: List<string>
+    - source: ContentSource
+    - contentVersion: string
+    - isActive: boolean
+  }
+
+  class GrammarMapping {
+    - wordId: UUID
+    - grammarPoint: string
+    - exampleSentence: string
+  }
+
+  class VocabularyTest {
+    - id: UUID
+    - topicId: UUID
+    - level: CEFRLevel
+    - isActive: boolean
+  }
+
+  class QuizQuestion {
+    - id: UUID
+    - testId: UUID
+    - type: QuestionType
+    - prompt: string
+    - required: boolean
+  }
+
+  class QuizAttempt {
+    - id: UUID
+    - userId: UUID
+    - level: CEFRLevel
+    - topicId: UUID
+    - testId: UUID
+    - contentVersion: string
+    - score: decimal
+    - completedAt: DateTime
+  }
+
+  class QuizAttemptAnswer {
+    - attemptId: UUID
+    - questionId: UUID
+    - answerValue: string
+    - isCorrect: boolean
+  }
+
+  class ContentPackage {
+    - level: CEFRLevel
+    - topicId: UUID
+    - source: ContentSource
+    - contentVersion: string
+    - usingCachedContent: boolean
+    + hasQuestions(): boolean
+  }
+
+  enum CEFRLevel {
+    A1
+    A2
+    B1
+    B2
+    C1
+    C2
+  }
+
+  enum QuestionType {
+    FLASHCARD
+    MULTIPLE_CHOICE
+    FILL_IN_THE_BLANK
+    GRAMMAR_MAPPING
+  }
+
+  enum ContentSource {
+    LANGEEK_CRAWLED
+    ADMIN_MANAGED
+    CACHED_ACTIVE
+  }
+}
+
+VocabularyActivityController --> VocabularyActivityService
+VocabularyActivityService --> ContentSelectionService
+VocabularyActivityService --> GrammarMappingService
+VocabularyActivityService --> ScoringService
+VocabularyActivityService --> QuizAttemptRepository
+ContentSelectionService --> UserProfileRepository
+ContentSelectionService --> TopicRepository
+ContentSelectionService --> TopicWordRepository
+ContentSelectionService --> VocabularyTestRepository
+ContentSelectionService --> ContentCacheRepository
+
+UserProfileRepository --> UserProfile
+TopicRepository --> Topic
+TopicWordRepository --> TopicWord
+VocabularyTestRepository --> VocabularyTest
+VocabularyTestRepository --> QuizQuestion
+ContentCacheRepository --> ContentPackage
+QuizAttemptRepository --> QuizAttempt
+QuizAttemptRepository --> QuizAttemptAnswer
+
+UserProfile --> CEFRLevel
+Topic --> CEFRLevel
+TopicWord --> CEFRLevel
+TopicWord --> ContentSource
+VocabularyTest "1" o-- "*" QuizQuestion
+QuizQuestion --> QuestionType
+QuizQuestion --> GrammarMapping : for grammar mapping
+QuizAttempt "1" o-- "*" QuizAttemptAnswer
+ContentPackage --> ContentSource
+@enduml

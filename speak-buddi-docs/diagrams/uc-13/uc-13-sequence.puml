@@ -1,0 +1,106 @@
+@startuml uc-13-sequence
+title UC13 — Admin manages topic/vocabulary/tests and crawler content sync — Sequence
+skinparam backgroundColor #FEFEFE
+skinparam sequenceParticipantBorderColor #333333
+skinparam sequenceLifeLineBorderColor #333333
+skinparam sequenceLifeLineBackgroundColor #FEFEFE
+
+actor "Admin" as Admin
+actor "Weekly Scheduler" as Scheduler
+participant "Admin Content/Crawler UI" as UI
+participant "API Gateway" as API
+participant "AdminContentController" as Controller
+participant "ContentAdminService" as ContentSvc
+participant "CrawlerConfigService" as ConfigSvc
+participant "ContentCrawlerJob" as CrawlerJob
+participant "ComplianceGuardrailService" as Guardrail
+participant "Langeek Vocabulary Source\nhttps://langeek.co/en-VI/vocab/level-based" as Langeek
+participant "ContentMappingService" as Mapper
+database "Content DB" as DB
+database "Content Cache" as Cache
+participant "CrawlLogService" as Logs
+participant "AdminNotificationService" as Notify
+
+group Admin manages content, crawler config, and logs
+  Admin -> UI : Open Admin content/crawler console
+  UI -> API : GET /admin/content/sync-status
+  API -> Controller : Authorize Admin
+  Controller -> Logs : Get latest status and errors
+  Logs -> DB : Read crawl logs and last success
+  DB -->> Logs : Status, retry and cache metadata
+  Logs -->> Controller : Sync status view model
+  Controller -->> API : 200 OK
+  API -->> UI : JSON sync status/logs
+  UI -->> Admin : Display status, cache state and errors
+
+  alt Create/update topic, vocabulary or test
+    Admin -> UI : Submit content/test form
+    UI -> API : POST/PUT /admin/content
+    API -> Controller : Route request
+    Controller -> ContentSvc : validateAndSave(payload)
+    ContentSvc -> DB : Insert/update topic, word, test
+    DB -->> ContentSvc : Saved content
+    ContentSvc -->> Controller : Saved result
+    Controller -->> API : 200 OK
+    API -->> UI : Save success
+    UI -->> Admin : Show success state
+  else Disable active or crawled content
+    Admin -> UI : Confirm disable
+    UI -> API : PATCH /admin/content/{id}/disable
+    API -> Controller : Route request
+    Controller -> ContentSvc : softDisable(contentId)
+    ContentSvc -> DB : Set is_active=false
+    ContentSvc -> Cache : Invalidate learner-facing content cache
+    DB -->> ContentSvc : Disabled
+    ContentSvc -->> Controller : Disabled result
+    Controller -->> API : 200 OK
+    API -->> UI : Disable success
+    UI -->> Admin : Content hidden from learners
+  else Configure crawler
+    Admin -> UI : Update source/schedule/retry/rate limit
+    UI -> API : PUT /admin/crawler-config
+    API -> Controller : Route request
+    Controller -> ConfigSvc : validateAndSave(config)
+    ConfigSvc -> DB : Persist crawler config
+    DB -->> ConfigSvc : Config saved
+    ConfigSvc -->> Controller : Config result
+    Controller -->> API : 200 OK
+    API -->> UI : Configuration saved
+    UI -->> Admin : Show updated crawler settings
+  end
+end
+
+group Weekly automatic Langeek content sync
+  Scheduler -> CrawlerJob : Trigger weekly sync
+  CrawlerJob -> ConfigSvc : Load source URL, schedule, retry, rate limit
+  ConfigSvc -> DB : Read crawler configuration
+  DB -->> ConfigSvc : Configuration
+  ConfigSvc -->> CrawlerJob : Active crawler config
+  CrawlerJob -> Guardrail : Check ToS, robots.txt,\ncopyright/licensing, rate limits
+
+  alt Crawling permitted
+    Guardrail -->> CrawlerJob : Permission/rate-limit OK
+    CrawlerJob -> Langeek : GET level-based pages\n(rate-limited)
+    alt Langeek reachable and crawl succeeds
+      Langeek -->> CrawlerJob : Level/topic/word page data
+      CrawlerJob -> Mapper : Parse and map to A1-C2 levels/topics
+      Mapper -->> CrawlerJob : Normalized content batch
+      CrawlerJob -> DB : Upsert topics, words and tests\nwith auto-published status
+      CrawlerJob -> Cache : Refresh active content cache
+      CrawlerJob -> Logs : Record successful crawl
+      Logs -> DB : Store success log and last_success_at
+    else Langeek down or crawl error
+      CrawlerJob -> Cache : Keep current cached active content
+      CrawlerJob -> Logs : Record failure and retry status
+      Logs -> DB : Store source URL, reason, last success, cache status
+      CrawlerJob -> Notify : Notify Admin about failure
+    end
+  else Crawling not permitted or guardrail risk
+    Guardrail -->> CrawlerJob : Not permitted
+    CrawlerJob -> Cache : Keep current cached active content
+    CrawlerJob -> Logs : Record guardrail/legal risk
+    Logs -> DB : Store risk log
+    CrawlerJob -> Notify : Notify Admin to use manual curation fallback
+  end
+end
+@enduml

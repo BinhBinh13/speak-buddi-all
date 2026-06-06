@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Manage Topics - VietLearn Admin</title>
+<!-- Google Fonts: Be Vietnam Pro -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-surface-variant": "#464555",
+                      "inverse-primary": "#c3c0ff",
+                      "surface-tint": "#4d44e3",
+                      "surface-container-highest": "#e4e1ee",
+                      "outline": "#777587",
+                      "surface-bright": "#fcf8ff",
+                      "on-background": "#1b1b24",
+                      "inverse-on-surface": "#f3effc",
+                      "on-primary-fixed": "#0f0069",
+                      "surface": "#fcf8ff",
+                      "on-error-container": "#93000a",
+                      "on-secondary": "#ffffff",
+                      "surface-container": "#f0ecf9",
+                      "surface-container-high": "#eae6f4",
+                      "on-secondary-fixed-variant": "#005236",
+                      "on-primary-container": "#dad7ff",
+                      "surface-dim": "#dcd8e5",
+                      "error": "#ba1a1a",
+                      "primary-fixed": "#e2dfff",
+                      "tertiary-container": "#a44100",
+                      "surface-variant": "#e4e1ee",
+                      "on-surface": "#1b1b24",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-fixed": "#351000",
+                      "inverse-surface": "#302f39",
+                      "secondary-container": "#6cf8bb",
+                      "on-primary-fixed-variant": "#3323cc",
+                      "tertiary": "#7e3000",
+                      "outline-variant": "#c7c4d8",
+                      "secondary": "#006c49",
+                      "primary": "#3525cd",
+                      "on-tertiary-fixed-variant": "#7b2f00",
+                      "tertiary-fixed-dim": "#ffb695",
+                      "surface-container-lowest": "#ffffff",
+                      "primary-container": "#4f46e5",
+                      "background": "#fcf8ff",
+                      "on-primary": "#ffffff",
+                      "surface-container-low": "#f5f2ff",
+                      "secondary-fixed": "#6ffbbe",
+                      "on-secondary-fixed": "#002113",
+                      "secondary-fixed-dim": "#4edea3",
+                      "error-container": "#ffdad6",
+                      "tertiary-fixed": "#ffdbcc",
+                      "primary-fixed-dim": "#c3c0ff",
+                      "on-error": "#ffffff",
+                      "on-tertiary-container": "#ffd2be",
+                      "on-secondary-container": "#00714d"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-desktop": "64px",
+                      "md": "1.5rem",
+                      "xs": "0.5rem",
+                      "margin-mobile": "16px",
+                      "xl": "3rem",
+                      "max-width": "1280px",
+                      "base": "4px",
+                      "lg": "2rem",
+                      "gutter": "16px",
+                      "sm": "1rem"
+              },
+              "fontFamily": {
+                      "display": ["Be Vietnam Pro"],
+                      "h1-mobile": ["Be Vietnam Pro"],
+                      "h1": ["Be Vietnam Pro"],
+                      "body-md": ["Be Vietnam Pro"],
+                      "label-md": ["Be Vietnam Pro"],
+                      "h3": ["Be Vietnam Pro"],
+                      "label-sm": ["Be Vietnam Pro"],
+                      "body-lg": ["Be Vietnam Pro"],
+                      "h2": ["Be Vietnam Pro"]
+              },
+              "fontSize": {
+                      "display": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                      "h1-mobile": ["28px", { "lineHeight": "1.25", "fontWeight": "700" }],
+                      "h1": ["32px", { "lineHeight": "1.25", "fontWeight": "700" }],
+                      "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                      "label-md": ["14px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                      "h3": ["20px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                      "label-sm": ["12px", { "lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                      "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                      "h2": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        /* Ambient shadow utility for Level 1 & 2 cards */
+        .ambient-shadow-sm { box-shadow: 0px 4px 12px rgba(77, 68, 227, 0.04); }
+        .ambient-shadow-md { box-shadow: 0px 8px 24px rgba(77, 68, 227, 0.06); }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md antialiased flex overflow-x-hidden">
+<!-- SideNavBar Component -->
+<aside class="h-full w-64 fixed left-0 top-0 bg-surface-container-low shadow-sm flex flex-col py-md px-xs z-50">
+<!-- Header -->
+<div class="px-sm mb-lg flex items-center gap-xs">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold overflow-hidden">
+<img alt="Admin Avatar" data-alt="A professional headshot of a corporate administrator in a bright, modern office setting. The lighting is soft and natural, creating a clean, welcoming, and trustworthy light-mode aesthetic. The colors are balanced with a focus on neutral tones and a hint of indigo." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtOL3qqxh_HFvzsE618qBFw_p-_ys1AtVf3o7taiV1MlSqkXrW5ciM7xbRwc3xeGaiLxpMkLDkJKULJib79C-fuRKSzsg_JrGw_aM-M2svBCRDv4VAfTn4uZeE8IKQXNur5BweYEcEj8OFVkiyZ-643ybbuNUzuLwYSks9-PS7PB3-inj6pcsfMIwo9CALZOreTU1iVo9a38ny1LzCrIBRIqOn1NWeWDUgFAHdpd34BQ2EftogmZ9C9ljCXEtvs7FgJ0YSJK8WTpJJ"/>
+</div>
+<div>
+<h2 class="font-h3 text-h3 text-primary truncate">VietLearn Admin</h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant truncate">Enterprise Control</p>
+</div>
+</div>
+<!-- Navigation Tabs -->
+<nav class="flex-1 flex flex-col gap-1 overflow-y-auto">
+<!-- Inactive Tab -->
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors scale-98 active:scale-95 transition-transform font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">dashboard</span>
+                Overview
+            </a>
+<!-- ACTIVE TAB -->
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg text-primary font-bold border-r-4 border-primary bg-primary-fixed/20 hover:bg-surface-container-high transition-colors scale-98 active:scale-95 transition-transform font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+                Topics
+            </a>
+<!-- Inactive Tabs -->
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors scale-98 active:scale-95 transition-transform font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu_book</span>
+                Vocabulary
+            </a>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors scale-98 active:scale-95 transition-transform font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">quiz</span>
+                Tests
+            </a>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors scale-98 active:scale-95 transition-transform font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">analytics</span>
+                Analytics
+            </a>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors scale-98 active:scale-95 transition-transform font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">payments</span>
+                Payments
+            </a>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors scale-98 active:scale-95 transition-transform font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">flag</span>
+                Reports
+            </a>
+</nav>
+<!-- Footer Actions -->
+<div class="mt-auto pt-md border-t border-outline-variant/30 flex flex-col gap-1">
+<button class="w-full mb-xs py-xs px-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md font-bold hover:bg-primary-container transition-colors shadow-sm">
+                Manage Plan
+            </button>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">help</span>
+                Support
+            </a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 ml-64 min-h-screen flex flex-col w-[calc(100%-16rem)]">
+<!-- TopNavBar Component -->
+<header class="bg-surface/80 backdrop-blur-md flex justify-between items-center w-full px-margin-desktop py-base border-b border-outline-variant docked top-0 sticky z-40 h-16">
+<div class="flex items-center gap-md w-1/3">
+<h1 class="font-h3 text-h3 text-on-surface font-bold">Dashboard</h1>
+</div>
+<div class="flex items-center gap-sm justify-end w-1/3">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-all duration-200 rounded-full hover:bg-surface-container">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-all duration-200 rounded-full hover:bg-surface-container">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden ml-2 cursor-pointer border border-outline-variant">
+<img alt="Administrator Profile" data-alt="A professional headshot of a corporate administrator in a bright, modern office setting. The lighting is soft and natural, creating a clean, welcoming, and trustworthy light-mode aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJErRmO2aqP_t_zayVhH4lKd0Y-CoL9PEPJF5R-xUZoazhMXPkxDrCjhtRwffRPirKJvBMOMs_75QvymreMTJVz-fT23F3_93-PQAW0QxHqzBFH8lDaOpN5UhiH5FPtzl-OmcY-M55AVJmXOdB_A9Ancw5Z6LNR_uTsrgTdhhALJ8NkoXQJlMOF4TCsK_RJwCMEb3CVzPO103lxag2jsE9LVbUW8yLXkEOxc9CSZXq3CEj1zqzlPLUb4gW9CCMUZboq7M5QjgShpCv"/>
+</div>
+</div>
+</header>
+<!-- Page Canvas -->
+<div class="p-margin-desktop flex-1 flex flex-col max-w-max-width mx-auto w-full">
+<!-- Page Header & Actions -->
+<div class="flex flex-col md:flex-row md:items-center justify-between mb-xl gap-sm">
+<div>
+<h1 class="font-display text-display text-on-background mb-1">Topics Library</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Manage learning categories, curriculum status, and lesson allocations.</p>
+</div>
+<button class="bg-primary text-on-primary font-label-md text-label-md font-bold py-3 px-6 rounded-[1rem] shadow-md hover:shadow-lg hover:bg-primary-container transition-all flex items-center gap-2 w-fit">
+<span class="material-symbols-outlined">add_circle</span>
+                    Add New Topic
+                </button>
+</div>
+<!-- Toolbar: Search & Filters -->
+<div class="flex flex-col md:flex-row gap-md mb-lg bg-surface-container-lowest p-4 rounded-xl ambient-shadow-sm border border-outline-variant/20">
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container rounded-lg border-none focus:ring-2 focus:ring-primary text-on-surface placeholder:text-outline-variant font-body-md text-body-md transition-shadow" placeholder="Search topics, tags, or IDs..." type="text"/>
+</div>
+<div class="flex gap-sm">
+<select class="bg-surface-container py-2 pl-4 pr-10 rounded-lg border-none focus:ring-2 focus:ring-primary text-on-surface font-body-md text-body-md appearance-none cursor-pointer">
+<option>Status: All</option>
+<option>Status: Active</option>
+<option>Status: Draft</option>
+</select>
+<button class="px-4 py-2 bg-surface-container rounded-lg text-on-surface hover:bg-surface-container-high transition-colors flex items-center gap-2 border border-outline-variant/30">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+<span class="font-label-md text-label-md">Filters</span>
+</button>
+</div>
+</div>
+<!-- Bento Grid of Topics (Replacing standard table for high-end UI) -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+<!-- Topic Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl ambient-shadow-sm hover:ambient-shadow-md transition-all duration-300 border border-outline-variant/10 group overflow-hidden flex flex-col cursor-pointer relative">
+<div class="h-32 w-full relative">
+<img alt="Travel Topic Cover" class="w-full h-full object-cover" data-alt="A bright, scenic view from an airplane window showcasing white clouds and a clear blue sky. The image has a clean, airy, and inspiring light-mode aesthetic, perfect for a travel and exploration educational topic. High contrast and crisp details." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCt2UgP96roRZ4ICNFq4BW1-rLkNuQyKD9NU4i4x0my2OofmZTjjAM50Xz4wLUk9gnpSda0ZXxjbbDX7iSE7PJn6DzOvER7PNzu-U1p839MRkWMEH6plGU7JNWbwjXEHbLCo1EYlIONWNXXv2_tK0kypaAjboO0vxhAcL8nIgBzWWz_0Xb2mx7H3mzZ0PRpC5Bt-Akf70WD1db_r25EIF6myVnK2UNkeXspbmSWbM6rJ67UkqQFPlaP8LBzFk8zpRrByqkfFhcBdOCU"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<div class="absolute bottom-3 left-4 flex gap-2">
+<span class="bg-secondary-container text-on-secondary-container px-2 py-1 rounded-full font-label-sm text-label-sm shadow-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> Active
+                            </span>
+</div>
+</div>
+<div class="p-4 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-h2 text-h2 text-on-surface group-hover:text-primary transition-colors">Travel &amp; Transit</h3>
+<button class="text-outline hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-2 mb-4">Essential vocabulary for airports, public transport, and navigating new cities.</p>
+<div class="mt-auto flex items-center gap-4 border-t border-outline-variant/20 pt-3">
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">play_lesson</span>
+<span class="font-label-md text-label-md">24 Lessons</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">format_list_bulleted</span>
+<span class="font-label-md text-label-md">150 Words</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Topic Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl ambient-shadow-sm hover:ambient-shadow-md transition-all duration-300 border border-outline-variant/10 group overflow-hidden flex flex-col cursor-pointer relative">
+<div class="h-32 w-full relative">
+<img alt="Business Topic Cover" class="w-full h-full object-cover" data-alt="A modern, brightly lit corporate meeting room with glass walls and sleek furniture. The scene implies collaboration and professionalism, matching a business education theme. Soft lighting with subtle indigo and neutral gray tones for a clean interface look." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAy5SZmATN4EAXKYCFLXTT6YfpHHtOvtnf86pdN6CC_nZxIE6GUxngybWGkShVQuG4fVvZKaCY6LtlVd_s0OPU6Wx0s-_pmLFa3OONQELizK6C1e_Ka3Vv0uAL-p0Enu01mtMDVhLGYQrFAX7ZcddndZKhBQ1dJJxVPGQPZ6Jn4GEr82Y-uvCttY1mo5DKA3fJKx3gI_pKaSo35i8NtckCKG4bvz2sZBdJSqcFBJJctGVyyJ_Px1YrQIbwsPLXG_Yd4px7BCLyKibcK"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<div class="absolute bottom-3 left-4 flex gap-2">
+<span class="bg-secondary-container text-on-secondary-container px-2 py-1 rounded-full font-label-sm text-label-sm shadow-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> Active
+                            </span>
+</div>
+</div>
+<div class="p-4 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-h2 text-h2 text-on-surface group-hover:text-primary transition-colors">Business Protocol</h3>
+<button class="text-outline hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-2 mb-4">Formal greetings, email etiquette, and negotiation terminology.</p>
+<div class="mt-auto flex items-center gap-4 border-t border-outline-variant/20 pt-3">
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">play_lesson</span>
+<span class="font-label-md text-label-md">42 Lessons</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">format_list_bulleted</span>
+<span class="font-label-md text-label-md">320 Words</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Topic Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl ambient-shadow-sm hover:ambient-shadow-md transition-all duration-300 border border-outline-variant/10 group overflow-hidden flex flex-col cursor-pointer relative opacity-80 hover:opacity-100">
+<div class="h-32 w-full relative bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-display text-outline-variant">restaurant</span>
+<div class="absolute bottom-3 left-4 flex gap-2">
+<span class="bg-surface-variant text-on-surface-variant px-2 py-1 rounded-full font-label-sm text-label-sm shadow-sm flex items-center gap-1 border border-outline-variant/30">
+<span class="material-symbols-outlined text-[14px]">edit_document</span> Draft
+                            </span>
+</div>
+</div>
+<div class="p-4 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-h2 text-h2 text-on-surface group-hover:text-primary transition-colors">Food &amp; Dining</h3>
+<button class="text-outline hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-2 mb-4">Ordering at restaurants, traditional Vietnamese dishes, and dietary restrictions.</p>
+<div class="mt-auto flex items-center gap-4 border-t border-outline-variant/20 pt-3">
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">play_lesson</span>
+<span class="font-label-md text-label-md">12 Lessons</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">format_list_bulleted</span>
+<span class="font-label-md text-label-md">85 Words</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

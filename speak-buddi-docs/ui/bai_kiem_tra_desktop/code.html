@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vocabulary Test - SpeakBuddi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#a44100",
+                        "surface-container-highest": "#e4e1ee",
+                        "error": "#ba1a1a",
+                        "surface-bright": "#fcf8ff",
+                        "inverse-primary": "#c3c0ff",
+                        "on-primary-fixed": "#0f0069",
+                        "on-error-container": "#93000a",
+                        "surface": "#fcf8ff",
+                        "on-surface": "#1b1b24",
+                        "on-secondary-container": "#00714d",
+                        "surface-container-low": "#f5f2ff",
+                        "inverse-on-surface": "#f3effc",
+                        "tertiary-fixed": "#ffdbcc",
+                        "primary-fixed": "#e2dfff",
+                        "on-surface-variant": "#464555",
+                        "on-background": "#1b1b24",
+                        "tertiary-fixed-dim": "#ffb695",
+                        "on-secondary": "#ffffff",
+                        "surface-container-high": "#eae6f4",
+                        "secondary-fixed-dim": "#4edea3",
+                        "on-primary-container": "#dad7ff",
+                        "surface-container": "#f0ecf9",
+                        "background": "#fcf8ff",
+                        "secondary-container": "#6cf8bb",
+                        "on-tertiary-container": "#ffd2be",
+                        "error-container": "#ffdad6",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed-variant": "#3323cc",
+                        "on-tertiary-fixed-variant": "#7b2f00",
+                        "primary": "#3525cd",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#006c49",
+                        "outline": "#777587",
+                        "on-secondary-fixed-variant": "#005236",
+                        "on-secondary-fixed": "#002113",
+                        "tertiary": "#7e3000",
+                        "surface-dim": "#dcd8e5",
+                        "on-tertiary-fixed": "#351000",
+                        "secondary-fixed": "#6ffbbe",
+                        "surface-tint": "#4d44e3",
+                        "primary-container": "#4f46e5",
+                        "outline-variant": "#c7c4d8",
+                        "on-tertiary": "#ffffff",
+                        "inverse-surface": "#302f39",
+                        "on-primary": "#ffffff",
+                        "surface-variant": "#e4e1ee",
+                        "primary-fixed-dim": "#c3c0ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "3rem",
+                        "lg": "2rem",
+                        "base": "4px",
+                        "margin-mobile": "16px",
+                        "gutter": "16px",
+                        "md": "1.5rem",
+                        "max-width": "1280px",
+                        "sm": "1rem",
+                        "margin-desktop": "64px",
+                        "xs": "0.5rem"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Be Vietnam Pro"],
+                        "display": ["Be Vietnam Pro"],
+                        "h1": ["Be Vietnam Pro"],
+                        "h2": ["Be Vietnam Pro"],
+                        "label-md": ["Be Vietnam Pro"],
+                        "h3": ["Be Vietnam Pro"],
+                        "body-lg": ["Be Vietnam Pro"],
+                        "h1-mobile": ["Be Vietnam Pro"],
+                        "body-md": ["Be Vietnam Pro"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", { "lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "h1": ["32px", { "lineHeight": "1.25", "fontWeight": "700" }],
+                        "h2": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "h3": ["20px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "h1-mobile": ["28px", { "lineHeight": "1.25", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md h-screen w-full flex overflow-hidden">
+<!-- SideNavBar (Desktop) -->
+<aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container shadow-md z-40 p-4 gap-2">
+<div class="flex items-center gap-3 px-4 py-4 mb-4">
+<div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-on-primary font-h3">
+                S
+            </div>
+<div>
+<div class="font-h3 text-h3 font-bold text-primary">SpeakBuddi</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">English Learning</div>
+</div>
+</div>
+<nav class="flex flex-col gap-2 flex-1">
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-container-highest rounded-xl transition-all scale-95 active:scale-100 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-container-highest rounded-xl transition-all scale-95 active:scale-100 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-label-md text-label-md">Roadmap</span>
+</a>
+<!-- Active Tab: Vocabulary -->
+<a class="flex items-center gap-3 bg-primary-container text-on-primary-container rounded-xl px-4 py-3 scale-95 active:scale-100 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="translate">translate</span>
+<span class="font-label-md text-label-md font-bold">Vocabulary</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-container-highest rounded-xl transition-all scale-95 active:scale-100 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-3 hover:bg-surface-container-highest rounded-xl transition-all scale-95 active:scale-100 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-4">
+<button class="w-full py-3 bg-gradient-to-r from-tertiary to-tertiary-container text-on-tertiary rounded-xl font-label-md text-label-md font-bold shadow-sm hover:shadow-md transition-all active:scale-95">
+                Upgrade to Pro
+            </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col ml-0 md:ml-64 h-full relative">
+<!-- TopNavBar -->
+<header class="sticky top-0 z-30 bg-surface/80 backdrop-blur-md shadow-sm w-full">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4 max-w-max-width mx-auto">
+<div class="flex items-center gap-4">
+<!-- Mobile Menu Trigger -->
+<button class="md:hidden text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:opacity-70">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<!-- Brand (Mobile primarily, or desktop if no sidenav) -->
+<div class="font-h2 text-h2 font-bold text-primary md:hidden">SpeakBuddi</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:opacity-70">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:opacity-70">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant overflow-hidden cursor-pointer">
+<img alt="User profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_85Le0abdmvuNg4eEQMR-yCmIXi7s_Lwl98OOkVQzxWDUULdkx0QZoptQeALCU2QVEXNVp2bJWkaUrOPmoq6je_vWzLlp3sTlp-9RDO5131hCAzgrfeIH8Ah8QqwEnYr7tNhZcfPc4N0rA4AfqTGScnjYttPgJKbw_a_afJpMTM_Owe-TuozFo5kh3B_J9nZuy1dvdRp3SFo8jgrRn5hKSQuWFe4Ju6pmbIPxdHiPOXN1NN4BBsjxaI5aPR5qDXWeIuux8kh6hZ71"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Quiz Canvas -->
+<main class="flex-1 overflow-y-auto px-margin-mobile md:px-margin-desktop py-8 md:py-12 bg-background flex flex-col items-center">
+<div class="w-full max-w-3xl flex flex-col gap-8">
+<!-- Header & Progress -->
+<div class="flex flex-col gap-4">
+<div class="flex justify-between items-end">
+<div>
+<p class="font-label-md text-label-md text-primary mb-1 tracking-wide uppercase">Du lịch &amp; Khám phá</p>
+<h1 class="font-h1-mobile md:font-h1 text-h1-mobile md:text-h1 text-on-surface">Bài kiểm tra từ vựng</h1>
+</div>
+<div class="font-h3 text-h3 text-on-surface-variant bg-surface-container-high px-4 py-1 rounded-full">
+                            3 / 10
+                        </div>
+</div>
+<!-- Progress Bar -->
+<div class="w-full h-3 bg-surface-variant rounded-full overflow-hidden shadow-inner">
+<div class="h-full bg-primary rounded-full transition-all duration-500 ease-out" style="width: 30%;"></div>
+</div>
+</div>
+<!-- Question Card (Glassmorphism/Modern style) -->
+<div class="bg-surface-container-lowest rounded-[2rem] shadow-[0_8px_24px_rgba(53,37,205,0.06)] border border-surface-container-highest p-8 md:p-12 flex flex-col items-center text-center mt-4 relative overflow-hidden">
+<!-- Decorative subtle background element -->
+<div class="absolute -top-12 -right-12 w-48 h-48 bg-primary-fixed/30 rounded-full blur-3xl pointer-events-none"></div>
+<span class="material-symbols-outlined text-4xl text-primary mb-6" data-icon="help_center">help_center</span>
+<h2 class="font-h2 text-h2 text-on-surface max-w-xl mx-auto leading-snug">
+                        What is the Vietnamese meaning of '<span class="text-primary font-bold">Departure</span>'?
+                    </h2>
+</div>
+<!-- Answer Options Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+<!-- Option 1: Selected State -->
+<div class="relative group cursor-pointer" onclick="selectOption(this)">
+<input checked="" class="peer hidden" id="opt1" name="answer" type="radio"/>
+<label class="block w-full p-6 rounded-xl border-2 border-primary bg-primary-container/10 text-on-surface font-body-lg text-body-lg transition-all duration-200 hover:shadow-md cursor-pointer flex items-center justify-between" for="opt1">
+<span>Sự khởi hành</span>
+<span class="material-symbols-outlined text-primary" data-icon="radio_button_checked" data-weight="fill">radio_button_checked</span>
+</label>
+</div>
+<!-- Option 2: Default State -->
+<div class="relative group cursor-pointer" onclick="selectOption(this)">
+<input class="peer hidden" id="opt2" name="answer" type="radio"/>
+<label class="block w-full p-6 rounded-xl border-2 border-outline-variant bg-surface-container-lowest text-on-surface font-body-lg text-body-lg transition-all duration-200 hover:border-primary/50 hover:bg-surface-container-low cursor-pointer flex items-center justify-between" for="opt2">
+<span>Chuyến đi</span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary/50" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+</label>
+</div>
+<!-- Option 3: Default State -->
+<div class="relative group cursor-pointer" onclick="selectOption(this)">
+<input class="peer hidden" id="opt3" name="answer" type="radio"/>
+<label class="block w-full p-6 rounded-xl border-2 border-outline-variant bg-surface-container-lowest text-on-surface font-body-lg text-body-lg transition-all duration-200 hover:border-primary/50 hover:bg-surface-container-low cursor-pointer flex items-center justify-between" for="opt3">
+<span>Hành lý</span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary/50" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+</label>
+</div>
+<!-- Option 4: Default State -->
+<div class="relative group cursor-pointer" onclick="selectOption(this)">
+<input class="peer hidden" id="opt4" name="answer" type="radio"/>
+<label class="block w-full p-6 rounded-xl border-2 border-outline-variant bg-surface-container-lowest text-on-surface font-body-lg text-body-lg transition-all duration-200 hover:border-primary/50 hover:bg-surface-container-low cursor-pointer flex items-center justify-between" for="opt4">
+<span>Sân bay</span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary/50" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+</label>
+</div>
+</div>
+<!-- Action Area -->
+<div class="mt-8 pt-6 border-t border-surface-container-highest flex justify-end">
+<button class="w-full md:w-auto px-12 py-4 bg-primary text-on-primary rounded-xl font-h3 text-h3 shadow-[0_4px_12px_rgba(53,37,205,0.3)] hover:shadow-[0_6px_16px_rgba(53,37,205,0.4)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2">
+                        Nộp bài
+                        <span class="material-symbols-outlined" data-icon="send">send</span>
+</button>
+</div>
+</div>
+<!-- Bottom safe area padding for mobile -->
+<div class="h-24 md:h-8"></div>
+</main>
+</div>
+<!-- BottomNavBar (Mobile Only) - Hidden as per prompt "Sidebar and TopNavBar visible" implying desktop view, but including for structural completeness if viewport shrinks -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-margin-mobile py-2 bg-surface shadow-[0_-4px_12px_rgba(0,0,0,0.04)] rounded-t-xl border-t border-surface-container-highest">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low w-16 py-2 rounded-xl transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-sm text-label-sm mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low w-16 py-2 rounded-xl transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-label-sm text-label-sm mt-1">Roadmap</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container w-16 py-2 rounded-xl transition-colors active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="translate" data-weight="fill">translate</span>
+<span class="font-label-sm text-label-sm mt-1 font-bold">Vocab</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low w-16 py-2 rounded-xl transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span class="font-label-sm text-label-sm mt-1">Stats</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low w-16 py-2 rounded-xl transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-sm text-label-sm mt-1">Settings</span>
+</a>
+</nav>
+<script>
+        // Simple visual interaction for selection (UI only, no actual form logic required)
+        function selectOption(clickedElement) {
+            // Reset all options to default styling
+            const allOptions = document.querySelectorAll('input[name="answer"]');
+            allOptions.forEach(input => {
+                const label = input.nextElementSibling;
+                const icon = label.querySelector('.material-symbols-outlined');
+                
+                // Remove selected classes
+                label.classList.remove('border-primary', 'bg-primary-container/10');
+                label.classList.add('border-outline-variant', 'bg-surface-container-lowest', 'hover:border-primary/50', 'hover:bg-surface-container-low');
+                
+                // Reset icon
+                icon.textContent = 'radio_button_unchecked';
+                icon.classList.remove('text-primary');
+                icon.classList.add('text-outline-variant', 'group-hover:text-primary/50');
+                icon.removeAttribute('data-weight');
+            });
+
+            // Apply selected styling to clicked option
+            const input = clickedElement.querySelector('input');
+            const label = clickedElement.querySelector('label');
+            const icon = label.querySelector('.material-symbols-outlined');
+
+            input.checked = true;
+            
+            label.classList.remove('border-outline-variant', 'bg-surface-container-lowest', 'hover:border-primary/50', 'hover:bg-surface-container-low');
+            label.classList.add('border-primary', 'bg-primary-container/10');
+            
+            icon.textContent = 'radio_button_checked';
+            icon.classList.remove('text-outline-variant', 'group-hover:text-primary/50');
+            icon.classList.add('text-primary');
+            icon.setAttribute('data-weight', 'fill');
+        }
+    </script>
+</body></html>

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SpeakBuddi - Luyện nói tiếng Anh cùng AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed-variant": "#005236",
+                    "surface-variant": "#e4e1ee",
+                    "on-primary-container": "#dad7ff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error": "#ffffff",
+                    "on-surface-variant": "#464555",
+                    "on-primary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed": "#0f0069",
+                    "on-secondary": "#ffffff",
+                    "secondary-fixed": "#6ffbbe",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "surface": "#fcf8ff",
+                    "surface-container-high": "#eae6f4",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "inverse-primary": "#c3c0ff",
+                    "secondary-fixed-dim": "#4edea3",
+                    "tertiary-fixed": "#ffdbcc",
+                    "outline": "#777587",
+                    "tertiary-container": "#a44100",
+                    "inverse-surface": "#302f39",
+                    "surface-dim": "#dcd8e5",
+                    "on-tertiary-container": "#ffd2be",
+                    "error-container": "#ffdad6",
+                    "primary": "#3525cd",
+                    "inverse-on-surface": "#f3effc",
+                    "on-secondary-container": "#00714d",
+                    "surface-bright": "#fcf8ff",
+                    "primary-container": "#4f46e5",
+                    "on-surface": "#1b1b24",
+                    "surface-container-low": "#f5f2ff",
+                    "surface-container": "#f0ecf9",
+                    "on-tertiary-fixed-variant": "#7b2f00",
+                    "secondary-container": "#6cf8bb",
+                    "outline-variant": "#c7c4d8",
+                    "background": "#fcf8ff",
+                    "secondary": "#006c49",
+                    "on-tertiary": "#ffffff",
+                    "on-tertiary-fixed": "#351000",
+                    "surface-tint": "#4d44e3",
+                    "on-error-container": "#93000a",
+                    "on-secondary-fixed": "#002113",
+                    "on-background": "#1b1b24",
+                    "surface-container-highest": "#e4e1ee",
+                    "tertiary": "#7e3000",
+                    "primary-fixed": "#e2dfff",
+                    "tertiary-fixed-dim": "#ffb695"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-desktop": "64px",
+                    "margin-mobile": "16px",
+                    "sm": "1rem",
+                    "xl": "3rem",
+                    "base": "4px",
+                    "xs": "0.5rem",
+                    "max-width": "1280px",
+                    "gutter": "16px",
+                    "lg": "2rem",
+                    "md": "1.5rem"
+            },
+            "fontFamily": {
+                    "label-md": [
+                            "Be Vietnam Pro"
+                    ],
+                    "label-sm": [
+                            "Be Vietnam Pro"
+                    ],
+                    "body-md": [
+                            "Be Vietnam Pro"
+                    ],
+                    "h1-mobile": [
+                            "Be Vietnam Pro"
+                    ],
+                    "body-lg": [
+                            "Be Vietnam Pro"
+                    ],
+                    "display": [
+                            "Be Vietnam Pro"
+                    ],
+                    "h1": [
+                            "Be Vietnam Pro"
+                    ],
+                    "h3": [
+                            "Be Vietnam Pro"
+                    ],
+                    "h2": [
+                            "Be Vietnam Pro"
+                    ]
+            },
+            "fontSize": {
+                    "label-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "label-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "h1-mobile": [
+                            "28px",
+                            {
+                                    "lineHeight": "1.25",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "display": [
+                            "48px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "h1": [
+                            "32px",
+                            {
+                                    "lineHeight": "1.25",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "h3": [
+                            "20px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "h2": [
+                            "24px",
+                            {
+                                    "lineHeight": "1.3",
+                                    "fontWeight": "600"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-x-hidden">
+<!-- TopNavBar -->
+<nav class="bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md w-full top-0 sticky z-50 bg-surface dark:bg-surface-dim shadow-sm">
+<div class="flex justify-between items-center w-full px-margin-desktop max-w-max-width mx-auto py-4">
+<div class="font-display text-h2 text-primary dark:text-primary-fixed-dim tracking-tight">SpeakBuddi</div>
+<div class="hidden md:flex gap-lg items-center">
+<a class="text-on-surface-variant dark:text-surface-variant font-label-md text-label-md hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-200" href="#">Tính năng</a>
+<a class="text-on-surface-variant dark:text-surface-variant font-label-md text-label-md hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-200" href="#">Bảng giá</a>
+<a class="text-on-surface-variant dark:text-surface-variant font-label-md text-label-md hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-200" href="#">Đăng nhập</a>
+</div>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-6 py-2 rounded-full hover:opacity-80 transition-opacity">Bắt đầu miễn phí</button>
+</div>
+</nav>
+<!-- Hero Section -->
+<section class="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop pt-xl pb-24 flex flex-col md:flex-row items-center gap-12">
+<div class="w-full md:w-1/2 flex flex-col gap-6">
+<h1 class="font-display text-display md:text-[56px] text-on-surface leading-tight">Luyện nói tiếng Anh cùng AI — mọi lúc, mọi nơi</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Nâng cao sự tự tin và trôi chảy với các cuộc hội thoại tương tác, phản hồi phát âm theo thời gian thực và lộ trình học được cá nhân hóa.</p>
+<div class="flex flex-col sm:flex-row gap-4 mt-4">
+<button class="bg-primary text-on-primary font-label-md text-label-md px-8 py-3 rounded-full hover:opacity-90 transition-opacity text-center">Bắt đầu miễn phí</button>
+<button class="border-2 border-primary text-primary font-label-md text-label-md px-8 py-3 rounded-full hover:bg-primary-fixed transition-colors text-center">Xem bảng giá</button>
+</div>
+</div>
+<div class="w-full md:w-1/2 relative">
+<div class="aspect-square md:aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl relative">
+<img alt="Student learning" class="w-full h-full object-cover" data-alt="A bright, high-key photograph of a young professional using a modern language learning app on a tablet in a bright, modern, minimalist cafe. The lighting is soft and natural, creating a clean, inviting atmosphere that perfectly matches a light-mode UI aesthetic. Colors are primarily soft whites and grays, with subtle pops of vibrant indigo from the tablet screen interface. The mood is focused, confident, and highly accessible." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC26dhgoR631RWMqfKVzQ4eodvgpnTVNHA1htVAB6jGB-XViRdazBl43USl0HRqoLuqOsRMp4G5Kog8xSswO7UUvaHb-4yGCxiMDHHxtAC4fLKBtUm34bKl1ZPUoKrZVet0LI4D12giUibjY748HhkykmYz-AFttzRUJyW87bntjcPUlO-llYYwqyVtpI-1381O9b29OvDIVzqfcq2BW9DLRT9g9X1UZbUZ2biUDO87xnEicmTxORfaKuR9zinzMAKh1MC2Z0riV21v"/>
+<div class="absolute bottom-6 left-6 right-6 bg-surface/90 backdrop-blur-md p-4 rounded-xl shadow-lg border border-outline-variant/30 flex items-center gap-4">
+<div class="bg-secondary-container text-on-secondary-container p-3 rounded-full flex-shrink-0">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">mic</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface font-semibold">Phát âm xuất sắc!</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Độ chính xác 98%</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Stats Section -->
+<section class="bg-surface-container-low py-16">
+<div class="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-outline-variant/50">
+<div class="py-4 md:py-0">
+<h3 class="font-display text-h1 text-primary">100,000+</h3>
+<p class="font-label-md text-label-md text-on-surface-variant mt-2 uppercase tracking-wider">Người dùng</p>
+</div>
+<div class="py-4 md:py-0">
+<h3 class="font-display text-h1 text-primary">500+</h3>
+<p class="font-label-md text-label-md text-on-surface-variant mt-2 uppercase tracking-wider">Chủ đề giao tiếp</p>
+</div>
+<div class="py-4 md:py-0">
+<h3 class="font-display text-h1 text-primary">10,000+</h3>
+<p class="font-label-md text-label-md text-on-surface-variant mt-2 uppercase tracking-wider">Từ vựng</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Features Section -->
+<section class="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop py-24">
+<div class="text-center mb-16">
+<h2 class="font-h1 text-h1 text-on-surface mb-4">Mọi thứ bạn cần để nói tiếng Anh lưu loát</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">Các công cụ toàn diện được thiết kế để đẩy nhanh hành trình ngôn ngữ của bạn.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Feature 1 -->
+<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-shadow border border-outline-variant/20 flex flex-col items-start">
+<div class="bg-primary-container text-primary p-4 rounded-xl mb-6">
+<span class="material-symbols-outlined text-3xl">chat</span>
+</div>
+<h3 class="font-h3 text-h3 text-on-surface mb-2">Hội thoại AI</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Thực hành nói chuyện với các nhân vật AI thông minh trong các tình huống thực tế.</p>
+</div>
+<!-- Feature 2 -->
+<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-shadow border border-outline-variant/20 flex flex-col items-start">
+<div class="bg-secondary-container text-secondary p-4 rounded-xl mb-6">
+<span class="material-symbols-outlined text-3xl">graphic_eq</span>
+</div>
+<h3 class="font-h3 text-h3 text-on-surface mb-2">Luyện phát âm</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Nhận phản hồi ngay lập tức, chi tiết về cách phát âm của bạn để cải thiện ngữ điệu.</p>
+</div>
+<!-- Feature 3 -->
+<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-shadow border border-outline-variant/20 flex flex-col items-start">
+<div class="bg-tertiary-container text-tertiary p-4 rounded-xl mb-6">
+<span class="material-symbols-outlined text-3xl">menu_book</span>
+</div>
+<h3 class="font-h3 text-h3 text-on-surface mb-2">Từ vựng theo cấp độ</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Học các từ vựng phù hợp với trình độ CEFR của bạn, từ A1 đến C2.</p>
+</div>
+<!-- Feature 4 -->
+<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-shadow border border-outline-variant/20 flex flex-col items-start">
+<div class="bg-primary-container text-primary p-4 rounded-xl mb-6">
+<span class="material-symbols-outlined text-3xl">map</span>
+</div>
+<h3 class="font-h3 text-h3 text-on-surface mb-2">Lộ trình chủ đề</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Làm theo lộ trình học tập có cấu trúc được thiết kế để bao quát mọi tình huống hàng ngày.</p>
+</div>
+<!-- Feature 5 -->
+<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-shadow border border-outline-variant/20 flex flex-col items-start">
+<div class="bg-secondary-container text-secondary p-4 rounded-xl mb-6">
+<span class="material-symbols-outlined text-3xl">quiz</span>
+</div>
+<h3 class="font-h3 text-h3 text-on-surface mb-2">Bài kiểm tra từ vựng</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Củng cố trí nhớ của bạn bằng các câu đố tương tác và bài kiểm tra tiến độ.</p>
+</div>
+<!-- Feature 6 -->
+<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-shadow border border-outline-variant/20 flex flex-col items-start">
+<div class="bg-tertiary-container text-tertiary p-4 rounded-xl mb-6">
+<span class="material-symbols-outlined text-3xl">translate</span>
+</div>
+<h3 class="font-h3 text-h3 text-on-surface mb-2">Dịch từ vựng</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Dịch tức thời trong ngữ cảnh giúp bạn hiểu cách sử dụng sắc thái của các từ mới.</p>
+</div>
+</div>
+</section>
+<!-- Pricing Teaser Section -->
+<section class="bg-surface-container py-24">
+<div class="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop text-center">
+<h2 class="font-h1 text-h1 text-on-surface mb-4">Mở khóa toàn bộ tiềm năng</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto mb-12">Bắt đầu học miễn phí hoặc nâng cấp lên Pro để có quyền truy cập không giới hạn vào các cuộc hội thoại AI nâng cao.</p>
+<div class="flex flex-col md:flex-row justify-center gap-8 max-w-4xl mx-auto">
+<!-- Free Plan -->
+<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/30 flex-1 flex flex-col">
+<h3 class="font-h2 text-h2 text-on-surface mb-2">Cơ bản</h3>
+<div class="font-display text-display text-primary mb-6">Miễn phí</div>
+<ul class="text-left space-y-4 mb-8 flex-1">
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary">check_circle</span>
+<span class="font-body-md text-body-md">Giới hạn thời gian luyện tập</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary">check_circle</span>
+<span class="font-body-md text-body-md">Chủ đề cơ bản</span>
+</li>
+</ul>
+<button class="w-full border-2 border-primary text-primary font-label-md text-label-md px-6 py-3 rounded-xl hover:bg-primary-fixed transition-colors">Bắt đầu ngay</button>
+</div>
+<!-- Pro Plan -->
+<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-[0_8px_24px_rgba(0,0,0,0.08)] border-2 border-[#D4AF37] relative flex-1 flex flex-col transform md:-translate-y-4">
+<div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#D4AF37] text-white font-label-sm text-label-sm px-4 py-1 rounded-full uppercase tracking-wider font-bold shadow-md">Phổ biến nhất</div>
+<h3 class="font-h2 text-h2 text-on-surface mb-2">Pro</h3>
+<div class="font-display text-display text-primary mb-6">99k<span class="text-h3 font-h3 text-on-surface-variant">/tháng</span></div>
+<ul class="text-left space-y-4 mb-8 flex-1">
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-body-md text-body-md font-medium text-on-surface">Không giới hạn luyện nói AI</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-body-md text-body-md font-medium text-on-surface">Truy cập tất cả 500+ chủ đề</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-body-md text-body-md font-medium text-on-surface">Phân tích phát âm chuyên sâu</span>
+</li>
+</ul>
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md px-6 py-3 rounded-xl hover:opacity-90 transition-opacity shadow-md">Nâng cấp Pro</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest dark:bg-surface-dim w-full py-xl mt-xl border-t border-outline-variant dark:border-outline">
+<div class="max-w-max-width mx-auto px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-md">
+<div class="font-h3 text-h3 text-primary dark:text-primary-fixed-dim">SpeakBuddi</div>
+<p class="font-body-md text-body-md text-on-surface-variant text-center">© 2024 SpeakBuddi. Nền tảng học Tiếng Anh cho người Việt.</p>
+<div class="flex gap-4">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-secondary dark:hover:text-secondary-fixed-dim underline transition color 0.3s ease" href="#">Điều khoản</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-secondary dark:hover:text-secondary-fixed-dim underline transition color 0.3s ease" href="#">Bảo mật</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-secondary dark:hover:text-secondary-fixed-dim underline transition color 0.3s ease" href="#">Liên hệ</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-secondary dark:hover:text-secondary-fixed-dim underline transition color 0.3s ease" href="#">Trợ giúp</a>
+</div>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,29 @@
+@startuml
+title UC11 — Paid User changes ElevenLabs voice/model — Backend Classes
+skinparam classAttributeIconSize 0
+class UC11Controller {
+  - service: VoicePreferenceService
+  + handle(request): Response
+}
+class VoicePreferenceService {
+  - repository: UserVoicePreferenceRepository
+  + execute(command): Result
+  + validate(command): void
+}
+class UserVoicePreferenceRepository {
+  + findById(id): UserVoicePreference
+  + save(entity: UserVoicePreference): UserVoicePreference
+}
+class UserVoicePreference {
+  - id: Long
+  - createdAt: DateTime
+  - updatedAt: DateTime
+}
+class ElevenLabs_APIClient {
+  +sendRequest(payload): ExternalResult
+}
+UC11Controller --> VoicePreferenceService
+VoicePreferenceService --> UserVoicePreferenceRepository
+UserVoicePreferenceRepository --> UserVoicePreference
+VoicePreferenceService --> ElevenLabs_APIClient
+@enduml

@@ -1,0 +1,116 @@
+@startuml
+title UC03 — Student selects level during onboarding to create personalized roadmap — Backend Classes
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+package "backend" {
+  class OnboardingController {
+    - service: OnboardingService
+    + completeOnboarding(request: OnboardingRequest): RoadmapResponse
+    + updateSelectedLevel(request: LevelUpdateRequest): RoadmapResponse
+  }
+
+  class OnboardingRequest {
+    + userId: UUID
+    + selectedLevel: EnglishLevel
+    + learningGoal: string
+    + topicPreferences: string[]
+  }
+
+  class LevelUpdateRequest {
+    + userId: UUID
+    + selectedLevel: EnglishLevel
+  }
+
+  class OnboardingService {
+    - profileRepository: UserProfileRepository
+    - contentCatalogService: ContentCatalogService
+    - roadmapService: RoadmapService
+    + complete(command: OnboardingCommand): RoadmapSummary
+    + updateLevel(command: LevelUpdateCommand): RoadmapSummary
+    + validateSelectedLevel(level: EnglishLevel): void
+  }
+
+  class UserProfileRepository {
+    + findByUserId(userId: UUID): UserProfile
+    + save(profile: UserProfile): UserProfile
+  }
+
+  class ContentCatalogService {
+    + getActiveContentByLevel(level: EnglishLevel): LevelContent
+  }
+
+  class RoadmapService {
+    + generate(profile: UserProfile, content: LevelContent): RoadmapSummary
+    + createFallback(profile: UserProfile): RoadmapSummary
+  }
+
+  class UserProfile {
+    + id: UUID
+    + userId: UUID
+    + selectedLevel: EnglishLevel
+    + learningGoal: string
+    + onboardingCompleted: boolean
+    + createdAt: DateTime
+    + updatedAt: DateTime
+  }
+
+  class LevelContent {
+    + level: EnglishLevel
+    + topics: Topic[]
+    + vocabulary: VocabularyWord[]
+    + activities: Activity[]
+    + sourceStatus: string
+  }
+
+  class Topic {
+    + id: UUID
+    + level: EnglishLevel
+    + source: string
+    + isActive: boolean
+  }
+
+  class VocabularyWord {
+    + id: UUID
+    + topicId: UUID
+    + level: EnglishLevel
+    + word: string
+    + isActive: boolean
+  }
+
+  enum EnglishLevel {
+    A1
+    A2
+    B1
+    B2
+    C1
+    C2
+  }
+}
+
+OnboardingController --> OnboardingService
+OnboardingController ..> OnboardingRequest
+OnboardingController ..> LevelUpdateRequest
+OnboardingService --> UserProfileRepository
+OnboardingService --> ContentCatalogService
+OnboardingService --> RoadmapService
+OnboardingService ..> EnglishLevel
+UserProfileRepository --> UserProfile
+ContentCatalogService --> LevelContent
+LevelContent --> Topic
+LevelContent --> VocabularyWord
+UserProfile --> EnglishLevel
+Topic --> EnglishLevel
+VocabularyWord --> EnglishLevel
+
+note right of OnboardingService
+  No scored assessment service is used.
+  selectedLevel comes from the Student's manual choice.
+end note
+
+note bottom of ContentCatalogService
+  Returns active topics/vocabulary/activities
+  for the selected A1-C2 level from
+  Langeek-crawled or Admin-managed content.
+end note
+@enduml

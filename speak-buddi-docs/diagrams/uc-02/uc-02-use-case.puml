@@ -1,0 +1,15 @@
+@startuml
+title UC02 — User registers/logs in/resets password/OAuth Google — Use Case
+left to right direction
+skinparam packageStyle rectangle
+actor "Guest" as Guest
+actor "Student" as Student
+actor "Google OAuth" as Google_OAuth
+actor "Resend" as Resend
+rectangle "speak-buddi" {
+  Guest -- (UC02: User registers/logs in/resets password/OAuth Google)
+  Student -- (UC02: User registers/logs in/resets password/OAuth Google)
+  (UC02: User registers/logs in/resets password/OAuth Google) ..> Google_OAuth : uses
+  (UC02: User registers/logs in/resets password/OAuth Google) ..> Resend : uses
+}
+@enduml

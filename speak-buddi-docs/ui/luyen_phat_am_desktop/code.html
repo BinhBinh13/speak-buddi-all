@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Luyện phát âm - SpeakBuddi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#f0ecf9",
+                    "on-tertiary-fixed-variant": "#7b2f00",
+                    "on-surface": "#1b1b24",
+                    "surface-container-low": "#f5f2ff",
+                    "secondary-container": "#6cf8bb",
+                    "outline-variant": "#c7c4d8",
+                    "background": "#fcf8ff",
+                    "error-container": "#ffdad6",
+                    "surface-bright": "#fcf8ff",
+                    "on-secondary-container": "#00714d",
+                    "primary-container": "#4f46e5",
+                    "primary": "#3525cd",
+                    "inverse-on-surface": "#f3effc",
+                    "surface-container-highest": "#e4e1ee",
+                    "tertiary-fixed-dim": "#ffb695",
+                    "primary-fixed": "#e2dfff",
+                    "tertiary": "#7e3000",
+                    "surface-tint": "#4d44e3",
+                    "secondary": "#006c49",
+                    "on-tertiary-fixed": "#351000",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-fixed": "#002113",
+                    "on-error-container": "#93000a",
+                    "on-background": "#1b1b24",
+                    "on-secondary": "#ffffff",
+                    "secondary-fixed": "#6ffbbe",
+                    "on-primary-fixed": "#0f0069",
+                    "error": "#ba1a1a",
+                    "surface-container-high": "#eae6f4",
+                    "surface": "#fcf8ff",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "surface-variant": "#e4e1ee",
+                    "on-secondary-fixed-variant": "#005236",
+                    "on-primary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-container": "#dad7ff",
+                    "on-surface-variant": "#464555",
+                    "on-error": "#ffffff",
+                    "tertiary-container": "#a44100",
+                    "inverse-surface": "#302f39",
+                    "outline": "#777587",
+                    "surface-dim": "#dcd8e5",
+                    "on-tertiary-container": "#ffd2be",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "inverse-primary": "#c3c0ff",
+                    "tertiary-fixed": "#ffdbcc",
+                    "secondary-fixed-dim": "#4edea3"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "max-width": "1280px",
+                    "gutter": "16px",
+                    "md": "1.5rem",
+                    "lg": "2rem",
+                    "margin-desktop": "64px",
+                    "sm": "1rem",
+                    "margin-mobile": "16px",
+                    "xl": "3rem",
+                    "xs": "0.5rem",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "label-sm": ["Be Vietnam Pro"],
+                    "label-md": ["Be Vietnam Pro"],
+                    "body-md": ["Be Vietnam Pro"],
+                    "h1-mobile": ["Be Vietnam Pro"],
+                    "body-lg": ["Be Vietnam Pro"],
+                    "h3": ["Be Vietnam Pro"],
+                    "h2": ["Be Vietnam Pro"],
+                    "h1": ["Be Vietnam Pro"],
+                    "display": ["Be Vietnam Pro"]
+            },
+            "fontSize": {
+                    "label-sm": ["12px", { "lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                    "label-md": ["14px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                    "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                    "h1-mobile": ["28px", { "lineHeight": "1.25", "fontWeight": "700" }],
+                    "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                    "h3": ["20px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                    "h2": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                    "h1": ["32px", { "lineHeight": "1.25", "fontWeight": "700" }],
+                    "display": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .pulse-ring {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.5; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col md:flex-row">
+<!-- SideNavBar (Desktop Only) -->
+<nav class="hidden md:flex bg-surface-container-low dark:bg-surface-container-lowest border-r border-outline-variant fixed left-0 top-16 h-[calc(100vh-64px)] w-64 p-md flex-col gap-xs z-40">
+<div class="mb-lg">
+<div class="flex items-center gap-sm">
+<img alt="Student avatar" class="w-12 h-12 rounded-full object-cover border-2 border-primary-container" data-alt="A close-up, highly detailed portrait of a young professional student with a bright, friendly expression. The lighting is soft and natural, emphasizing a modern, approachable aesthetic suitable for a learning platform profile picture. Subtle indigo accents in the background tie into the app's brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaJF6sXXFrTKgiluTAg773mA0XLvGGy6zof7dbaomAjb2uctCKJp17n0IpuQljTDc3XmYXkx9bXBRNAuX-zjusElw9bkAIuAI8Iz7zpSq5ZpRSingMolKDiQk8uq4JHLQASHQ4iNln7-B-eT1R4y5aXFKQHimHw1f7gF2u4ppVWwVXfa4gVyXCslkHngGuoKOXGNSLg1JuoDP_J99JxTRMJFBE-MgAqNVfVfqfZLAG7GsVdFaMTLsnsKnU6uxJUo8kiirnVgj238Z1"/>
+<div>
+<h3 class="text-h3 font-h3 text-primary truncate max-w-[150px]">Welcome back, Alex</h3>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Level B2 • Upper Intermediate</p>
+</div>
+</div>
+<button class="w-full mt-sm bg-primary-container text-on-primary-container font-label-md text-label-md py-xs rounded-lg hover:bg-primary hover:text-on-primary transition-colors flex items-center justify-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">bar_chart</span> View AI Stats
+            </button>
+</div>
+<div class="flex-1 overflow-y-auto space-y-1">
+<a class="flex items-center gap-sm px-sm py-xs text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-xl hover:translate-x-1 transition-transform active:opacity-80 duration-200" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs bg-primary-container dark:bg-primary text-on-primary-container dark:text-on-primary rounded-xl font-bold hover:translate-x-1 transition-transform active:opacity-80 duration-200" href="#">
+<span class="material-symbols-outlined">timeline</span>
+<span class="font-label-md text-label-md">Roadmap</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-xl hover:translate-x-1 transition-transform active:opacity-80 duration-200" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-label-md text-label-md">Vocabulary</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-xl hover:translate-x-1 transition-transform active:opacity-80 duration-200" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-xl hover:translate-x-1 transition-transform active:opacity-80 duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</div>
+<div class="mt-auto space-y-1 pt-md border-t border-outline-variant">
+<a class="flex items-center gap-sm px-sm py-xs text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-xl hover:translate-x-1 transition-transform active:opacity-80 duration-200" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-md text-label-md">Help Center</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-xl hover:translate-x-1 transition-transform active:opacity-80 duration-200" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Sign Out</span>
+</a>
+</div>
+</nav>
+<!-- TopNavBar (Web & Mobile Hybrid Concept based on JSON) -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-desktop md:px-margin-desktop px-margin-mobile h-16 max-w-max-width mx-auto bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md shadow-sm border-b border-outline-variant dark:border-outline">
+<div class="flex items-center gap-lg">
+<span class="text-h2 font-h2 font-bold text-primary dark:text-inverse-primary tracking-tight">SpeakBuddi</span>
+<!-- Desktop Navigation Links -->
+<nav class="hidden md:flex items-center gap-md">
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors active:scale-95 duration-150 px-sm py-xs rounded-md font-body-md text-body-md" href="#">Dashboard</a>
+<a class="text-primary dark:text-inverse-primary font-bold border-b-2 border-primary dark:border-inverse-primary pb-1 hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors active:scale-95 duration-150 px-sm pt-xs font-body-md text-body-md" href="#">Lessons</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors active:scale-95 duration-150 px-sm py-xs rounded-md font-body-md text-body-md" href="#">Practice</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors active:scale-95 duration-150 px-sm py-xs rounded-md font-body-md text-body-md" href="#">Community</a>
+</nav>
+</div>
+<div class="flex items-center gap-sm">
+<button class="hidden md:block bg-primary-container text-on-primary-container font-label-md text-label-md px-md py-xs rounded-full hover:bg-primary hover:text-on-primary transition-colors active:scale-95 duration-150">Upgrade Pro</button>
+<button class="p-xs text-on-surface-variant hover:bg-surface-container-high rounded-full transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-xs text-on-surface-variant hover:bg-surface-container-high rounded-full transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined">smart_toy</span>
+</button>
+<img alt="User profile avatar" class="w-8 h-8 rounded-full border border-outline-variant cursor-pointer md:hidden" data-alt="A small circular avatar placeholder image showing a subtle gradient of indigo and grey, designed to fit seamlessly into a clean, modern top navigation bar." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmW-zWJB2NGw9hh4A6FACsauFNvMXG-_w7k_BJOy_Oo--FlTJV1UhRTaoms_ob9brWiSDW1o_E2ZzX20L24UdQ7zZzoITiEdeghO6zkbUVuAcABXT_yIWXVcBdcCmFhZRiVLZc3bKH3wmLkV_mGS8mnnjaIiJDEzxB2-jsl3N0L9sHeC8N2PfoqfExmzroldQjhfw_OLQ2EwrUq4tQ8Iql0pKybVj7Km1KaAfHdN4qN9V9vJ_JYKP_uqbk6yeCq29lHcRo_mcEeTPj"/>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 w-full max-w-max-width mx-auto pt-24 md:pl-[280px] px-margin-mobile md:px-margin-desktop pb-xl flex flex-col items-center">
+<!-- Header Section -->
+<div class="w-full max-w-3xl flex flex-col items-center mb-lg text-center">
+<span class="font-label-sm text-label-sm text-primary uppercase tracking-wider mb-xs">DU LỊCH &amp; KHÁM PHÁ</span>
+<h1 class="font-h1 text-h1 text-on-surface">Luyện phát âm</h1>
+</div>
+<!-- Central Interactive Word Card -->
+<div class="w-full max-w-2xl bg-surface-container-lowest rounded-xl p-xl shadow-[0_8px_24px_rgba(53,37,205,0.06)] border border-outline-variant flex flex-col items-center relative overflow-hidden">
+<!-- Decorative Background Element -->
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary-container rounded-bl-full opacity-10"></div>
+<div class="text-center mb-lg">
+<h2 class="font-display text-display text-on-surface mb-xs">Departure</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant font-mono bg-surface-container-low px-sm py-xs rounded-md inline-block">/dɪˈpɑːr.tʃər/</p>
+</div>
+<button class="flex items-center gap-xs text-primary font-label-md text-label-md hover:bg-primary-container px-sm py-xs rounded-full transition-colors border border-primary/20 mb-xl">
+<span class="material-symbols-outlined text-[20px]" data-weight="fill">volume_up</span>
+                Nghe mẫu
+            </button>
+<!-- Microphone / Recording Area -->
+<div class="relative flex justify-center items-center w-32 h-32 mb-lg">
+<!-- Simulated Pulse Rings -->
+<div class="absolute w-full h-full bg-primary-container rounded-full pulse-ring"></div>
+<div class="absolute w-full h-full bg-primary-container rounded-full pulse-ring" style="animation-delay: 1s;"></div>
+<button class="relative z-10 w-20 h-20 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[32px]">mic</span>
+</button>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Đang ghi âm...</p>
+</div>
+<!-- Score Display (Simulated Post-Attempt State) -->
+<div class="w-full max-w-2xl mt-lg space-y-md">
+<!-- Overall Score & Sub-scores Bento -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<!-- Overall Gauge Card -->
+<div class="md:col-span-1 bg-surface-container-lowest rounded-xl p-md shadow-sm border border-outline-variant flex flex-col items-center justify-center">
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-sm">Điểm tổng quát</p>
+<div class="relative w-24 h-24 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
+<path class="text-surface-container-high" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
+<path class="text-secondary" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="85, 100" stroke-linecap="round" stroke-width="3"></path>
+</svg>
+<div class="absolute flex flex-col items-center">
+<span class="font-h2 text-h2 text-secondary">85</span>
+</div>
+</div>
+</div>
+<!-- Sub-scores -->
+<div class="md:col-span-2 grid grid-cols-2 gap-sm">
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-outline-variant flex flex-col justify-center">
+<div class="flex items-center gap-xs mb-xs text-secondary">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Chính xác</p>
+</div>
+<p class="font-h3 text-h3 text-on-surface">88%</p>
+<div class="w-full bg-surface-container-high h-2 rounded-full mt-sm overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 88%;"></div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-outline-variant flex flex-col justify-center">
+<div class="flex items-center gap-xs mb-xs text-primary">
+<span class="material-symbols-outlined text-[18px]">speed</span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Lưu loát</p>
+</div>
+<p class="font-h3 text-h3 text-on-surface">82%</p>
+<div class="w-full bg-surface-container-high h-2 rounded-full mt-sm overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 82%;"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Syllable Breakdown & Feedback -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-outline-variant">
+<div class="flex justify-center gap-sm mb-md flex-wrap">
+<span class="px-md py-xs rounded-full font-h3 text-h3 bg-secondary-container text-on-secondary-container border border-secondary/20">De</span>
+<span class="px-md py-xs rounded-full font-h3 text-h3 bg-secondary-container text-on-secondary-container border border-secondary/20">par</span>
+<span class="px-md py-xs rounded-full font-h3 text-h3 bg-tertiary-fixed-dim text-on-tertiary-fixed-variant border border-tertiary/20">ture</span>
+</div>
+<div class="bg-surface-container-low p-sm rounded-lg flex items-start gap-sm">
+<span class="material-symbols-outlined text-tertiary mt-1">lightbulb</span>
+<p class="font-body-md text-body-md text-on-surface">Phát âm rất tốt! Hãy chú ý hơn vào âm cuối <strong class="text-tertiary">"re"</strong>.</p>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-col sm:flex-row gap-sm justify-end pt-sm">
+<button class="px-lg py-sm rounded-lg font-label-md text-label-md border-2 border-primary text-primary hover:bg-primary-container transition-colors active:scale-95 duration-150">
+                    Thử lại
+                </button>
+<button class="px-lg py-sm rounded-lg font-label-md text-label-md bg-primary text-on-primary shadow-md hover:opacity-90 transition-opacity active:scale-95 duration-150 flex items-center justify-center gap-xs">
+                    Từ tiếp theo <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</main>
+</body></html>

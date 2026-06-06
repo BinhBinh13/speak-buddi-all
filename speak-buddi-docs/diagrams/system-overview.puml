@@ -1,0 +1,53 @@
+@startuml
+title speak-buddi — System Overview
+skinparam componentStyle uml2
+actor "Web/Mobile Users" as Users
+actor Admin
+package "Frontend" {
+  component "Responsive Web App" as Web
+  component "Admin UI" as AdminUI
+}
+package "Backend API" {
+  component "Auth Module" as Auth
+  component "Learning Module" as Learning
+  component "Quiz Module" as Quiz
+  component "Pronunciation Module" as Pron
+  component "AI Conversation Module" as AI
+  component "Payment Module" as Payment
+  component "Analytics Module" as Analytics
+}
+database "MySQL
+SpeakBuddi DB" as DB
+storage "Object Storage
+Audio 30 days" as Storage
+cloud "Anthropic API" as Anthropic
+cloud "ElevenLabs API" as Eleven
+cloud "Payment Provider
+TBD" as Pay
+cloud "Resend Email" as Resend
+Users --> Web : HTTPS
+Admin --> AdminUI : HTTPS
+Web --> Auth
+Web --> Learning
+Web --> Quiz
+Web --> Pron
+Web --> AI
+Web --> Payment
+AdminUI --> Analytics
+AdminUI --> Learning : manage content
+AdminUI --> Payment : manage plans
+Auth --> DB
+Learning --> DB
+Quiz --> DB
+Pron --> DB
+Pron --> Storage
+AI --> DB
+Payment --> DB
+Analytics --> DB
+AI --> Anthropic
+AI --> Eleven
+Pron --> Eleven
+Payment --> Pay
+Payment --> Resend
+Auth --> Resend
+@enduml
