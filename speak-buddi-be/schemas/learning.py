@@ -222,3 +222,29 @@ class UserTopicOut(BaseModel):
     total_words: int
     known_count: int         # từ user_word_progress (known) — cho progress bar
     added_at: datetime
+
+
+# ── S7.x — Conversation transcript persistence ────────────────────────────────
+
+class ConversationMessageIn(BaseModel):
+    id: int
+    role: Literal["user", "assistant"]
+    content: str
+    tts_error: bool = False
+
+
+class ConversationTranscriptUpsert(BaseModel):
+    """Request body cho PUT /api/topics/{topic_id}/conversations/{batch_index}."""
+
+    messages: list[ConversationMessageIn]
+    covered_words: list[str] = Field(default_factory=list)
+    batch_done: bool = False
+
+
+class ConversationTranscriptOut(BaseModel):
+    topic_id: str
+    batch_index: int
+    messages: list[ConversationMessageIn]
+    covered_words: list[str]
+    batch_done: bool
+    updated_at: Optional[datetime] = None

@@ -38,45 +38,48 @@ def _build_word_list(topic: TopicData) -> str:
 
 def _build_system_prompt(topic: TopicData | None, context: str | None) -> str:
     if context and context.startswith("GREETING_MODE:"):
-        first_words = (
-            ", ".join(wd.word for wd in topic.word_details[:4])
+        all_words = (
+            ", ".join(wd.word for wd in topic.word_details[:8])
             if topic and topic.word_details
-            else ", ".join(topic.words[:4]) if topic and topic.words
+            else ", ".join(topic.words[:8]) if topic and topic.words
             else ""
         )
         label = topic.label if topic else "bài học này"
-        return f"""You are SpeakBuddi AI — a focused English vocabulary coach.
+        return f"""You are SpeakBuddi AI — a friendly English speaking coach.
 
-Your task: Generate an OPENING GREETING for the lesson "{label}".
+Your task: Open the lesson "{label}" with a SHORT, meaningful scenario (not a word list).
 
-The greeting should:
-1. Welcome the user and name the lesson "{label}" (1 sentence).
-2. Preview 2-3 key words from the list: {first_words if first_words else "the target vocabulary"}.
-3. Ask a simple opening question using one of those words to start practice.
+The opening should:
+1. Welcome the user and name the lesson (1 sentence).
+2. Set a simple real-life scene for this topic (e.g. meeting someone, counting items, daily chat).
+3. Naturally weave in 3–5 vocabulary words from this batch: {all_words if all_words else "the target words"}.
+4. End with ONE engaging question that fits the scene and invites the user to respond.
 
-Rules: English only, NO markdown, max 3 sentences, friendly tone."""
+Rules: English only, NO markdown, max 4 sentences, warm conversational tone — like a tutor starting a role-play."""
 
     if topic:
         word_list = _build_word_list(topic)
         grammar   = ", ".join(topic.grammarTopics) if topic.grammarTopics else ""
-        return f"""You are SpeakBuddi AI — a focused English vocabulary coach.
+        return f"""You are SpeakBuddi AI — a friendly English speaking coach.
 
 LESSON: "{topic.label}"
-TARGET WORDS (teach in this order):
+TARGET VOCABULARY FOR THIS SESSION (use ALL across the conversation):
 {word_list}
 {f"GRAMMAR TO PRACTICE: {grammar}" if grammar else ""}
 
-TEACHING METHOD:
-- Work through the target words IN ORDER, 1-2 words per turn.
-- For each word: use it naturally in your reply, then ask a question that requires the user to USE that exact word in their answer.
-- Only advance to the next word(s) after the user has responded using the current word.
-- If the user avoids the target word, gently prompt: 'Try using the word "[word]" in your answer.'
-- Do NOT ask questions unrelated to the current target word(s).
+TEACHING METHOD — SCENARIO-BASED (NOT word-by-word drills):
+- Maintain ONE coherent mini-scenario related to "{topic.label}" for the whole session.
+- Weave multiple target words into each reply naturally (aim for 2–4 words per turn when possible).
+- Do NOT isolate one word per turn or ask robotic prompts like "Say the word X".
+- Each reply: advance the story/situation, model natural English, then ask ONE meaningful question.
+- Encourage the user to answer in full sentences using vocabulary from the list.
+- If the user has not used certain words yet, guide them through the scenario toward those words.
+- When the user makes a grammar mistake, correct gently once, then continue the scene.
 
 RULES:
-- Reply in English only, 2-3 sentences max.
+- Reply in English only, 3–4 sentences max (voice conversation).
 - No markdown, no bullet points, plain prose only.
-- Correct grammar mistakes gently, at most once per turn."""
+- Keep the dialogue purposeful and realistic — the user should feel they are practicing real conversation."""
 
     if context:
         return _PROMPT_BASE + f'\n\nChủ đề tự do người dùng chọn: "{context}". Hãy dẫn dắt hội thoại xung quanh chủ đề này.'
@@ -107,7 +110,7 @@ def _reply_anthropic(
     log.info("PROVIDER=anthropic  model=%s  history=%d", ANTHROPIC_MODEL, len(messages))
     response = client.messages.create(
         model=ANTHROPIC_MODEL,
-        max_tokens=200,
+        max_tokens=280,
         system=system_msg,
         messages=messages,
     )
@@ -147,7 +150,7 @@ def _reply_gemini(
         contents=contents,
         config=genai_types.GenerateContentConfig(
             system_instruction=system_msg,
-            max_output_tokens=200,
+            max_output_tokens=280,
         ),
     )
     return response.text.strip()

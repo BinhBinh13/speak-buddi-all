@@ -4,6 +4,9 @@
 # Endpoints:
 #   GET  /api/topics/{topic_id}/session-summary   → TopicSessionSummaryOut
 #   PUT  /api/topics/{topic_id}/sessions/progress → SessionProgressOut
+#   GET  /api/topics/{topic_id}/conversations/{batch_index} → ConversationTranscriptOut
+#   PUT  /api/topics/{topic_id}/conversations/{batch_index} → ConversationTranscriptOut
+#   DELETE /api/topics/{topic_id}/conversations/{batch_index} → 204
 #   POST /api/user/topics                         → UserTopicOut
 #   DELETE /api/user/topics/{topic_id}            → 204
 #   GET  /api/user/topics                         → list[UserTopicOut]
@@ -20,6 +23,8 @@ from auth.deps import current_user
 from db.connection import get_db
 from repositories import session_repo
 from schemas.learning import (
+    ConversationTranscriptOut,
+    ConversationTranscriptUpsert,
     SessionProgressOut,
     SessionProgressUpsert,
     TopicSessionSummaryOut,
@@ -73,6 +78,76 @@ async def upsert_session_progress(
         body.batch_index, body.batch_size, body.status,
     )
     return SessionProgressOut(**row)
+
+
+# ─── GET /api/topics/{topic_id}/conversations/{batch_index} ──────────────────
+
+@router.get(
+    "/topics/{topic_id}/conversations/{batch_index}",
+    response_model=ConversationTranscriptOut,
+)
+async def get_conversation_transcript(
+    topic_id: str,
+    batch_index: int,
+    payload: dict = Depends(current_user),
+    db: AsyncSession = Depends(get_db),
+) -> ConversationTranscriptOut:
+    """Lấy transcript hội thoại đã lưu. Trả messages=[] nếu chưa có."""
+    user_id = payload["sub"]
+    row = await session_repo.get_conversation_transcript(db, user_id, topic_id, batch_index)
+    if row is None:
+        return ConversationTranscriptOut(
+            topic_id=topic_id,
+            batch_index=batch_index,
+            messages=[],
+            covered_words=[],
+            batch_done=False,
+            updated_at=None,
+        )
+    return ConversationTranscriptOut(**row)
+
+
+# ─── PUT /api/topics/{topic_id}/conversations/{batch_index} ──────────────────
+
+@router.put(
+    "/topics/{topic_id}/conversations/{batch_index}",
+    response_model=ConversationTranscriptOut,
+)
+async def upsert_conversation_transcript(
+    topic_id: str,
+    batch_index: int,
+    body: ConversationTranscriptUpsert,
+    payload: dict = Depends(current_user),
+    db: AsyncSession = Depends(get_db),
+) -> ConversationTranscriptOut:
+    """Lưu / cập nhật transcript hội thoại AI."""
+    user_id = payload["sub"]
+    messages = [m.model_dump() for m in body.messages]
+    row = await session_repo.upsert_conversation_transcript(
+        db,
+        user_id,
+        topic_id,
+        batch_index,
+        messages,
+        body.covered_words,
+        body.batch_done,
+    )
+    return ConversationTranscriptOut(**row)
+
+
+# ─── DELETE /api/topics/{topic_id}/conversations/{batch_index} ───────────────
+
+@router.delete("/topics/{topic_id}/conversations/{batch_index}", status_code=204)
+async def delete_conversation_transcript(
+    topic_id: str,
+    batch_index: int,
+    payload: dict = Depends(current_user),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """Xoá transcript (khi hoàn thành batch / reset phiên)."""
+    user_id = payload["sub"]
+    await session_repo.delete_conversation_transcript(db, user_id, topic_id, batch_index)
+    return Response(status_code=204)
 
 
 # ─── POST /api/user/topics ────────────────────────────────────────────────────

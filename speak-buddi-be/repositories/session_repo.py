@@ -11,6 +11,7 @@
 # Pattern: raw SQL text() + db.execute async, giống roadmap_repo.py.
 # ─────────────────────────────────────────────────────────────────────────────
 
+import json
 import logging
 import math
 
@@ -207,3 +208,122 @@ async def get_user_topics(db: AsyncSession, user_id: str) -> list[dict]:
     )
     rows = result.mappings().all()
     return [dict(row) for row in rows]
+
+
+# ─── S7.x: conversation_transcript ───────────────────────────────────────────
+
+def _normalize_transcript_row(row: dict) -> dict:
+    """Chuẩn hoá JSONB từ PostgreSQL → dict Python cho Pydantic."""
+    messages = row.get("messages") or []
+    covered = row.get("covered_words") or []
+    if isinstance(messages, str):
+        messages = json.loads(messages)
+    if isinstance(covered, str):
+        covered = json.loads(covered)
+    return {
+        "topic_id":      row["topic_id"],
+        "batch_index":   int(row["batch_index"]),
+        "messages":      messages,
+        "covered_words": covered,
+        "batch_done":    bool(row.get("batch_done")),
+        "updated_at":    row.get("updated_at"),
+    }
+
+
+async def get_conversation_transcript(
+    db: AsyncSession,
+    user_id: str,
+    topic_id: str,
+    batch_index: int,
+) -> dict | None:
+    """Trả None nếu chưa có transcript cho (user, topic, batch)."""
+    result = await db.execute(
+        text("""
+            SELECT topic_id::text AS topic_id,
+                   batch_index,
+                   messages,
+                   covered_words,
+                   batch_done,
+                   updated_at
+            FROM   conversation_transcript
+            WHERE  user_id     = CAST(:uid AS UUID)
+              AND  topic_id    = CAST(:tid AS UUID)
+              AND  batch_index = :batch_index
+        """),
+        {"uid": user_id, "tid": topic_id, "batch_index": batch_index},
+    )
+    row = result.mappings().first()
+    if row is None:
+        return None
+    return _normalize_transcript_row(dict(row))
+
+
+async def upsert_conversation_transcript(
+    db: AsyncSession,
+    user_id: str,
+    topic_id: str,
+    batch_index: int,
+    messages: list[dict],
+    covered_words: list[str],
+    batch_done: bool,
+) -> dict:
+    """Lưu / cập nhật transcript hội thoại."""
+    result = await db.execute(
+        text("""
+            INSERT INTO conversation_transcript
+                (user_id, topic_id, batch_index, messages, covered_words, batch_done, updated_at)
+            VALUES
+                (CAST(:uid AS UUID), CAST(:tid AS UUID), :batch_index,
+                 CAST(:messages AS JSONB), CAST(:covered AS JSONB), :batch_done, NOW())
+            ON CONFLICT (user_id, topic_id, batch_index) DO UPDATE SET
+                messages      = EXCLUDED.messages,
+                covered_words = EXCLUDED.covered_words,
+                batch_done    = EXCLUDED.batch_done,
+                updated_at    = NOW()
+            RETURNING topic_id::text AS topic_id,
+                      batch_index,
+                      messages,
+                      covered_words,
+                      batch_done,
+                      updated_at
+        """),
+        {
+            "uid":         user_id,
+            "tid":         topic_id,
+            "batch_index": batch_index,
+            "messages":    json.dumps(messages),
+            "covered":     json.dumps(covered_words),
+            "batch_done":  batch_done,
+        },
+    )
+    await db.commit()
+    row = result.mappings().first()
+    log.info(
+        "CONV_TRANSCRIPT  user=%s  topic=%s  batch=%d  msgs=%d",
+        user_id, topic_id, batch_index, len(messages),
+    )
+    return _normalize_transcript_row(dict(row))
+
+
+async def delete_conversation_transcript(
+    db: AsyncSession,
+    user_id: str,
+    topic_id: str,
+    batch_index: int,
+) -> bool:
+    """Xoá transcript khi sang batch mới / reset. Trả True nếu có row bị xoá."""
+    result = await db.execute(
+        text("""
+            DELETE FROM conversation_transcript
+            WHERE user_id     = CAST(:uid AS UUID)
+              AND topic_id    = CAST(:tid AS UUID)
+              AND batch_index = :batch_index
+            RETURNING id
+        """),
+        {"uid": user_id, "tid": topic_id, "batch_index": batch_index},
+    )
+    await db.commit()
+    deleted = result.first() is not None
+    if deleted:
+        log.info("CONV_TRANSCRIPT_DELETE  user=%s  topic=%s  batch=%d", user_id, topic_id, batch_index)
+    return deleted
