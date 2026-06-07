@@ -1,24 +1,74 @@
 import logging
 
-from core.clients import get_claude_client
+import requests
+
+from core.config import MIMO_API_KEY, MIMO_MODEL
 
 log = logging.getLogger("speakbuddi.translate")
 
-_SYSTEM_PROMPT = (
+_MYMEMORY_URL = "https://api.mymemory.translated.net/get"
+
+_MIMO_URL = "https://api.xiaomimimo.com/v1/chat/completions"
+_MIMO_SYSTEM_PROMPT = (
     "You are a professional English-to-Vietnamese translator.\n"
     "Translate the following English text to Vietnamese naturally and accurately.\n"
     "Return ONLY the Vietnamese translation — no explanation, no extra text, no quotes."
 )
 
 
-def translate_text(text: str) -> str:
-    """Dịch text tiếng Anh sang tiếng Việt qua Anthropic claude-haiku-4-5."""
-    client = get_claude_client()
-    log.info("TRANSLATE  len=%d", len(text))
-    message = client.messages.create(
-        model="claude-haiku-4-5-20251001",
-        max_tokens=500,
-        system=_SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": text}],
+def _translate_word_mymemory(word: str) -> str:
+    """Dịch 1 từ qua MyMemory API (free, không cần key)."""
+    resp = requests.get(
+        _MYMEMORY_URL,
+        params={"q": word, "langpair": "en|vi"},
+        timeout=5,
     )
-    return message.content[0].text.strip()
+    resp.raise_for_status()
+    translation = resp.json().get("responseData", {}).get("translatedText", "")
+    if not translation:
+        raise ValueError("MyMemory returned empty translation")
+    return translation
+
+
+def _translate_sentence_mimo(text: str) -> str:
+    """Dịch câu/đoạn qua Xiaomi MiMo API (OpenAI-compatible)."""
+    if not MIMO_API_KEY:
+        raise RuntimeError("MIMO_API_KEY not set in .env")
+    resp = requests.post(
+        _MIMO_URL,
+        headers={"Authorization": f"Bearer {MIMO_API_KEY}", "Content-Type": "application/json"},
+        json={
+            "model": MIMO_MODEL,
+            "messages": [
+                {"role": "system", "content": _MIMO_SYSTEM_PROMPT},
+                {"role": "user", "content": text},
+            ],
+            "max_completion_tokens": 500,
+        },
+        timeout=15,
+    )
+    if not resp.ok:
+        log.error("MIMO_HTTP_ERROR  status=%d  body=%s", resp.status_code, resp.text[:200])
+    resp.raise_for_status()
+    translation = resp.json()["choices"][0]["message"]["content"].strip()
+    if not translation:
+        raise ValueError("MiMo returned empty translation")
+    return translation
+
+
+def translate_text(text: str) -> str:
+    """Dịch text tiếng Anh sang tiếng Việt.
+    1 từ → MyMemory API (free); nhiều từ/câu → Xiaomi MiMo API.
+    """
+    is_single_word = len(text.strip().split()) == 1
+    engine = "mymemory" if is_single_word else "mimo"
+    log.info("TRANSLATE  words=%d  engine=%s", len(text.split()), engine)
+
+    if is_single_word:
+        try:
+            return _translate_word_mymemory(text.strip())
+        except Exception as exc:
+            log.warning("MYMEMORY_FALLBACK  %s — falling back to MiMo", exc)
+            return _translate_sentence_mimo(text)
+
+    return _translate_sentence_mimo(text)
