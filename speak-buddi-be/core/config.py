@@ -4,7 +4,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ── AI ────────────────────────────────────────────────────────────────────────
+# AI_PROVIDER: "anthropic" (mặc định) hoặc "gemini"
+# Đổi sang Anthropic sau khi deploy: set AI_PROVIDER=anthropic trong env production.
+AI_PROVIDER:         str = os.getenv("AI_PROVIDER", "anthropic").lower()
+
 ANTHROPIC_API_KEY:   str = os.getenv("ANTHROPIC_API_KEY", "")
+GEMINI_API_KEY:      str = os.getenv("GEMINI_API_KEY", "")
+# Model tương ứng theo provider
+ANTHROPIC_MODEL:     str = os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001")
+GEMINI_MODEL:        str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite")
+
 ELEVENLABS_API_KEY:  str = os.getenv("ELEVENLABS_API_KEY", "")
 ELEVENLABS_VOICE_ID: str = os.getenv("ELEVENLABS_VOICE_ID", "pNInz6obpgDQGcFmaJgB")
 MAX_HISTORY_TURNS:   int = 10

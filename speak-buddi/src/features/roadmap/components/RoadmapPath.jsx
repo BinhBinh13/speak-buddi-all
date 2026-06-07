@@ -111,7 +111,7 @@ function NodeLabel({ node, centered = false }) {
 }
 
 // ── Layout mobile: thẳng đứng + căn giữa ─────────────────────────────────────
-function MobileRoadmap({ nodes }) {
+function MobileRoadmap({ nodes, onNodeClick }) {
   return (
     <div
       style={{
@@ -137,7 +137,7 @@ function MobileRoadmap({ nodes }) {
             }}
           >
             {/* Circle node */}
-            <RoadmapNodeComponent node={node} index={i} isLast={isLast} />
+            <RoadmapNodeComponent node={node} index={i} isLast={isLast} onClick={() => onNodeClick?.(node)} />
 
             {/* Label ngay dưới circle */}
             <div style={{ marginTop: 10, marginBottom: isLast ? 0 : 4 }}>
@@ -154,7 +154,7 @@ function MobileRoadmap({ nodes }) {
 }
 
 // ── Layout desktop/tablet: snake zigzag ───────────────────────────────────────
-function DesktopRoadmap({ nodes }) {
+function DesktopRoadmap({ nodes, onNodeClick }) {
   return (
     <div
       style={{
@@ -185,7 +185,7 @@ function DesktopRoadmap({ nodes }) {
                   ...(isEven ? { left: 0 } : { right: 0 }),
                 }}
               >
-                <RoadmapNodeComponent node={node} index={i} isLast={isLast} />
+                <RoadmapNodeComponent node={node} index={i} isLast={isLast} onClick={() => onNodeClick?.(node)} />
               </div>
 
               {!isLast && (
@@ -214,7 +214,7 @@ function DesktopRoadmap({ nodes }) {
 }
 
 // ── Export chính ──────────────────────────────────────────────────────────────
-export default function RoadmapPath({ nodes }) {
+export default function RoadmapPath({ nodes, onNodeClick }) {
   const isMobile = useIsMobile(480);
 
   if (!nodes || nodes.length === 0) return null;
@@ -222,8 +222,8 @@ export default function RoadmapPath({ nodes }) {
   const sorted = [...nodes].sort((a, b) => a.order_index - b.order_index);
 
   return isMobile
-    ? <MobileRoadmap  nodes={sorted} />
-    : <DesktopRoadmap nodes={sorted} />;
+    ? <MobileRoadmap  nodes={sorted} onNodeClick={onNodeClick} />
+    : <DesktopRoadmap nodes={sorted} onNodeClick={onNodeClick} />;
 }
 
 // ── CSS chỉ dùng cho desktop/tablet (mobile dùng inline style) ─────────────────
