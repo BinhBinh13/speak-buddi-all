@@ -222,6 +222,33 @@ export default function TopicModal({ node, onClose }) {
               <span style={{ fontSize: 13, color: "#777587" }}>
                 {totalWords} từ
               </span>
+              {/* Tiến độ học: 0/N từ đã thuộc (placeholder — known_count chưa fetch ở modal) */}
+              <div style={{ marginTop: 8 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                  <span style={{ fontSize: 12, color: "#777587" }}>Đã thuộc</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: PRIMARY }}>
+                    0/{totalWords} từ
+                  </span>
+                </div>
+                <div
+                  style={{
+                    height: 6,
+                    borderRadius: 999,
+                    background: "#e4e1ee",
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      height: "100%",
+                      width: totalWords > 0 ? "0%" : "0%",
+                      background: PRIMARY,
+                      borderRadius: 999,
+                      transition: "width 0.4s ease",
+                    }}
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Nút X */}
@@ -393,8 +420,8 @@ export default function TopicModal({ node, onClose }) {
               disabled={loadingAdd || loadingInit}
               style={{
                 flex: 1,
-                minWidth: 140,
-                padding: "14px 20px",
+                minWidth: 120,
+                padding: "14px 16px",
                 borderRadius: 14,
                 border: isAdded ? "none" : "1px solid #e4e1ee",
                 background: isAdded ? SECONDARY : "#ffffff",
@@ -425,14 +452,48 @@ export default function TopicModal({ node, onClose }) {
               {isAdded ? "Đã lưu" : "Lưu topic"}
             </button>
 
+            {/* Học từ vựng */}
+            <button
+              onClick={handleLearnVocab}
+              style={{
+                flex: 1,
+                minWidth: 120,
+                padding: "14px 16px",
+                borderRadius: 14,
+                border: `1px solid ${PRIMARY}`,
+                background: "#ffffff",
+                color: PRIMARY,
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                minHeight: 48,
+                boxShadow: "0 2px 8px rgba(53,37,205,0.10)",
+                transition: "background 0.15s, box-shadow 0.15s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#f0ecf9";
+                e.currentTarget.style.boxShadow = "0 4px 16px rgba(53,37,205,0.18)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "#ffffff";
+                e.currentTarget.style.boxShadow = "0 2px 8px rgba(53,37,205,0.10)";
+              }}
+            >
+              Học từ vựng
+            </button>
+
             {/* Luyện với AI */}
             <button
               onClick={() => handlePracticeAI()}
               disabled={loadingAI}
               style={{
                 flex: 1,
-                minWidth: 140,
-                padding: "14px 20px",
+                minWidth: 120,
+                padding: "14px 16px",
                 borderRadius: 14,
                 border: "none",
                 background: loadingAI ? "#c7c4d8" : PRIMARY,

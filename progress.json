@@ -19,13 +19,13 @@
   "summary": {
     "totalEpics": 12,
     "totalStories": 47,
-    "completedStories": 32,
-    "progressPercent": 68,
+    "completedStories": 33,
+    "progressPercent": 70,
     "byStatus": {
       "todo": 9,
-      "in_progress": 6,
+      "in_progress": 5,
       "review": 0,
-      "done": 32,
+      "done": 33,
       "blocked": 0
     }
   },
@@ -185,8 +185,8 @@
         "BR09"
       ],
       "owner": "Dev A",
-      "status": "in_progress",
-      "progressPercent": 80,
+      "status": "done",
+      "progressPercent": 100,
       "stories": [
         {
           "id": "S2.1",
@@ -253,9 +253,9 @@
           "title": "Topic modal: chia session theo words_per_session + tracking progress + nut Tiep tuc + truyen data sang AI",
           "ac": "AC-03-02, AC-04-01",
           "priority": "P1",
-          "status": "in_progress",
+          "status": "done",
           "assignee": "",
-          "notes": "CHANGES_REQUESTED: (1) Nut 'Hoc tu vung' chua duoc render trong action row — handler handleLearnVocab ton tai nhung khong gan vao button nao, user khong navigate duoc /learn/:topicSlug tu modal; (2) Lint loi no-unused-vars cho handleLearnVocab can sua; (3) Nen hien thi dong tien do 'X/N tu da thuoc' trong modal.",
+          "notes": "",
           "artifacts": {
             "plan": "plan/S2.5-plan.md",
             "implement": "implement/S2.5-implement.md",
