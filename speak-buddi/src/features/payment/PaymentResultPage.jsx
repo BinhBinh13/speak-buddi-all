@@ -301,10 +301,10 @@ export default function PaymentResultPage() {
             </button>
           </div>
 
-          {/* Liên hệ hỗ trợ */}
+          {/* Liên hệ hỗ trợ — S12.3 */}
           <div style={{ marginTop: UI.spacing.lg }}>
             <Link
-              to="/pricing"
+              to="/contact"
               style={{
                 fontFamily: UI.font,
                 fontSize: UI.fontSize.labelSm,
@@ -316,7 +316,7 @@ export default function PaymentResultPage() {
               }}
             >
               <MdSupportAgent size={16} />
-              Cần hỗ trợ? Quay lại trang Bảng giá
+              Liên hệ hỗ trợ
             </Link>
           </div>
         </div>

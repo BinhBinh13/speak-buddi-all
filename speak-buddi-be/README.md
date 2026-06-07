@@ -41,7 +41,7 @@ cp .env.example .env
 # Mở .env và điền các giá trị thật:
 # ANTHROPIC_API_KEY, ELEVENLABS_API_KEY, JWT_SECRET, ...
 ```
-44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444
+
 ### 4. Kiểm tra môi trường
 
 ```bash
@@ -49,7 +49,7 @@ python check_env.py
 ```
 
 Kết quả mong đợi: tất cả package + key bắt buộc đều hiện ✅.
-=944444444444444444444
+
 ### 5. Khởi tạo database PostgreSQL
 
 > Bắt buộc từ **S3.1+** (DB thật đã được kích hoạt).
@@ -73,6 +73,9 @@ psql -U postgres -d speakbuddi -f db/schema_quiz.sql
 
 # Bước 5 — Schema payment bổ sung (S8.1: payment_transaction)
 psql -U postgres -d speakbuddi -f db/schema_payment.sql
+
+# Bước 6 — Schema voice/preference (S8.4: elevenlabs_voice_model, user_voice_preference)
+psql -U postgres -d speakbuddi -f db/schema_voice.sql
 
 # Cấu hình DATABASE_URL trong .env:
 # DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/speakbuddi
@@ -106,6 +109,9 @@ Server chạy tại: `http://localhost:8000`
 | POST | `/api/payment/webhook/{provider}` | Webhook/callback provider → kích hoạt subscription, set Paid User (S8.2, AC-10-02). `provider` ∈ `sepay`\|`mock`. KHÔNG dùng JWT user — xác thực qua API key/signature riêng của provider |
 | POST | `/api/payment/cancel` | Hủy giao dịch `pending` chủ động (client-driven — Sepay không gửi webhook fail/cancel). Giữ nguyên subscription cũ + gửi email thông báo (S8.3, AC-10-03) |
 | GET  | `/api/payment/transaction/{id}` | Tra trạng thái 1 giao dịch (`status`/`failure_reason`) cho màn kết quả thanh toán, lọc theo user (S8.3, AC-10-03) |
+| GET  | `/api/voice/models` | Danh sách voice ElevenLabs active — Paid User only (S8.4, AC-11-01) |
+| GET  | `/api/voice/preference` | Preference voice hiện tại của Paid User (S8.4) |
+| PUT  | `/api/voice/preference` | Lưu voice preference (S8.4, AC-11-02) |
 
 ---
 

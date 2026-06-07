@@ -14,3 +14,17 @@ export const updateLevel = (level) =>
     method: "PATCH",
     body: JSON.stringify({ level }),
   });
+
+/**
+ * Xóa tài khoản và dữ liệu cá nhân (S12.2).
+ * DELETE /api/profile/account
+ * @param {{ confirm_text: string, password?: string }} payload
+ */
+export const deleteAccount = ({ confirm_text, password }) =>
+  apiClient("/api/profile/account", {
+    method: "DELETE",
+    body: JSON.stringify({
+      confirm_text,
+      password: password ?? null,
+    }),
+  });

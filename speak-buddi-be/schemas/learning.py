@@ -75,6 +75,7 @@ class TopicOut(TopicCreate):
     level_code: Optional[str] = None   # S9.1 — mã level (A1/A2/…), JOIN từ level table
     source: str             # 'admin' | 'langeek'
     is_active: bool
+    admin_locked: bool = False   # S9.5 — Admin đã chỉnh/disable; crawler không ghi đè
     created_at: datetime
 
     class Config:
@@ -130,6 +131,7 @@ class TopicWordOut(BaseModel):
     display_order: int
     source: str             # 'admin' | 'langeek'
     is_active: bool
+    admin_locked: bool = False   # S9.5
     created_by: Optional[uuid.UUID]
     created_at: datetime
     tags: list[TagOut] = Field(default_factory=list)

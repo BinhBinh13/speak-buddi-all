@@ -116,9 +116,9 @@ export default function PrivacyPolicyPage() {
         <li>Xem và cập nhật thông tin hồ sơ cá nhân (trình độ, mục tiêu, sở thích...) trong phần Hồ sơ/Cài đặt tài khoản.</li>
         <li>
           <strong>Yêu cầu xóa dữ liệu cá nhân:</strong> bạn có quyền yêu cầu chúng tôi xóa tài khoản và dữ liệu
-          cá nhân liên quan (hồ sơ, lịch sử học tập, audio đã ghi...). Chúng tôi đang xây dựng quy trình yêu
-          cầu xóa dữ liệu trực tiếp trong ứng dụng (xem story S12.2). Trong thời gian quy trình này hoàn
-          thiện, bạn có thể gửi yêu cầu xóa dữ liệu qua email hỗ trợ{" "}
+          cá nhân liên quan (hồ sơ, lịch sử học tập, audio đã ghi...). Bạn có thể thực hiện trực tiếp trong ứng dụng
+          tại trang <Link to="/profile">Hồ sơ &amp; Cài đặt</Link> → mục{" "}
+          <strong>Xóa tài khoản &amp; dữ liệu cá nhân</strong>, hoặc gửi yêu cầu qua email hỗ trợ{" "}
           <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>; chúng tôi sẽ xác minh danh tính và xử lý
           yêu cầu trong thời gian hợp lý.
         </li>
@@ -147,8 +147,11 @@ export default function PrivacyPolicyPage() {
         cuối" ở đầu trang.
       </p>
       <p>
-        Nếu bạn có câu hỏi về chính sách bảo mật hoặc cách chúng tôi xử lý dữ liệu cá nhân, vui lòng liên hệ
-        qua email <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>.
+        Nếu bạn có câu hỏi về chính sách bảo mật hoặc cách chúng tôi xử lý dữ liệu cá nhân, vui lòng dùng{" "}
+        <Link to="/contact" style={{ color: UI.primary, fontWeight: UI.fontWeight.labelMd }}>
+          form liên hệ
+        </Link>{" "}
+        hoặc gửi email <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>.
       </p>
     </LegalLayout>
   );

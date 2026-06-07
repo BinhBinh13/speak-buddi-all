@@ -1,23 +1,17 @@
 # speak-buddi-be/schemas/analytics.py
-# ─── Pydantic schemas cho Admin Analytics / Dashboard (S11.1) ────────────────
+# ─── Pydantic schemas cho Admin Analytics / Dashboard (S11.1 + S11.2) ───────
 #
-# Phạm vi S11.1: DashboardOverviewOut (+ sub-models Users/Revenue/Learning/AiUsage)
-#                và TimeseriesOut/TimeseriesPoint (chart user/revenue theo thời gian)
-#
-# Lưu ý:
-#   - revenue.is_estimated = True  → chưa có bảng giao dịch thật, ước lượng từ
-#     user_subscription active × payment_plan.price_vnd (xem §6 plan/S11.1-plan.md)
-#   - ai_usage.is_available = False → chưa có bảng AI usage (Epic 7 chưa build);
-#     FE hiển thị placeholder "Sắp có" khi field này False.
-#   - `range`/`metric` trong TimeseriesOut chừa chỗ cho S11.2 mở rộng
-#     (plan_id, granularity) mà không đổi contract.
+# S11.1: DashboardOverviewOut, TimeseriesOut
+# S11.2: RevenueFilterOut, GranularityName — lọc doanh thu theo ngày/tháng/năm/gói
 # ─────────────────────────────────────────────────────────────────────────────
 
 from __future__ import annotations
 
+from datetime import date, datetime
 from typing import Literal
+from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 
 # ── Overview — sub-models ────────────────────────────────────────────────────
@@ -33,16 +27,12 @@ class UserStatsOut(BaseModel):
 
 
 class RevenueStatsOut(BaseModel):
-    """
-    Nhóm chỉ số doanh thu — ƯỚC LƯỢNG (is_estimated=True) vì chưa có bảng
-    giao dịch thật (Epic 8 — payment_transaction mới chỉ dùng cho checkout).
-    Tính từ user_subscription đang active × payment_plan.price_vnd.
-    """
+    """Nhóm chỉ số doanh thu overview — từ payment_transaction success (S11.2)."""
 
     total_vnd: int
     this_month_vnd: int
     currency: str = "VND"
-    is_estimated: bool = True
+    is_estimated: bool = False
 
 
 class TopWordOut(BaseModel):
@@ -98,11 +88,66 @@ class TimeseriesPoint(BaseModel):
 
 
 class TimeseriesOut(BaseModel):
-    """
-    Dữ liệu cho biểu đồ recharts theo `metric` (users|revenue) và `range` (7d|30d|year).
-    S11.2 sẽ mở rộng thêm `plan_id`/`granularity` mà không đổi contract này.
-    """
+    """Dữ liệu cho biểu đồ recharts theo metric/range (+ plan_id khi revenue — S11.2)."""
 
     metric: MetricName
     range: RangeName
     points: list[TimeseriesPoint]
+    is_estimated: bool = False
+
+
+# ── Revenue filter (S11.2 — AC-12-02) ────────────────────────────────────────
+
+GranularityName = Literal["day", "month", "year", "total"]
+
+
+class RevenueFilterOut(BaseModel):
+    """Doanh thu đã lọc theo granularity / from-to / payment plan."""
+
+    total_vnd: int
+    transaction_count: int
+    currency: str = "VND"
+    is_estimated: bool = False
+    granularity: GranularityName
+    from_date: date | None = None
+    to_date: date | None = None
+    plan_id: UUID | None = None
+    plan_name: str | None = None
+    points: list[TimeseriesPoint] = []
+
+
+# ── Report export (S11.3 — AC-12-03) ─────────────────────────────────────────
+
+ReportTypeName = Literal["revenue", "users", "learning", "ai_usage"]
+ExportFormatName = Literal["xlsx", "pdf"]
+ExportStatusName = Literal["pending", "completed", "failed"]
+
+
+class ExportRequestIn(BaseModel):
+    """Body POST /api/admin/analytics/export."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    report_type: ReportTypeName
+    export_format: ExportFormatName
+    from_date: date = Field(..., alias="from")
+    to_date: date = Field(..., alias="to")
+    plan_id: UUID | None = None
+    granularity: GranularityName = "day"
+
+
+class ExportHistoryItemOut(BaseModel):
+    id: int
+    report_type: ReportTypeName
+    export_format: ExportFormatName
+    filter_params: dict | None = None
+    file_name: str | None = None
+    status: ExportStatusName
+    error_message: str | None = None
+    created_at: datetime
+    completed_at: datetime | None = None
+
+
+class ExportHistoryListOut(BaseModel):
+    items: list[ExportHistoryItemOut]
+    total: int

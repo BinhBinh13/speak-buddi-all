@@ -44,4 +44,6 @@ def user_to_dict(user: dict, is_paid: bool = False) -> dict:
         "onboarding_completed": user.get("level") is not None,
         "daily_minutes":        user.get("daily_minutes") if user.get("daily_minutes") is not None else 10,
         "words_per_session":    user.get("words_per_session") if user.get("words_per_session") is not None else 10,
+        # S12.2: FE biết có cần nhập mật khẩu khi xóa tài khoản (OAuth-only → false)
+        "has_password":         bool(user.get("password_hash")),
     }

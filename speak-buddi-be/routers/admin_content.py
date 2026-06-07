@@ -18,6 +18,9 @@
 #   GET  /api/admin/tests/{id}              → TestEditorOut
 #   POST /api/admin/tests                   → TestEditorOut     (201)
 #   PUT  /api/admin/tests/{id}              → TestEditorOut
+#   DELETE /api/admin/topics/{id}           → 204 soft-delete (S9.2)
+#   DELETE /api/admin/words/{id}            → 204 soft-delete (S9.2)
+#   DELETE /api/admin/tests/{id}            → 204 soft-delete (S9.2)
 #
 # Auth: dependencies=[Depends(require_admin)] — toàn bộ router chỉ role=admin (BR07).
 # DB: SQLAlchemy async session từ Depends(get_db).
@@ -34,7 +37,7 @@ from __future__ import annotations
 import logging
 import uuid as uuid_mod
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -489,3 +492,97 @@ async def admin_update_test(
     log.info("ADMIN_UPDATE_TEST  admin=%s  test=%s  questions=%d", user["sub"], test_id, len(body.questions))
 
     return await _build_test_editor_out(db, updated)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Soft delete (S9.2 — AC-13-03 / §5.3)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@router.delete("/topics/{topic_id}", status_code=204)
+async def admin_disable_topic(
+    topic_id: uuid_mod.UUID,
+    user: dict = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """Vô hiệu hóa topic (soft delete is_active=false). 404 nếu không tồn tại."""
+    ok = await content_repo.soft_delete_topic(db, str(topic_id))
+    if not ok:
+        raise HTTPException(status_code=404, detail="Topic not found")
+    await db.commit()
+    log.info("ADMIN_DISABLE_TOPIC  admin=%s  topic=%s", user["sub"], topic_id)
+    return Response(status_code=204)
+
+
+@router.delete("/words/{word_id}", status_code=204)
+async def admin_disable_word(
+    word_id: uuid_mod.UUID,
+    user: dict = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """Vô hiệu hóa từ vựng (soft delete is_active=false). 404 nếu không tồn tại."""
+    ok = await content_repo.soft_delete_word(db, str(word_id))
+    if not ok:
+        raise HTTPException(status_code=404, detail="Word not found")
+    await db.commit()
+    log.info("ADMIN_DISABLE_WORD  admin=%s  word=%s", user["sub"], word_id)
+    return Response(status_code=204)
+
+
+@router.delete("/tests/{test_id}", status_code=204)
+async def admin_disable_test(
+    test_id: uuid_mod.UUID,
+    user: dict = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """Vô hiệu hóa bài kiểm tra (soft delete is_active=false). 404 nếu không tồn tại."""
+    ok = await quiz_repo.soft_delete_test(db, str(test_id))
+    if not ok:
+        raise HTTPException(status_code=404, detail="Test not found")
+    await db.commit()
+    log.info("ADMIN_DISABLE_TEST  admin=%s  test=%s", user["sub"], test_id)
+    return Response(status_code=204)
+
+
+@router.patch("/topics/{topic_id}/enable", response_model=TopicOut)
+async def admin_enable_topic(
+    topic_id: uuid_mod.UUID,
+    user: dict = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+) -> TopicOut:
+    """Kích hoạt lại topic đã disable (S9.5 — AC-13-06)."""
+    row = await content_repo.enable_topic(db, str(topic_id))
+    if row is None:
+        raise HTTPException(status_code=404, detail="Topic not found")
+    await db.commit()
+    log.info("ADMIN_ENABLE_TOPIC  admin=%s  topic=%s", user["sub"], topic_id)
+    return TopicOut(**row)
+
+
+@router.patch("/words/{word_id}/enable", response_model=TopicWordOut)
+async def admin_enable_word(
+    word_id: uuid_mod.UUID,
+    user: dict = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+) -> TopicWordOut:
+    """Kích hoạt lại từ vựng đã disable (S9.5)."""
+    row = await content_repo.enable_word(db, str(word_id))
+    if row is None:
+        raise HTTPException(status_code=404, detail="Word not found")
+    await db.commit()
+    log.info("ADMIN_ENABLE_WORD  admin=%s  word=%s", user["sub"], word_id)
+    return TopicWordOut(**{**row, "tags": []})
+
+
+@router.patch("/tests/{test_id}/enable", status_code=204)
+async def admin_enable_test(
+    test_id: uuid_mod.UUID,
+    user: dict = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    """Kích hoạt lại bài kiểm tra đã disable (S9.5)."""
+    ok = await quiz_repo.enable_test(db, str(test_id))
+    if not ok:
+        raise HTTPException(status_code=404, detail="Test not found")
+    await db.commit()
+    log.info("ADMIN_ENABLE_TEST  admin=%s  test=%s", user["sub"], test_id)
+    return Response(status_code=204)

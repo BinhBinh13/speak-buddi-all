@@ -22,6 +22,7 @@ import {
   LuCreditCard,
   LuFlag,
   LuSettings,
+  LuGlobe,
 } from "react-icons/lu";
 
 const NAV_ITEMS = [
@@ -29,6 +30,7 @@ const NAV_ITEMS = [
   { label: "Topics",     Icon: LuBookOpen,        path: "/admin/topics" },
   { label: "Vocabulary", Icon: LuLibrary,         path: "/admin/vocabulary" },
   { label: "Tests",      Icon: LuClipboardList,   path: "/admin/tests" },
+  { label: "Crawler",    Icon: LuGlobe,           path: "/admin/crawler" },
   { label: "Analytics",  Icon: LuChartColumn,     path: "/admin/dashboard" },
   { label: "Payments",   Icon: LuCreditCard,      path: "/admin/payments" },
   { label: "Reports",    Icon: LuFlag,            path: "/admin/reports" },
@@ -65,7 +67,11 @@ export default function AdminSidebar({ activePath = "/admin/dashboard", adminNam
             <AdminNavItem
               key={item.label}
               item={item}
-              isActive={activePath === item.path}
+              isActive={
+                activePath === item.path &&
+                !(item.label === "Analytics" && activePath === "/admin/dashboard") &&
+                !(item.label === "Overview" && activePath === "/admin/reports")
+              }
               onNavigate={() => navigate(item.path)}
             />
           ))}

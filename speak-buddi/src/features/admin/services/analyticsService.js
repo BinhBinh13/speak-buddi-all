@@ -1,36 +1,40 @@
 // speak-buddi/src/features/admin/services/analyticsService.js
-// ─── Service gọi API Admin Analytics (S11.1) ────────────────────────────────
-// Bám theo pattern translateService.js — hàm thuần qua apiClient.
+// ─── Service gọi API Admin Analytics (S11.1 + S11.2) ────────────────────────
 
 import apiClient from "../../../shared/api/client";
 
-/**
- * Gọi GET /api/admin/analytics/overview — gói tổng quan dashboard
- * (users, revenue, learning, ai_usage) trong 1 lần gọi (AC-12-01, §3.6).
- * Yêu cầu role=admin (BE trả 401/403 nếu không đủ quyền — apiClient sẽ throw).
- *
- * @returns {Promise<{
- *   users: { total: number, free: number, paid: number, new_today: number, new_this_month: number },
- *   revenue: { total_vnd: number, this_month_vnd: number, currency: string, is_estimated: boolean },
- *   learning: { quiz_attempts_total: number, correct_answers: number, wrong_answers: number,
- *               accuracy_percent: number, avg_score_percent: number,
- *               top_words: Array<{ word: string, learned_count: number }> },
- *   ai_usage: { total_minutes: number, conversations: number, is_available: boolean }
- * }>}
- */
 export async function getOverview() {
   return apiClient("/api/admin/analytics/overview");
 }
 
 /**
- * Gọi GET /api/admin/analytics/timeseries?metric=&range= — dữ liệu chuỗi thời gian
- * cho biểu đồ recharts (User Activity / Revenue).
- *
  * @param {"users"|"revenue"} [metric="users"]
  * @param {"7d"|"30d"|"year"} [range="7d"]
- * @returns {Promise<{ metric: string, range: string, points: Array<{ label: string, value: number }> }>}
+ * @param {{ planId?: string }} [options]
  */
-export async function getTimeseries(metric = "users", range = "7d") {
+export async function getTimeseries(metric = "users", range = "7d", options = {}) {
   const params = new URLSearchParams({ metric, range });
+  if (options.planId && metric === "revenue") {
+    params.set("plan_id", options.planId);
+  }
   return apiClient(`/api/admin/analytics/timeseries?${params.toString()}`);
+}
+
+/**
+ * Doanh thu đã lọc (AC-12-02) — GET /api/admin/analytics/revenue
+ *
+ * @param {{
+ *   granularity?: "day"|"month"|"year"|"total",
+ *   from?: string,
+ *   to?: string,
+ *   planId?: string,
+ * }} [filters]
+ */
+export async function getRevenueFiltered(filters = {}) {
+  const params = new URLSearchParams();
+  params.set("granularity", filters.granularity || "month");
+  if (filters.from) params.set("from", filters.from);
+  if (filters.to) params.set("to", filters.to);
+  if (filters.planId) params.set("plan_id", filters.planId);
+  return apiClient(`/api/admin/analytics/revenue?${params.toString()}`);
 }
