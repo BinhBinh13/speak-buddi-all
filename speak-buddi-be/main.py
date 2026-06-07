@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from core.config import ALLOWED_ORIGINS
-from routers import ai, auth, learning, quiz, onboarding, profile, roadmap, translate
+from routers import admin_analytics, admin_content, ai, auth, learning, quiz, onboarding, payment, profile, roadmap, translate
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(levelname)s  %(message)s")
 
@@ -27,6 +27,9 @@ app.include_router(onboarding.router)
 app.include_router(profile.router)
 app.include_router(roadmap.router)
 app.include_router(translate.router)
+app.include_router(payment.router)
+app.include_router(admin_analytics.router)
+app.include_router(admin_content.router)
 
 
 @app.get("/health")

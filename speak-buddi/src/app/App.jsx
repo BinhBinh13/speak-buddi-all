@@ -12,6 +12,10 @@ import RegisterPage from "../features/auth/pages/RegisterPage";
 import OAuthCallbackPage from "../features/auth/pages/OAuthCallbackPage";
 import ForgotPasswordPage from "../features/auth/pages/ForgotPasswordPage";
 import ResetPasswordPage from "../features/auth/pages/ResetPasswordPage";
+import MockPayPage from "../features/payment/MockPayPage";
+import PaymentResultPage from "../features/payment/PaymentResultPage";
+import PrivacyPolicyPage from "../features/legal/PrivacyPolicyPage";
+import TermsOfServicePage from "../features/legal/TermsOfServicePage";
 
 // ── Protected pages ───────────────────────────────────────────────────────────
 import DashboardPage from "../features/dashboard/DashboardPage";
@@ -38,8 +42,19 @@ export default function App() {
           <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/privacy" element={<LandingPage />} />        {/* placeholder */}
-          <Route path="/terms" element={<LandingPage />} />          {/* placeholder */}
+
+          {/* S8.1: màn mock-pay nội bộ — đích redirect của MockPaymentProvider khi
+              PAYMENT_PROVIDER=mock (mặc định, vì SRS để Payment Provider = TBD).
+              Dev/QA-only: chỉ truy cập được qua luồng checkout → redirect_url. */}
+          <Route path="/payment/mock" element={<MockPayPage />} />
+
+          {/* S8.3: màn kết quả thanh toán (thất bại/hủy — AC-10-03). Đích điều
+              hướng sau webhook fail/cancel: /payment/result?status=&tx=&plan= */}
+          <Route path="/payment/result" element={<PaymentResultPage />} />
+
+          {/* S12.1: Privacy Policy + Terms of Service — trang tĩnh công khai */}
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms" element={<TermsOfServicePage />} />
 
           {/* ── Protected routes (yêu cầu đăng nhập) ────────────────────── */}
           <Route element={<ProtectedRoute />}>

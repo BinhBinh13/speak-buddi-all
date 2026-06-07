@@ -1,11 +1,16 @@
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { MdCheck, MdStar } from "react-icons/md";
 import PublicNavbar from "../../shared/components/PublicNavbar";
 import PublicFooter from "../../shared/components/PublicFooter";
 import { UI } from "../../shared/constants/designTokens";
+import { useAuth } from "../../shared/auth/AuthContext";
+import { getPlans, startCheckout } from "../payment/services/paymentService";
 
-// ── Dữ liệu gói (static — Admin sẽ quản lý thật ở S10.1) ────────────
+// ── Dữ liệu hiển thị gói (static — Admin sẽ quản lý thật ở S10.1) ───
 // TODO: Giá Pro thật sẽ được Admin cấu hình. Hiện dùng 149.000đ theo mockup pricing_page_desktop.
+// S8.1: CTA "Nâng cấp Pro" cần plan_id UUID thật từ GET /api/payment/plans
+//       (gán động bằng resolveProPlanId — xem dưới).
 const PLANS = [
   {
     name: "Miễn phí",
@@ -21,6 +26,7 @@ const PLANS = [
     // TODO: Đổi thành /register khi S1.4 hoàn thành
     ctaTo: "/login",
     highlight: false,
+    isPaid: false,
   },
   {
     name: "Pro",
@@ -33,12 +39,23 @@ const PLANS = [
       { label: "Tải báo cáo chi tiết",  included: true },
     ],
     cta: "Nâng cấp Pro",
-    // TODO: Đổi thành /register khi S1.4 hoàn thành
-    ctaTo: "/login",
     highlight: true,
     badge: "Phổ biến",
+    isPaid: true,
   },
 ];
+
+/**
+ * Map gói "Pro" hiển thị trên FE → plan_id UUID thật trong DB.
+ * payment_plan có thể có nhiều gói trả phí (Pro tháng/năm/vĩnh viễn) — S8.1
+ * chọn gói trả phí có sort_order nhỏ nhất (gói "mặc định" được đề xuất).
+ * S10.1 (Admin CRUD payment_plan) sẽ thay bằng cấu hình tường minh nếu cần.
+ */
+function resolveProPlanId(plans) {
+  const paid = plans.filter((p) => p.price_vnd > 0);
+  if (paid.length === 0) return null;
+  return paid.reduce((min, p) => (p.sort_order < min.sort_order ? p : min), paid[0]).id;
+}
 
 const FAQ_ITEMS = [
   {
@@ -57,6 +74,55 @@ const FAQ_ITEMS = [
 
 // ── Page ─────────────────────────────────────────────────────────────
 export default function PricingPage() {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+
+  // S8.1: lấy plan_id thật cho gói Pro (cần để gọi POST /api/payment/checkout)
+  const [proPlanId, setProPlanId] = useState(null);
+  // checkout đang gọi (disable nút + hiện spinner) — AC-10-01 / NFR §4.8
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    getPlans()
+      .then((plans) => {
+        if (!cancelled) setProPlanId(resolveProPlanId(plans || []));
+      })
+      .catch(() => {
+        // Không chặn render trang pricing nếu API plans lỗi — chỉ disable checkout
+        if (!cancelled) setProPlanId(null);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  /**
+   * CTA gói Pro (S8.1, AC-10-01):
+   *  - Chưa đăng nhập → điều hướng /login?next=/pricing (giữ hành vi cũ).
+   *  - Đã đăng nhập   → gọi startCheckout(plan_id) → redirect sang redirect_url.
+   */
+  async function handleUpgradeClick() {
+    setCheckoutError("");
+
+    if (!isAuthenticated) {
+      navigate("/login?next=" + encodeURIComponent("/pricing"));
+      return;
+    }
+    if (!proPlanId) {
+      setCheckoutError("Không tải được thông tin gói. Vui lòng thử lại sau.");
+      return;
+    }
+
+    setCheckoutLoading(true);
+    try {
+      const { redirect_url } = await startCheckout(proPlanId);
+      window.location.href = redirect_url;
+    } catch (err) {
+      setCheckoutError(err.message || "Không thể khởi tạo thanh toán. Vui lòng thử lại.");
+      setCheckoutLoading(false);
+    }
+  }
+
   return (
     <div
       style={{
@@ -131,11 +197,21 @@ export default function PricingPage() {
           @media (min-width: 768px) {
             .pricing-cards-grid { grid-template-columns: repeat(2, 1fr); }
           }
+          /* S8.1: spinner cho nút checkout khi đang gọi /api/payment/checkout */
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
         `}</style>
 
         <div className="pricing-cards-grid">
           {PLANS.map((plan) => (
-            <PlanCard key={plan.name} {...plan} />
+            <PlanCard
+              key={plan.name}
+              {...plan}
+              onUpgradeClick={plan.isPaid ? handleUpgradeClick : undefined}
+              loading={plan.isPaid ? checkoutLoading : false}
+              error={plan.isPaid ? checkoutError : ""}
+            />
           ))}
         </div>
 
@@ -149,7 +225,10 @@ export default function PricingPage() {
 }
 
 // ── PlanCard ─────────────────────────────────────────────────────────
-function PlanCard({ name, price, priceUnit, features, cta, ctaTo, highlight, badge }) {
+function PlanCard({
+  name, price, priceUnit, features, cta, ctaTo, highlight, badge,
+  onUpgradeClick, loading, error,
+}) {
   const cardInner = (
     <div
       style={{
@@ -259,39 +338,113 @@ function PlanCard({ name, price, priceUnit, features, cta, ctaTo, highlight, bad
       </ul>
 
       {/* CTA */}
-      <Link
-        to={ctaTo}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          marginTop: UI.spacing.xl,
-          width: "100%",
-          padding: "12px 16px",
-          borderRadius: UI.radius.full,
-          fontFamily: UI.font,
-          fontSize: UI.fontSize.labelMd,
-          fontWeight: UI.fontWeight.labelMd,
-          textDecoration: "none",
-          minHeight: 44,
-          background: highlight ? UI.primary : "transparent",
-          color: highlight ? UI.onPrimary : UI.primary,
-          border: highlight ? "none" : `2px solid ${UI.primary}`,
-          boxShadow: highlight ? "0 4px 12px rgba(53,37,205,0.2)" : "none",
-          transition: highlight ? "background 0.2s" : "background 0.2s",
-          position: "relative",
-        }}
-        onMouseEnter={(e) => {
-          if (highlight) e.currentTarget.style.background = UI.surfaceTint;
-          else e.currentTarget.style.background = UI.surfaceContainerLow;
-        }}
-        onMouseLeave={(e) => {
-          if (highlight) e.currentTarget.style.background = UI.primary;
-          else e.currentTarget.style.background = "transparent";
-        }}
-      >
-        {cta}
-      </Link>
+      {/* S8.1: gói trả phí (onUpgradeClick được truyền) → button checkout login-aware;
+          gói miễn phí → giữ nguyên <Link> điều hướng tĩnh (hành vi cũ). */}
+      {onUpgradeClick ? (
+        <button
+          type="button"
+          onClick={onUpgradeClick}
+          disabled={loading}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.5rem",
+            marginTop: UI.spacing.xl,
+            width: "100%",
+            padding: "12px 16px",
+            borderRadius: UI.radius.full,
+            fontFamily: UI.font,
+            fontSize: UI.fontSize.labelMd,
+            fontWeight: UI.fontWeight.labelMd,
+            minHeight: 44,
+            background: highlight ? UI.primary : "transparent",
+            color: highlight ? UI.onPrimary : UI.primary,
+            border: highlight ? "none" : `2px solid ${UI.primary}`,
+            boxShadow: highlight ? "0 4px 12px rgba(53,37,205,0.2)" : "none",
+            transition: "background 0.2s, opacity 0.2s",
+            position: "relative",
+            cursor: loading ? "wait" : "pointer",
+            opacity: loading ? 0.7 : 1,
+          }}
+          onMouseEnter={(e) => {
+            if (loading) return;
+            if (highlight) e.currentTarget.style.background = UI.surfaceTint;
+            else e.currentTarget.style.background = UI.surfaceContainerLow;
+          }}
+          onMouseLeave={(e) => {
+            if (loading) return;
+            if (highlight) e.currentTarget.style.background = UI.primary;
+            else e.currentTarget.style.background = "transparent";
+          }}
+        >
+          {loading && (
+            <span
+              aria-hidden="true"
+              style={{
+                display: "inline-block",
+                width: 16,
+                height: 16,
+                border: `2px solid ${highlight ? UI.onPrimary : UI.primary}`,
+                borderTopColor: "transparent",
+                borderRadius: "50%",
+                animation: "spin 0.8s linear infinite",
+              }}
+            />
+          )}
+          {loading ? "Đang khởi tạo thanh toán…" : cta}
+        </button>
+      ) : (
+        <Link
+          to={ctaTo}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginTop: UI.spacing.xl,
+            width: "100%",
+            padding: "12px 16px",
+            borderRadius: UI.radius.full,
+            fontFamily: UI.font,
+            fontSize: UI.fontSize.labelMd,
+            fontWeight: UI.fontWeight.labelMd,
+            textDecoration: "none",
+            minHeight: 44,
+            background: highlight ? UI.primary : "transparent",
+            color: highlight ? UI.onPrimary : UI.primary,
+            border: highlight ? "none" : `2px solid ${UI.primary}`,
+            boxShadow: highlight ? "0 4px 12px rgba(53,37,205,0.2)" : "none",
+            transition: highlight ? "background 0.2s" : "background 0.2s",
+            position: "relative",
+          }}
+          onMouseEnter={(e) => {
+            if (highlight) e.currentTarget.style.background = UI.surfaceTint;
+            else e.currentTarget.style.background = UI.surfaceContainerLow;
+          }}
+          onMouseLeave={(e) => {
+            if (highlight) e.currentTarget.style.background = UI.primary;
+            else e.currentTarget.style.background = "transparent";
+          }}
+        >
+          {cta}
+        </Link>
+      )}
+
+      {/* Lỗi checkout (S8.1) — hiển thị ngay dưới CTA, không chặn render trang */}
+      {error && (
+        <p
+          role="alert"
+          style={{
+            fontFamily: UI.font,
+            fontSize: UI.fontSize.labelSm,
+            color: UI.error,
+            margin: `${UI.spacing.xs} 0 0`,
+            textAlign: "center",
+          }}
+        >
+          {error}
+        </p>
+      )}
     </div>
   );
 

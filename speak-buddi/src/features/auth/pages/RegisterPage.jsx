@@ -628,6 +628,33 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            {/* S12.1: thông báo chấp thuận điều khoản (§4.7 — informed consent) */}
+            <p
+              style={{
+                fontSize: 13,
+                color: ON_SURFACE_VAR,
+                textAlign: "center",
+                margin: "0 0 1rem",
+                lineHeight: 1.6,
+              }}
+            >
+              Bằng việc đăng ký, bạn đồng ý với{" "}
+              <Link
+                to="/terms"
+                style={{ color: PRIMARY, fontWeight: 500, textDecoration: "underline" }}
+              >
+                Điều khoản dịch vụ
+              </Link>{" "}
+              và{" "}
+              <Link
+                to="/privacy"
+                style={{ color: PRIMARY, fontWeight: 500, textDecoration: "underline" }}
+              >
+                Chính sách bảo mật
+              </Link>{" "}
+              của chúng tôi.
+            </p>
+
             {/* Submit button */}
             <button
               type="submit"

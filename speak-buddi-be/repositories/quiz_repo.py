@@ -9,7 +9,8 @@
 #   S4.3 — create_attempt, upsert_attempt_answer
 #   S4.4 — submit_attempt, get_answers_by_attempt
 #   S4.5 — get_tests_by_topic, get_attempts_by_user_test
-#   S9.1 — create_test, soft_delete_test, create_question_with_answers
+#   S9.1 — create_test, soft_delete_test, create_question_with_answers,
+#          list_tests_admin, update_test, replace_questions_for_test
 # ─────────────────────────────────────────────────────────────────────────────
 
 from sqlalchemy import text
@@ -187,6 +188,90 @@ async def soft_delete_test(db: AsyncSession, test_id: str) -> None:
     )
 
 
+async def list_tests_admin(
+    db: AsyncSession,
+    search: str | None = None,
+    topic_id: str | None = None,
+    level_id: str | None = None,
+    include_inactive: bool = True,
+) -> list[dict]:
+    """
+    Danh sách bài kiểm tra cho Admin (kèm question_count + attempt_count tổng).
+    Mặc định include_inactive=True để Admin thấy cả test draft/inactive.
+    """
+    conditions = []
+    params: dict = {}
+
+    if not include_inactive:
+        conditions.append("vt.is_active = TRUE")
+    if search:
+        conditions.append("(vt.title ILIKE :search OR vt.description ILIKE :search)")
+        params["search"] = f"%{search}%"
+    if topic_id:
+        conditions.append("vt.topic_id = CAST(:topic_id AS UUID)")
+        params["topic_id"] = topic_id
+    if level_id:
+        conditions.append("vt.level_id = CAST(:level_id AS UUID)")
+        params["level_id"] = level_id
+
+    where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+    sql = f"""
+        SELECT vt.id::text,
+               vt.topic_id::text,
+               t.name AS topic_name,
+               vt.level_id::text,
+               l.code AS level_code,
+               vt.title,
+               vt.description,
+               vt.is_active,
+               vt.created_by::text,
+               vt.created_at,
+               COUNT(DISTINCT qq.id)::int AS question_count,
+               COUNT(DISTINCT qa.id) FILTER (WHERE qa.status = 'submitted')::int AS attempt_count
+        FROM   vocabulary_test vt
+        LEFT JOIN topic t          ON t.id = vt.topic_id
+        LEFT JOIN level l          ON l.id = vt.level_id
+        LEFT JOIN quiz_question qq ON qq.vocabulary_test_id = vt.id
+        LEFT JOIN quiz_attempt qa  ON qa.vocabulary_test_id = vt.id
+        {where_clause}
+        GROUP  BY vt.id, t.name, l.code
+        ORDER  BY vt.created_at DESC
+    """
+    r = await db.execute(text(sql), params)
+    return [dict(row) for row in r.mappings().all()]
+
+
+async def update_test(db: AsyncSession, test_id: str, data: dict) -> dict | None:
+    """Cập nhật metadata bài kiểm tra (Admin S9.1). Trả None nếu không tìm thấy."""
+    r = await db.execute(
+        text("""
+            UPDATE vocabulary_test
+            SET    topic_id    = CAST(:topic_id AS UUID),
+                   level_id    = CAST(:level_id AS UUID),
+                   title       = :title,
+                   description = :description
+            WHERE  id = CAST(:test_id AS UUID)
+            RETURNING id::text,
+                      topic_id::text,
+                      level_id::text,
+                      title,
+                      description,
+                      is_active,
+                      created_by::text,
+                      created_at
+        """),
+        {
+            "test_id":     test_id,
+            "topic_id":    data.get("topic_id"),
+            "level_id":    data.get("level_id"),
+            "title":       data["title"],
+            "description": data.get("description"),
+        },
+    )
+    row = r.mappings().first()
+    return dict(row) if row else None
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # quiz_question + quiz_answer
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -310,6 +395,58 @@ async def create_question_with_answers(
 
     question["answers"] = inserted_answers
     return question
+
+
+async def replace_questions_for_test(
+    db: AsyncSession,
+    test_id: str,
+    questions_data: list[dict],
+) -> list[dict]:
+    """
+    Đồng bộ toàn bộ câu hỏi + đáp án của 1 bài kiểm tra (Admin S9.1 — editor PUT).
+
+    MVP strategy (ghi nhận trong plan §6 — risk "sync nested"):
+    xoá toàn bộ question/answer cũ của test (CASCADE xoá answer theo FK) rồi
+    insert lại theo payload mới. Đơn giản & an toàn cho 1 transaction; chấp nhận
+    đổi id question/answer (không ảnh hưởng quiz_attempt_answer vì ON DELETE CASCADE
+    chỉ xảy ra khi xoá test, còn ở đây ta chỉ xoá theo vocabulary_test_id — xem note).
+
+    Lưu ý: nếu test đã có attempt cũ tham chiếu quiz_question_id, xoá+insert lại sẽ
+    khiến quiz_attempt_answer của các attempt cũ trỏ tới question_id không còn tồn tại
+    (FK ON DELETE CASCADE trên quiz_attempt_answer.quiz_question_id sẽ xoá luôn các
+    answer ghi nhận đó). Đây là đánh đổi chấp nhận được cho MVP Admin editor — ghi
+    rõ trong implement log để Reviewer/PO biết (TBD: làm diff giữ id nếu cần giữ
+    lịch sử chấm điểm chính xác tuyệt đối).
+    """
+    # Xoá toàn bộ câu hỏi cũ — CASCADE xoá quiz_answer + quiz_attempt_answer liên quan
+    await db.execute(
+        text("DELETE FROM quiz_question WHERE vocabulary_test_id = CAST(:test_id AS UUID)"),
+        {"test_id": test_id},
+    )
+
+    inserted: list[dict] = []
+    for q in questions_data:
+        question = await create_question_with_answers(
+            db,
+            question_data={
+                "vocabulary_test_id": test_id,
+                "topic_word_id":      q.get("topic_word_id"),
+                "question_text":      q["question_text"],
+                "question_type":      q["question_type"],
+                "display_order":      q.get("display_order", 0),
+            },
+            answers_data=[
+                {
+                    "answer_text":   a["answer_text"],
+                    "is_correct":    a.get("is_correct", False),
+                    "display_order": a.get("display_order", 0),
+                }
+                for a in q.get("answers", [])
+            ],
+        )
+        inserted.append(question)
+
+    return inserted
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
