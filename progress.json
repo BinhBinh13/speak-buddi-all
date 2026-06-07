@@ -19,13 +19,13 @@
   "summary": {
     "totalEpics": 12,
     "totalStories": 47,
-    "completedStories": 31,
-    "progressPercent": 66,
+    "completedStories": 33,
+    "progressPercent": 70,
     "byStatus": {
       "todo": 9,
       "in_progress": 5,
-      "review": 2,
-      "done": 31,
+      "review": 0,
+      "done": 33,
       "blocked": 0
     }
   },
@@ -185,8 +185,8 @@
         "BR09"
       ],
       "owner": "Dev A",
-      "status": "in_progress",
-      "progressPercent": 60,
+      "status": "done",
+      "progressPercent": 100,
       "stories": [
         {
           "id": "S2.1",
@@ -238,28 +238,28 @@
           "title": "Man hinh xem roadmap + empty state",
           "ac": "AC-04-01/04",
           "priority": "P1",
-          "status": "review",
+          "status": "done",
           "assignee": "",
           "notes": "",
           "artifacts": {
             "plan": "plan/S2.4-plan.md",
             "implement": "implement/S2.4-implement.md",
-            "review": ""
+            "review": "review/S2.4-review.md"
           },
-          "updatedAt": "2026-06-06"
+          "updatedAt": "2026-06-07"
         },
         {
           "id": "S2.5",
           "title": "Topic modal: chia session theo words_per_session + tracking progress + nut Tiep tuc + truyen data sang AI",
           "ac": "AC-03-02, AC-04-01",
           "priority": "P1",
-          "status": "review",
+          "status": "done",
           "assignee": "",
           "notes": "",
           "artifacts": {
             "plan": "plan/S2.5-plan.md",
             "implement": "implement/S2.5-implement.md",
-            "review": ""
+            "review": "review/S2.5-review.md"
           },
           "updatedAt": "2026-06-07"
         }
