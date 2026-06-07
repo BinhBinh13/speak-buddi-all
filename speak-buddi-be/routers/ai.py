@@ -7,8 +7,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from auth.deps import current_user
+from auth.deps import current_user, optional_current_user
 from db.connection import get_db
+from repositories import voice_repo
 from repositories.quota_repo import add_used_seconds, get_or_create_active_window, get_quota_status
 from schemas.ai import SpeakRequest, SpeakTextFallbackOut, TTSRequest
 from services.ai_service import get_ai_reply
@@ -20,6 +21,18 @@ router = APIRouter(tags=["ai"])
 
 # ── Fallback delta khi FE không gửi elapsed_seconds (S7.2) ───────────────────
 _FALLBACK_DELTA_SECONDS = 30
+
+
+async def _resolve_voice_params(
+    db: AsyncSession,
+    user: dict | None,
+) -> tuple[str | None, str | None]:
+    if not user:
+        return None, None
+    user_id = user.get("sub")
+    if not user_id:
+        return None, None
+    return await voice_repo.get_voice_id_for_user(db, user_id)
 
 
 @router.post("/speak")
@@ -69,9 +82,11 @@ async def speak(
             detail={"message": "AI service error", "service": "anthropic"},
         )
 
+    voice_id, model_id = await _resolve_voice_params(db, user)
+
     # ── Bước 2: gọi ElevenLabs TTS ───────────────────────────────────────────
     try:
-        audio_bytes = text_to_audio_bytes(reply_text)
+        audio_bytes = text_to_audio_bytes(reply_text, voice_id=voice_id, model_id=model_id)
     except Exception as exc:
         log.error("TTS error: %s", exc)
         # TTS lỗi nhưng Claude đã trả text → degrade: 200 JSON thay vì 502
@@ -98,13 +113,18 @@ async def speak(
 
 
 @router.post("/tts")
-async def tts(req: TTSRequest):
+async def tts(
+    req: TTSRequest,
+    user: dict | None = Depends(optional_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     if not req.text.strip():
         raise HTTPException(status_code=400, detail="Empty text")
     t0 = time.perf_counter()
     log.info("TTS_REQUEST  text=%r  chars=%d", req.text[:80], len(req.text))
+    voice_id, model_id = await _resolve_voice_params(db, user)
     try:
-        audio_bytes = text_to_audio_bytes(req.text)
+        audio_bytes = text_to_audio_bytes(req.text, voice_id=voice_id, model_id=model_id)
     except Exception as exc:
         log.error("TTS_ERROR  text=%r  latency_ms=%.0f  error=%s",
                   req.text[:80], (time.perf_counter() - t0) * 1000, exc)

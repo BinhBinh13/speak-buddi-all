@@ -51,6 +51,7 @@ async def list_topics(
                t.display_order,
                t.source,
                t.is_active,
+               COALESCE(t.admin_locked, FALSE) AS admin_locked,
                t.created_at,
                COUNT(tw.id) FILTER (WHERE tw.is_active = TRUE) AS word_count
         FROM   topic t
@@ -77,6 +78,7 @@ async def get_topic_by_id(db: AsyncSession, topic_id: str) -> dict | None:
                    t.display_order,
                    t.source,
                    t.is_active,
+                   COALESCE(t.admin_locked, FALSE) AS admin_locked,
                    t.created_at
             FROM   topic t
             LEFT JOIN level l ON l.id = t.level_id
@@ -161,7 +163,8 @@ async def update_topic(db: AsyncSession, topic_id: str, data: dict) -> dict | No
                    name          = :name,
                    slug          = :slug,
                    description   = :description,
-                   display_order = :display_order
+                   display_order = :display_order,
+                   admin_locked  = CASE WHEN source = 'langeek' THEN TRUE ELSE admin_locked END
             WHERE  id = CAST(:topic_id AS UUID)
             RETURNING id::text,
                       level_id::text,
@@ -171,6 +174,7 @@ async def update_topic(db: AsyncSession, topic_id: str, data: dict) -> dict | No
                       display_order,
                       source,
                       is_active,
+                      COALESCE(admin_locked, FALSE) AS admin_locked,
                       created_at
         """),
         {
@@ -247,6 +251,7 @@ async def list_words(
                tw.display_order,
                tw.source,
                tw.is_active,
+               COALESCE(tw.admin_locked, FALSE) AS admin_locked,
                tw.created_by::text,
                tw.created_at
         FROM   topic_word tw
@@ -280,6 +285,7 @@ async def get_word_by_id(db: AsyncSession, word_id: str) -> dict | None:
                    tw.display_order,
                    tw.source,
                    tw.is_active,
+                   COALESCE(tw.admin_locked, FALSE) AS admin_locked,
                    tw.created_by::text,
                    tw.created_at
             FROM   topic_word tw
@@ -383,7 +389,8 @@ async def update_word(db: AsyncSession, word_id: str, data: dict) -> dict | None
                    example_sentence = :example_sentence,
                    grammar_note     = :grammar_note,
                    audio_url        = :audio_url,
-                   display_order    = :display_order
+                   display_order    = :display_order,
+                   admin_locked     = CASE WHEN source = 'langeek' THEN TRUE ELSE admin_locked END
             WHERE  id = CAST(:word_id AS UUID)
             RETURNING id::text,
                       topic_id::text,
@@ -391,6 +398,7 @@ async def update_word(db: AsyncSession, word_id: str, data: dict) -> dict | None
                       word, phonetic, meaning_vi, meaning_en,
                       example_sentence, grammar_note, audio_url,
                       display_order, source, is_active,
+                      COALESCE(admin_locked, FALSE) AS admin_locked,
                       created_by::text, created_at
         """),
         {
@@ -421,7 +429,6 @@ async def update_word(db: AsyncSession, word_id: str, data: dict) -> dict | None
 async def _sync_word_tags(db: AsyncSession, word_id: str, tag_ids: list[str]) -> None:
     """
     Đồng bộ M:N topic_word_tag theo danh sách tag_ids gửi lên (replace toàn bộ).
-    Đơn giản & an toàn cho MVP: xoá hết liên kết cũ rồi insert lại (hard-delete bảng nối).
     """
     await db.execute(
         text("DELETE FROM topic_word_tag WHERE topic_word_id = CAST(:wid AS UUID)"),
@@ -438,6 +445,99 @@ async def _sync_word_tags(db: AsyncSession, word_id: str, tag_ids: list[str]) ->
         )
 
 
+async def soft_delete_topic(db: AsyncSession, topic_id: str) -> bool:
+    """Soft-delete topic + admin lock (Admin S9.2/S9.5 — AC-13-03 / AC-13-06)."""
+    r = await db.execute(
+        text("""
+            UPDATE topic
+            SET    is_active = FALSE,
+                   admin_locked = TRUE
+            WHERE  id = CAST(:topic_id AS UUID)
+        """),
+        {"topic_id": topic_id},
+    )
+    return r.rowcount > 0
+
+
+async def soft_delete_word(db: AsyncSession, word_id: str) -> bool:
+    """Soft-delete topic_word + admin lock (Admin S9.2/S9.5)."""
+    r = await db.execute(
+        text("""
+            UPDATE topic_word
+            SET    is_active = FALSE,
+                   admin_locked = TRUE
+            WHERE  id = CAST(:word_id AS UUID)
+        """),
+        {"word_id": word_id},
+    )
+    return r.rowcount > 0
+
+
+async def enable_topic(db: AsyncSession, topic_id: str) -> dict | None:
+    """Re-enable topic — clear admin lock (S9.5)."""
+    r = await db.execute(
+        text("""
+            UPDATE topic
+            SET    is_active = TRUE,
+                   admin_locked = FALSE
+            WHERE  id = CAST(:topic_id AS UUID)
+            RETURNING id::text, level_id::text, name, slug, description,
+                      display_order, source, is_active,
+                      COALESCE(admin_locked, FALSE) AS admin_locked,
+                      created_at
+        """),
+        {"topic_id": topic_id},
+    )
+    row = r.mappings().first()
+    if row is None:
+        return None
+    out = dict(row)
+    out["level_code"] = None
+    return out
+
+
+async def enable_word(db: AsyncSession, word_id: str) -> dict | None:
+    """Re-enable word — clear admin lock (S9.5)."""
+    r = await db.execute(
+        text("""
+            UPDATE topic_word
+            SET    is_active = TRUE,
+                   admin_locked = FALSE
+            WHERE  id = CAST(:word_id AS UUID)
+            RETURNING id::text, topic_id::text, level_id::text,
+                      word, phonetic, meaning_vi, meaning_en,
+                      example_sentence, grammar_note, audio_url,
+                      display_order, source, is_active,
+                      COALESCE(admin_locked, FALSE) AS admin_locked,
+                      created_by::text, created_at
+        """),
+        {"word_id": word_id},
+    )
+    row = r.mappings().first()
+    if row is None:
+        return None
+    word = dict(row)
+    word["topic_name"] = None
+    word["level_code"] = None
+    word["tag_ids"] = []
+    return word
+
+
+async def soft_disable_langeek_word_crawler(db: AsyncSession, word_id: str) -> bool:
+    """Crawler batch disable — không set admin_locked (S9.5)."""
+    r = await db.execute(
+        text("""
+            UPDATE topic_word
+            SET    is_active = FALSE,
+                   updated_at = NOW()
+            WHERE  id = CAST(:word_id AS UUID)
+              AND  admin_locked = FALSE
+        """),
+        {"word_id": word_id},
+    )
+    return r.rowcount > 0
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # level (đọc — dùng cho dropdown trong form Admin)
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -448,3 +548,229 @@ async def list_levels(db: AsyncSession) -> list[dict]:
         text("SELECT id::text, code, name, display_order FROM level ORDER BY display_order")
     )
     return [dict(row) for row in r.mappings().all()]
+
+
+async def get_level_by_code(db: AsyncSession, code: str) -> dict | None:
+    """Lookup level theo code A1–C2 (crawler S9.3)."""
+    r = await db.execute(
+        text("""
+            SELECT id::text, code, name, display_order
+            FROM   level
+            WHERE  UPPER(code) = UPPER(:code)
+            LIMIT  1
+        """),
+        {"code": code},
+    )
+    row = r.mappings().first()
+    return dict(row) if row else None
+
+
+async def get_topic_by_slug(db: AsyncSession, slug: str) -> dict | None:
+    r = await db.execute(
+        text("""
+            SELECT id::text, level_id::text, name, slug, description,
+                   display_order, source, is_active,
+                   COALESCE(admin_locked, FALSE) AS admin_locked
+            FROM   topic
+            WHERE  slug = :slug
+            LIMIT  1
+        """),
+        {"slug": slug},
+    )
+    row = r.mappings().first()
+    return dict(row) if row else None
+
+
+async def upsert_langeek_topic(
+    db: AsyncSession,
+    *,
+    level_id: str,
+    name: str,
+    slug: str,
+    description: str | None,
+    display_order: int,
+) -> tuple[dict | None, str | None]:
+    """
+    Upsert topic từ crawler Langeek (S9.3 + S9.5 admin_locked).
+    Trả (topic, skip_reason). skip_reason: admin_conflict | admin_locked.
+    """
+    existing = await get_topic_by_slug(db, slug)
+    if existing:
+        if existing.get("source") == "admin":
+            return None, "admin_conflict"
+        if existing.get("admin_locked"):
+            return existing, "admin_locked"
+        r = await db.execute(
+            text("""
+                UPDATE topic
+                SET    level_id = CAST(:level_id AS UUID),
+                       name = :name,
+                       description = :description,
+                       display_order = :display_order,
+                       is_active = TRUE,
+                       updated_at = NOW()
+                WHERE  id = CAST(:id AS UUID)
+                  AND  admin_locked = FALSE
+                RETURNING id::text, level_id::text, name, slug, description,
+                          display_order, source, is_active,
+                          COALESCE(admin_locked, FALSE) AS admin_locked
+            """),
+            {
+                "id": existing["id"],
+                "level_id": level_id,
+                "name": name,
+                "description": description,
+                "display_order": display_order,
+            },
+        )
+        row = r.mappings().first()
+        if row is None:
+            return existing, "admin_locked"
+        return dict(row), None
+
+    r = await db.execute(
+        text("""
+            INSERT INTO topic
+                (level_id, name, slug, description, display_order, source, is_active)
+            VALUES
+                (CAST(:level_id AS UUID), :name, :slug, :description, :display_order,
+                 'langeek', TRUE)
+            RETURNING id::text, level_id::text, name, slug, description,
+                      display_order, source, is_active
+        """),
+        {
+            "level_id": level_id,
+            "name": name,
+            "slug": slug,
+            "description": description,
+            "display_order": display_order,
+        },
+    )
+    return dict(r.mappings().first()), None
+
+
+async def get_word_in_topic(db: AsyncSession, topic_id: str, word: str) -> dict | None:
+    r = await db.execute(
+        text("""
+            SELECT id::text, topic_id::text, word, source, is_active,
+                   COALESCE(admin_locked, FALSE) AS admin_locked
+            FROM   topic_word
+            WHERE  topic_id = CAST(:topic_id AS UUID)
+              AND  LOWER(word) = LOWER(:word)
+            LIMIT  1
+        """),
+        {"topic_id": topic_id, "word": word},
+    )
+    row = r.mappings().first()
+    return dict(row) if row else None
+
+
+async def upsert_langeek_word(
+    db: AsyncSession,
+    *,
+    topic_id: str,
+    level_id: str,
+    word: str,
+    phonetic: str | None,
+    meaning_vi: str,
+    meaning_en: str | None,
+    example_sentence: str | None,
+    display_order: int,
+) -> tuple[dict | None, str | None]:
+    """
+    Upsert từ Langeek (S9.3 + S9.5 admin_locked).
+    Trả (word, skip_reason): admin_conflict | admin_locked.
+    """
+    existing = await get_word_in_topic(db, topic_id, word)
+    if existing:
+        if existing.get("source") == "admin":
+            return None, "admin_conflict"
+        if existing.get("admin_locked"):
+            return existing, "admin_locked"
+        r = await db.execute(
+            text("""
+                UPDATE topic_word
+                SET    level_id = CAST(:level_id AS UUID),
+                       phonetic = :phonetic,
+                       meaning_vi = :meaning_vi,
+                       meaning_en = :meaning_en,
+                       example_sentence = :example_sentence,
+                       display_order = :display_order,
+                       is_active = TRUE,
+                       updated_at = NOW()
+                WHERE  id = CAST(:id AS UUID)
+                  AND  admin_locked = FALSE
+                RETURNING id::text, topic_id::text, word, source, is_active,
+                          COALESCE(admin_locked, FALSE) AS admin_locked
+            """),
+            {
+                "id": existing["id"],
+                "level_id": level_id,
+                "phonetic": phonetic,
+                "meaning_vi": meaning_vi,
+                "meaning_en": meaning_en,
+                "example_sentence": example_sentence,
+                "display_order": display_order,
+            },
+        )
+        row = r.mappings().first()
+        if row is None:
+            return existing, "admin_locked"
+        return dict(row), None
+
+    r = await db.execute(
+        text("""
+            INSERT INTO topic_word
+                (topic_id, level_id, word, phonetic, meaning_vi, meaning_en,
+                 example_sentence, display_order, source, is_active, created_by)
+            VALUES
+                (CAST(:topic_id AS UUID), CAST(:level_id AS UUID), :word, :phonetic,
+                 :meaning_vi, :meaning_en, :example_sentence, :display_order,
+                 'langeek', TRUE, NULL)
+            RETURNING id::text, topic_id::text, word, source, is_active
+        """),
+        {
+            "topic_id": topic_id,
+            "level_id": level_id,
+            "word": word,
+            "phonetic": phonetic,
+            "meaning_vi": meaning_vi,
+            "meaning_en": meaning_en,
+            "example_sentence": example_sentence,
+            "display_order": display_order,
+        },
+    )
+    return dict(r.mappings().first()), None
+
+
+async def soft_disable_langeek_words_not_in_batch(
+    db: AsyncSession,
+    topic_id: str,
+    active_words: set[str],
+) -> int:
+    """
+    Soft-disable từ Langeek không còn trong batch (S3.4).
+    Bỏ qua từ admin_locked (S9.5 — Admin disable/edit).
+    """
+    r = await db.execute(
+        text("""
+            SELECT id::text, LOWER(word) AS w,
+                   COALESCE(admin_locked, FALSE) AS admin_locked
+            FROM   topic_word
+            WHERE  topic_id = CAST(:topic_id AS UUID)
+              AND  source = 'langeek'
+              AND  is_active = TRUE
+        """),
+        {"topic_id": topic_id},
+    )
+    rows = r.mappings().all()
+    disabled = 0
+    normalized = {w.lower() for w in active_words}
+    for row in rows:
+        if row["admin_locked"]:
+            continue
+        if row["w"] not in normalized:
+            ok = await soft_disable_langeek_word_crawler(db, row["id"])
+            if ok:
+                disabled += 1
+    return disabled

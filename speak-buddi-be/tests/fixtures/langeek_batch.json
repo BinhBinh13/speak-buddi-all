@@ -1,0 +1,56 @@
+{
+  "source_url": "https://langeek.co/en-VI/vocab/level-based",
+  "crawled_at": "2026-06-07T00:00:00Z",
+  "levels": [
+    {
+      "code": "A1",
+      "topics": [
+        {
+          "name": "Greetings & Introductions",
+          "slug": "langeek-a1-greetings-introductions",
+          "description": "Basic greetings and introductions (fixture)",
+          "display_order": 1,
+          "words": [
+            {
+              "word": "hello",
+              "phonetic": "/həˈloʊ/",
+              "meaning_vi": "xin chào",
+              "meaning_en": "used as a greeting or to begin a phone conversation",
+              "example_sentence": "Hello, how are you today?",
+              "display_order": 1
+            },
+            {
+              "word": "goodbye",
+              "phonetic": "/ɡʊdˈbaɪ/",
+              "meaning_vi": "tạm biệt",
+              "meaning_en": "used when leaving or ending a conversation",
+              "example_sentence": "Goodbye, see you tomorrow!",
+              "display_order": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "A2",
+      "topics": [
+        {
+          "name": "Daily Routines",
+          "slug": "langeek-a2-daily-routines",
+          "description": "Common daily activity vocabulary (fixture)",
+          "display_order": 1,
+          "words": [
+            {
+              "word": "breakfast",
+              "phonetic": "/ˈbrekfəst/",
+              "meaning_vi": "bữa sáng",
+              "meaning_en": "the first meal of the day",
+              "example_sentence": "I usually have breakfast at seven.",
+              "display_order": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

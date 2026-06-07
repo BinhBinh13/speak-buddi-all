@@ -2,12 +2,12 @@ import { Link } from "react-router-dom";
 import { UI } from "../constants/designTokens";
 
 // S12.1: "Điều khoản"/"Bảo mật" trỏ tới trang pháp lý thật (route nội bộ → dùng <Link>).
-// "Liên hệ"/"Trợ giúp" thuộc S12.3 (extra-scope), tạm giữ "#" cho tới khi có trang đích.
+// S12.3: "Liên hệ"/"Trợ giúp" trỏ tới form hỗ trợ /contact.
 const FOOTER_LINKS = [
   { label: "Điều khoản", to: "/terms" },
   { label: "Bảo mật",    to: "/privacy" },
-  { label: "Liên hệ",    href: "#" },
-  { label: "Trợ giúp",   href: "#" },
+  { label: "Liên hệ",    to: "/contact" },
+  { label: "Trợ giúp",   to: "/contact" },
 ];
 
 export default function PublicFooter() {

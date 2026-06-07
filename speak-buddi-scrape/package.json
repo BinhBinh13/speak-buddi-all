@@ -1,13 +1,19 @@
 {
   "name": "speak-buddi-scrape",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {},
+  "description": "Langeek vocabulary crawler for speak-buddi (S9.3)",
+  "main": "src/cli.js",
+  "scripts": {
+    "crawl": "node src/cli.js",
+    "crawl:fixture": "node src/cli.js --fixture"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "dependencies": {
+    "playwright": "^1.60.0"
+  },
   "devDependencies": {
     "@playwright/test": "^1.60.0",
     "@types/node": "^25.9.1"

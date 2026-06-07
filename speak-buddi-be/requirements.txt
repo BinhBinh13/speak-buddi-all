@@ -9,3 +9,8 @@ sqlalchemy==2.0.41
 google-auth==2.38.0
 google-genai>=1.0.0
 requests==2.32.3
+apscheduler==3.11.0
+openpyxl==3.1.5
+reportlab==4.2.5
+openpyxl==3.1.5
+reportlab==4.4.1

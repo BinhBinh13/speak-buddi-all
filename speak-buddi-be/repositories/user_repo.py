@@ -241,3 +241,93 @@ async def update_onboarding(
     await db.commit()
     row = r.mappings().first()
     return dict(row) if row else {}
+
+
+# ─── Account deletion (S12.2) ─────────────────────────────────────────────────
+
+async def delete_user_personal_data(db: AsyncSession, user_id: str) -> bool:
+    """Xóa/anonymize dữ liệu cá nhân user (§4.6/§4.7).
+
+    Soft-delete user (status=deleted + email anonymized), purge PII học tập,
+    giữ payment_transaction gắn user_id đã anonymize phục vụ analytics.
+    Trả False nếu user không tồn tại hoặc đã deleted.
+    """
+    uid = {"uid": user_id}
+
+    # Kiểm tra user còn active trước khi xóa
+    check = await db.execute(
+        text("SELECT id::text FROM users WHERE id = CAST(:uid AS UUID) AND status != 'deleted'"),
+        uid,
+    )
+    if check.first() is None:
+        return False
+
+    # Purge dữ liệu cá nhân (thứ tự an toàn FK)
+    await db.execute(
+        text("DELETE FROM translation_history WHERE user_id = CAST(:uid AS UUID)"),
+        uid,
+    )
+    await db.execute(
+        text("DELETE FROM user_word_progress WHERE user_id = CAST(:uid AS UUID)"),
+        uid,
+    )
+    await db.execute(
+        text("DELETE FROM quiz_attempt WHERE user_id = CAST(:uid AS UUID)"),
+        uid,
+    )
+    await db.execute(
+        text("DELETE FROM oauth_account WHERE user_id = CAST(:uid AS UUID)"),
+        uid,
+    )
+    await db.execute(
+        text("DELETE FROM user_session WHERE user_id = CAST(:uid AS UUID)"),
+        uid,
+    )
+    await db.execute(
+        text("DELETE FROM password_reset_token WHERE user_id = CAST(:uid AS UUID)"),
+        uid,
+    )
+    await db.execute(
+        text("DELETE FROM user_voice_preference WHERE user_id = CAST(:uid AS UUID)"),
+        uid,
+    )
+    await db.execute(
+        text("""
+            UPDATE user_subscription
+            SET    status = 'cancelled', updated_at = NOW()
+            WHERE  user_id = CAST(:uid AS UUID) AND status = 'active'
+        """),
+        uid,
+    )
+    await db.execute(
+        text("""
+            UPDATE user_profile
+            SET    name = NULL,
+                   target_level = NULL,
+                   learning_goal = NULL,
+                   interests = NULL,
+                   avatar_url = NULL,
+                   daily_minutes = NULL,
+                   words_per_session = NULL,
+                   updated_at = NOW()
+            WHERE  user_id = CAST(:uid AS UUID)
+        """),
+        uid,
+    )
+    r = await db.execute(
+        text("""
+            UPDATE users
+            SET    status = 'deleted',
+                   email = 'deleted+' || id::text || '@speakbuddi.invalid',
+                   password_hash = NULL,
+                   updated_at = NOW()
+            WHERE  id = CAST(:uid AS UUID) AND status != 'deleted'
+            RETURNING id::text
+        """),
+        uid,
+    )
+    if r.first() is None:
+        return False
+
+    await db.commit()
+    return True

@@ -4,10 +4,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ── AI ────────────────────────────────────────────────────────────────────────
-# AI_PROVIDER: "anthropic" (mặc định) hoặc "gemini"
-# Đổi sang Anthropic sau khi deploy: set AI_PROVIDER=anthropic trong env production.
-AI_PROVIDER:         str = os.getenv("AI_PROVIDER", "anthropic").lower()
-
 ANTHROPIC_API_KEY:   str = os.getenv("ANTHROPIC_API_KEY", "")
 GEMINI_API_KEY:      str = os.getenv("GEMINI_API_KEY", "")
 # Model tương ứng theo provider
@@ -17,6 +13,7 @@ GEMINI_MODEL:        str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite")
 # ── Xiaomi MiMo (dịch 1 từ) ───────────────────────────────────────────────────
 MIMO_API_KEY:        str = os.getenv("MIMO_API_KEY", "")
 MIMO_MODEL:          str = os.getenv("MIMO_MODEL", "mimo-v2.5-pro")
+
 
 ELEVENLABS_API_KEY:  str = os.getenv("ELEVENLABS_API_KEY", "")
 ELEVENLABS_VOICE_ID: str = os.getenv("ELEVENLABS_VOICE_ID", "pNInz6obpgDQGcFmaJgB")
@@ -58,3 +55,17 @@ SEPAY_WEBHOOK_API_KEY: str = os.getenv("SEPAY_WEBHOOK_API_KEY", "")
 SEPAY_ACCOUNT_NUMBER:  str = os.getenv("SEPAY_ACCOUNT_NUMBER", "")
 SEPAY_BANK_CODE:       str = os.getenv("SEPAY_BANK_CODE", "")
 SEPAY_PAYMENT_PREFIX:  str = os.getenv("SEPAY_PAYMENT_PREFIX", "SB")
+
+# ── Langeek Crawler (S9.3 / S9.4) ─────────────────────────────────────────────
+LANGEEK_CRAWL_ENABLED: bool = os.getenv("LANGEEK_CRAWL_ENABLED", "true").lower() in ("1", "true", "yes")
+LANGEEK_USE_FIXTURE: bool = os.getenv("LANGEEK_USE_FIXTURE", "true").lower() in ("1", "true", "yes")
+CRAWLER_SCHEDULER_ENABLED: bool = os.getenv("CRAWLER_SCHEDULER_ENABLED", "false").lower() in ("1", "true", "yes")
+ADMIN_CRAWLER_NOTIFY_EMAIL: str = os.getenv("ADMIN_CRAWLER_NOTIFY_EMAIL", "")
+SCRAPE_ROOT: str = os.getenv(
+    "SCRAPE_ROOT",
+    os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", "speak-buddi-scrape")),
+)
+FIXTURE_BATCH_PATH: str = os.getenv(
+    "FIXTURE_BATCH_PATH",
+    os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "tests", "fixtures", "langeek_batch.json")),
+)

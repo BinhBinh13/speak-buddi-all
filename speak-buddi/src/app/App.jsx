@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "../shared/auth/AuthContext";
 import ProtectedRoute from "../shared/auth/ProtectedRoute";
 import AdminRoute from "../shared/auth/AdminRoute";
@@ -17,6 +17,7 @@ import MockPayPage from "../features/payment/MockPayPage";
 import PaymentResultPage from "../features/payment/PaymentResultPage";
 import PrivacyPolicyPage from "../features/legal/PrivacyPolicyPage";
 import TermsOfServicePage from "../features/legal/TermsOfServicePage";
+import ContactPage from "../features/support/ContactPage";
 
 // ── Protected pages ───────────────────────────────────────────────────────────
 import DashboardPage from "../features/dashboard/DashboardPage";
@@ -29,7 +30,19 @@ import OnboardingPage from "../features/onboarding/OnboardingPage";
 import ProfilePage    from "../features/profile/ProfilePage";
 import RoadmapPage    from "../features/roadmap/RoadmapPage";
 import TranslatePage  from "../features/translate/TranslatePage";
+import VoiceSettingsPage from "../features/settings/VoiceSettingsPage";
 import PronunciationPage from "../features/pronunciation/PronunciationPage";
+
+// ── Admin pages (S9.1) ────────────────────────────────────────────────────────
+import AdminLayout from "../features/admin/components/AdminLayout";
+import AdminTopicsPage from "../features/admin/topics/AdminTopicsPage";
+import AdminVocabularyPage from "../features/admin/vocabulary/AdminVocabularyPage";
+import AdminTestsPage from "../features/admin/tests/AdminTestsPage";
+import AdminTestEditorPage from "../features/admin/tests/AdminTestEditorPage";
+import AdminCrawlerPage from "../features/admin/crawler/AdminCrawlerPage";
+import AdminPaymentPlansPage from "../features/admin/payment-plans/AdminPaymentPlansPage";
+import AdminDashboardPage from "../features/admin/AdminDashboardPage";
+import AdminReportsPage from "../features/admin/reports/AdminReportsPage";
 
 // S7.1: lazy-load ConversationPage để không ảnh hưởng bundle size ban đầu
 const ConversationPage = lazy(() => import("../features/conversation/ConversationPage"));
@@ -60,6 +73,9 @@ export default function App() {
           {/* S12.1: Privacy Policy + Terms of Service — trang tĩnh công khai */}
           <Route path="/privacy" element={<PrivacyPolicyPage />} />
           <Route path="/terms" element={<TermsOfServicePage />} />
+
+          {/* S12.3: Form liên hệ / hỗ trợ (extra-scope) */}
+          <Route path="/contact" element={<ContactPage />} />
 
           {/* ── Protected routes (yêu cầu đăng nhập) ────────────────────── */}
           <Route element={<ProtectedRoute />}>
@@ -112,15 +128,26 @@ export default function App() {
             {/* <Route path="/payment/*" element={<PaymentPage />} /> */}
           </Route>
 
-          {/* ── Admin routes (yêu cầu role=admin) — S9.x sẽ thêm page thật ── */}
+          {/* ── Admin routes (yêu cầu role=admin) — S9.1 content CRUD ── */}
           <Route element={<AdminRoute />}>
-            {/* <Route path="/admin/*" element={<AdminLayout />} /> */}
+            <Route element={<AdminLayout />}>
+              <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+              <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+              <Route path="/admin/topics" element={<AdminTopicsPage />} />
+              <Route path="/admin/vocabulary" element={<AdminVocabularyPage />} />
+              <Route path="/admin/tests" element={<AdminTestsPage />} />
+              <Route path="/admin/tests/new" element={<AdminTestEditorPage />} />
+              <Route path="/admin/tests/:id/edit" element={<AdminTestEditorPage />} />
+              <Route path="/admin/crawler" element={<AdminCrawlerPage />} />
+              <Route path="/admin/payments" element={<AdminPaymentPlansPage />} />
+              <Route path="/admin/reports" element={<AdminReportsPage />} />
+            </Route>
           </Route>
 
           {/* ── Paid routes (yêu cầu is_paid=true) — S7.3/S8.4 sẽ thêm ──── */}
           <Route element={<PaidRoute />}>
             {/* <Route path="/ai-chat/unlimited" element={<AIChatPage />} /> */}
-            {/* <Route path="/settings/voice" element={<VoiceSettingsPage />} /> */}
+            <Route path="/settings/voice" element={<VoiceSettingsPage />} />
           </Route>
         </Routes>
       </AuthProvider>
