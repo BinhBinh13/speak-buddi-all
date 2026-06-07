@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { COLORS, FONTS } from "../constants/theme";
 import { UI } from "../constants/designTokens";
 import { useScrolled } from "../hooks/useScrolled";
@@ -75,39 +75,47 @@ function Logo() {
 
 // ── Public nav links ────────────────────────────────────────────────
 function PublicLinks() {
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+
+  function handleHashLink(e, sectionId) {
+    e.preventDefault();
+    if (pathname === "/") {
+      document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      navigate(`/#${sectionId}`);
+    }
+  }
+
+  const linkStyle = {
+    fontFamily: UI.font, fontSize: UI.fontSize.labelMd, fontWeight: UI.fontWeight.labelMd,
+    color: UI.onSurfaceVariant, textDecoration: "none",
+    transition: "color 0.2s", cursor: "pointer",
+  };
+
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
-      <Link
-        to="/#features"
-        style={{
-          fontFamily: UI.font, fontSize: UI.fontSize.labelMd, fontWeight: UI.fontWeight.labelMd,
-          color: UI.onSurfaceVariant, textDecoration: "none",
-          transition: "color 0.2s",
-        }}
+      <a
+        href="/#features"
+        style={linkStyle}
+        onClick={(e) => handleHashLink(e, "features")}
         onMouseEnter={(e) => (e.target.style.color = UI.primary)}
         onMouseLeave={(e) => (e.target.style.color = UI.onSurfaceVariant)}
       >
         Tính năng
-      </Link>
-      <Link
-        to="/#pricing"
-        style={{
-          fontFamily: UI.font, fontSize: UI.fontSize.labelMd, fontWeight: UI.fontWeight.labelMd,
-          color: UI.onSurfaceVariant, textDecoration: "none",
-          transition: "color 0.2s",
-        }}
+      </a>
+      <a
+        href="/#pricing"
+        style={linkStyle}
+        onClick={(e) => handleHashLink(e, "pricing")}
         onMouseEnter={(e) => (e.target.style.color = UI.primary)}
         onMouseLeave={(e) => (e.target.style.color = UI.onSurfaceVariant)}
       >
         Bảng giá
-      </Link>
+      </a>
       <Link
         to="/login"
-        style={{
-          fontFamily: UI.font, fontSize: UI.fontSize.labelMd, fontWeight: UI.fontWeight.labelMd,
-          color: UI.onSurfaceVariant, textDecoration: "none",
-          transition: "color 0.2s",
-        }}
+        style={linkStyle}
         onMouseEnter={(e) => (e.target.style.color = UI.primary)}
         onMouseLeave={(e) => (e.target.style.color = UI.onSurfaceVariant)}
       >
