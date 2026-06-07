@@ -19,13 +19,13 @@
   "summary": {
     "totalEpics": 12,
     "totalStories": 47,
-    "completedStories": 26,
-    "progressPercent": 55,
+    "completedStories": 31,
+    "progressPercent": 66,
     "byStatus": {
-      "todo": 18,
-      "in_progress": 1,
+      "todo": 9,
+      "in_progress": 5,
       "review": 2,
-      "done": 26,
+      "done": 31,
       "blocked": 0
     }
   },
@@ -375,27 +375,11 @@
       ],
       "businessRules": [],
       "owner": "Dev A",
-      "status": "todo",
-      "progressPercent": 0,
+      "status": "done",
+      "progressPercent": 100,
       "stories": [
-        {
-          "id": "S5.1",
-          "title": "Dich EN->VI + validation input rong",
-          "ac": "AC-07-01/02",
-          "priority": "P1",
-          "status": "todo",
-          "assignee": "",
-          "notes": ""
-        },
-        {
-          "id": "S5.2",
-          "title": "Luu lich su dich",
-          "ac": "AC-07-03",
-          "priority": "P2",
-          "status": "todo",
-          "assignee": "",
-          "notes": ""
-        }
+        { "id": "S5.1", "title": "Dich EN->VI + validation input rong", "ac": "AC-07-01/02", "priority": "P1", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S5.1-plan.md", "implement": "implement/S5.1-implement.md", "review": "review/S5.1-review.md" }, "updatedAt": "2026-06-07" },
+        { "id": "S5.2", "title": "Luu lich su dich", "ac": "AC-07-03", "priority": "P2", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S5.2-plan.md", "implement": "implement/S5.2-implement.md", "review": "review/S5.2-review.md" }, "updatedAt": "2026-06-07" }
       ]
     },
     {
@@ -542,45 +526,13 @@
         "BR06"
       ],
       "owner": "Dev B",
-      "status": "todo",
-      "progressPercent": 0,
+      "status": "in_progress",
+      "progressPercent": 75,
       "stories": [
-        {
-          "id": "S8.1",
-          "title": "Khoi tao giao dich + redirect provider",
-          "ac": "AC-10-01",
-          "priority": "P1",
-          "status": "todo",
-          "assignee": "",
-          "notes": ""
-        },
-        {
-          "id": "S8.2",
-          "title": "Webhook/callback -> kich hoat subscription",
-          "ac": "AC-10-02, BR04",
-          "priority": "P1",
-          "status": "todo",
-          "assignee": "",
-          "notes": ""
-        },
-        {
-          "id": "S8.3",
-          "title": "Xu ly that bai/huy: giu plan + retry + email",
-          "ac": "AC-10-03, 5.2",
-          "priority": "P1",
-          "status": "todo",
-          "assignee": "",
-          "notes": ""
-        },
-        {
-          "id": "S8.4",
-          "title": "Paid User doi voice/model; chan free user",
-          "ac": "AC-11-01/02/03, BR06",
-          "priority": "P2",
-          "status": "todo",
-          "assignee": "",
-          "notes": ""
-        }
+        { "id": "S8.1", "title": "Khoi tao giao dich + redirect provider", "ac": "AC-10-01", "priority": "P1", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S8.1-plan.md", "implement": "implement/S8.1-implement.md", "review": "review/S8.1-review.md" }, "updatedAt": "2026-06-07" },
+        { "id": "S8.2", "title": "Webhook/callback -> kich hoat subscription", "ac": "AC-10-02, BR04", "priority": "P1", "status": "done", "assignee": "", "notes": "PO chot Payment Provider = Sepay (2026-06-07). Review PASS -- luu y hardening truoc production: them khoa/unique de chong race condition tao trung user_subscription khi Sepay retry webhook song song (xem review/S8.2-review.md).", "artifacts": { "plan": "plan/S8.2-plan.md", "implement": "implement/S8.2-implement.md", "review": "review/S8.2-review.md" }, "updatedAt": "2026-06-07" },
+        { "id": "S8.3", "title": "Xu ly that bai/huy: giu plan + retry + email", "ac": "AC-10-03, 5.2", "priority": "P1", "status": "done", "assignee": "", "notes": "Review PASS -- 2 viec nho khong chan: (1) sua comment 403->404 trong routers/payment.py va payment_service.py, (2) tuy chon truyen them 'plan' qua query trong MockPayPage de retry khong phu thuoc getTransaction (xem review/S8.3-review.md).", "artifacts": { "plan": "plan/S8.3-plan.md", "implement": "implement/S8.3-implement.md", "review": "review/S8.3-review.md" }, "updatedAt": "2026-06-07" },
+        { "id": "S8.4", "title": "Paid User doi voice/model; chan free user", "ac": "AC-11-01/02/03, BR06", "priority": "P2", "status": "in_progress", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S8.4-plan.md", "implement": "", "review": "" }, "updatedAt": "2026-06-07" }
       ]
     },
     {
@@ -604,57 +556,11 @@
       "status": "in_progress",
       "progressPercent": 0,
       "stories": [
-        {
-          "id": "S9.1",
-          "title": "Admin CRUD topic/vocab/test + validation inline",
-          "ac": "AC-13-01/02, 5.2",
-          "priority": "P0",
-          "status": "in_progress",
-          "assignee": "",
-          "notes": "",
-          "artifacts": {
-            "plan": "plan/S9.1-plan.md",
-            "implement": "",
-            "review": ""
-          },
-          "updatedAt": "2026-06-06"
-        },
-        {
-          "id": "S9.2",
-          "title": "Soft delete is_active=false",
-          "ac": "AC-13-03, 5.3",
-          "priority": "P1",
-          "status": "todo",
-          "assignee": "",
-          "notes": ""
-        },
-        {
-          "id": "S9.3",
-          "title": "Crawler Langeek tuan + map A1-C2 + auto-publish",
-          "ac": "AC-13-04, BR10, FR-18/19",
-          "priority": "P1",
-          "status": "todo",
-          "assignee": "",
-          "notes": ""
-        },
-        {
-          "id": "S9.4",
-          "title": "Fallback Langeek loi: cache/retry/log/notify",
-          "ac": "AC-13-05, BR12, FR-20",
-          "priority": "P1",
-          "status": "todo",
-          "assignee": "",
-          "notes": ""
-        },
-        {
-          "id": "S9.5",
-          "title": "Admin chinh/disable noi dung da crawl",
-          "ac": "AC-13-06, BR11",
-          "priority": "P2",
-          "status": "todo",
-          "assignee": "",
-          "notes": ""
-        }
+        { "id": "S9.1", "title": "Admin CRUD topic/vocab/test + validation inline", "ac": "AC-13-01/02, 5.2", "priority": "P0", "status": "in_progress", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S9.1-plan.md", "implement": "", "review": "" }, "updatedAt": "2026-06-07" },
+        { "id": "S9.2", "title": "Soft delete is_active=false", "ac": "AC-13-03, 5.3", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
+        { "id": "S9.3", "title": "Crawler Langeek tuan + map A1-C2 + auto-publish", "ac": "AC-13-04, BR10, FR-18/19", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
+        { "id": "S9.4", "title": "Fallback Langeek loi: cache/retry/log/notify", "ac": "AC-13-05, BR12, FR-20", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
+        { "id": "S9.5", "title": "Admin chinh/disable noi dung da crawl", "ac": "AC-13-06, BR11", "priority": "P2", "status": "todo", "assignee": "", "notes": "" }
       ]
     },
     {
@@ -668,27 +574,11 @@
       ],
       "businessRules": [],
       "owner": "Dev C",
-      "status": "todo",
+      "status": "in_progress",
       "progressPercent": 0,
       "stories": [
-        {
-          "id": "S10.1",
-          "title": "CRUD payment plan + validation",
-          "ac": "AC-14-01/02, 5.2",
-          "priority": "P1",
-          "status": "todo",
-          "assignee": "",
-          "notes": ""
-        },
-        {
-          "id": "S10.2",
-          "title": "Soft delete payment plan",
-          "ac": "AC-14-03",
-          "priority": "P2",
-          "status": "todo",
-          "assignee": "",
-          "notes": ""
-        }
+        { "id": "S10.1", "title": "CRUD payment plan + validation", "ac": "AC-14-01/02, 5.2", "priority": "P1", "status": "in_progress", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S10.1-plan.md", "implement": "", "review": "" }, "updatedAt": "2026-06-07" },
+        { "id": "S10.2", "title": "Soft delete payment plan", "ac": "AC-14-03", "priority": "P2", "status": "todo", "assignee": "", "notes": "" }
       ]
     },
     {
@@ -702,36 +592,12 @@
       ],
       "businessRules": [],
       "owner": "Dev C",
-      "status": "todo",
+      "status": "in_progress",
       "progressPercent": 0,
       "stories": [
-        {
-          "id": "S11.1",
-          "title": "Dashboard doanh thu/user/learning/AI",
-          "ac": "AC-12-01, 3.6",
-          "priority": "P2",
-          "status": "todo",
-          "assignee": "",
-          "notes": ""
-        },
-        {
-          "id": "S11.2",
-          "title": "Loc doanh thu theo ngay/thang/nam/goi",
-          "ac": "AC-12-02",
-          "priority": "P2",
-          "status": "todo",
-          "assignee": "",
-          "notes": ""
-        },
-        {
-          "id": "S11.3",
-          "title": "Export Excel/PDF + luu lich su",
-          "ac": "AC-12-03",
-          "priority": "P2",
-          "status": "todo",
-          "assignee": "",
-          "notes": ""
-        }
+        { "id": "S11.1", "title": "Dashboard doanh thu/user/learning/AI", "ac": "AC-12-01, 3.6", "priority": "P2", "status": "in_progress", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S11.1-plan.md", "implement": "", "review": "" }, "updatedAt": "2026-06-07" },
+        { "id": "S11.2", "title": "Loc doanh thu theo ngay/thang/nam/goi", "ac": "AC-12-02", "priority": "P2", "status": "todo", "assignee": "", "notes": "" },
+        { "id": "S11.3", "title": "Export Excel/PDF + luu lich su", "ac": "AC-12-03", "priority": "P2", "status": "todo", "assignee": "", "notes": "" }
       ]
     },
     {
@@ -741,37 +607,13 @@
       "features": [],
       "businessRules": [],
       "owner": "Dev C",
-      "status": "todo",
+      "status": "in_progress",
       "progressPercent": 0,
       "notes": "Bo sung tu SRS 4.6/4.7 - backlog goc chua tach story rieng. S12.3 la extra-scope ngoai SRS.",
       "stories": [
-        {
-          "id": "S12.1",
-          "title": "Trang Privacy Policy + Terms of Service",
-          "ac": "4.7",
-          "priority": "P1",
-          "status": "todo",
-          "assignee": "",
-          "notes": ""
-        },
-        {
-          "id": "S12.2",
-          "title": "Nguoi dung yeu cau xoa du lieu ca nhan",
-          "ac": "4.7, 4.6",
-          "priority": "P2",
-          "status": "todo",
-          "assignee": "",
-          "notes": ""
-        },
-        {
-          "id": "S12.3",
-          "title": "Form lien he / ho tro + support email",
-          "ac": "extra-scope (ngoai SRS)",
-          "priority": "P2",
-          "status": "todo",
-          "assignee": "",
-          "notes": "Khong co requirement trong SRS v1.1.0; giu lai nhu extra-scope."
-        }
+        { "id": "S12.1", "title": "Trang Privacy Policy + Terms of Service", "ac": "4.7", "priority": "P1", "status": "in_progress", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S12.1-plan.md", "implement": "", "review": "" }, "updatedAt": "2026-06-07" },
+        { "id": "S12.2", "title": "Nguoi dung yeu cau xoa du lieu ca nhan", "ac": "4.7, 4.6", "priority": "P2", "status": "todo", "assignee": "", "notes": "" },
+        { "id": "S12.3", "title": "Form lien he / ho tro + support email", "ac": "extra-scope (ngoai SRS)", "priority": "P2", "status": "todo", "assignee": "", "notes": "Khong co requirement trong SRS v1.1.0; giu lai nhu extra-scope." }
       ]
     }
   ]

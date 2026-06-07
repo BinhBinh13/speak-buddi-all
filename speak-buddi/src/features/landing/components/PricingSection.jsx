@@ -1,6 +1,9 @@
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { MdCheckCircle } from "react-icons/md";
 import { UI } from "../../../shared/constants/designTokens";
+import { useAuth } from "../../../shared/auth/AuthContext";
+import { getPlans, startCheckout } from "../../payment/services/paymentService";
 
 const PLANS = [
   {
@@ -13,6 +16,7 @@ const PLANS = [
     cta: "Bắt đầu ngay",
     ctaTo: "/login",
     highlight: false,
+    isPaid: false,
   },
   {
     name: "Pro",
@@ -24,14 +28,63 @@ const PLANS = [
       "Phân tích phát âm chuyên sâu",
     ],
     cta: "Nâng cấp Pro",
-    // TODO: Đổi thành /register khi S1.4 hoàn thành
-    ctaTo: "/pricing",
     highlight: true,
     badge: "Phổ biến nhất",
+    isPaid: true,
   },
 ];
 
+/**
+ * Map gói "Pro" hiển thị → plan_id UUID thật (S8.1).
+ * Bám cùng quy tắc với PricingPage: chọn gói trả phí có sort_order nhỏ nhất.
+ */
+function resolveProPlanId(plans) {
+  const paid = plans.filter((p) => p.price_vnd > 0);
+  if (paid.length === 0) return null;
+  return paid.reduce((min, p) => (p.sort_order < min.sort_order ? p : min), paid[0]).id;
+}
+
 export default function PricingSection() {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+
+  const [proPlanId, setProPlanId] = useState(null);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    getPlans()
+      .then((plans) => { if (!cancelled) setProPlanId(resolveProPlanId(plans || [])); })
+      .catch(() => { if (!cancelled) setProPlanId(null); });
+    return () => { cancelled = true; };
+  }, []);
+
+  /**
+   * CTA "Nâng cấp Pro" trên landing (S8.1, AC-10-01) — login-aware:
+   *  - Chưa đăng nhập → /login?next=/  (giữ trải nghiệm landing).
+   *  - Đã đăng nhập   → startCheckout(plan_id) → redirect sang redirect_url.
+   */
+  async function handleUpgradeClick() {
+    setCheckoutError("");
+    if (!isAuthenticated) {
+      navigate("/login?next=" + encodeURIComponent("/"));
+      return;
+    }
+    if (!proPlanId) {
+      setCheckoutError("Không tải được thông tin gói. Vui lòng thử lại sau.");
+      return;
+    }
+    setCheckoutLoading(true);
+    try {
+      const { redirect_url } = await startCheckout(proPlanId);
+      window.location.href = redirect_url;
+    } catch (err) {
+      setCheckoutError(err.message || "Không thể khởi tạo thanh toán. Vui lòng thử lại.");
+      setCheckoutLoading(false);
+    }
+  }
+
   return (
     <section style={{ background: UI.surfaceContainer, padding: "6rem 0" }}>
       <div
@@ -78,11 +131,21 @@ export default function PricingSection() {
           @media (min-width: 768px) {
             .pricing-teaser-grid { flex-direction: row; justify-content: center; }
           }
+          /* S8.1: spinner cho nút checkout khi đang gọi /api/payment/checkout */
+          @keyframes pricing-section-spin {
+            to { transform: rotate(360deg); }
+          }
         `}</style>
 
         <div className="pricing-teaser-grid">
           {PLANS.map((plan) => (
-            <PlanCard key={plan.name} {...plan} />
+            <PlanCard
+              key={plan.name}
+              {...plan}
+              onUpgradeClick={plan.isPaid ? handleUpgradeClick : undefined}
+              loading={plan.isPaid ? checkoutLoading : false}
+              error={plan.isPaid ? checkoutError : ""}
+            />
           ))}
         </div>
       </div>
@@ -90,7 +153,10 @@ export default function PricingSection() {
   );
 }
 
-function PlanCard({ name, price, priceUnit, features, cta, ctaTo, highlight, badge }) {
+function PlanCard({
+  name, price, priceUnit, features, cta, ctaTo, highlight, badge,
+  onUpgradeClick, loading, error,
+}) {
   return (
     <div
       style={{
@@ -198,36 +264,106 @@ function PlanCard({ name, price, priceUnit, features, cta, ctaTo, highlight, bad
         ))}
       </ul>
 
-      <Link
-        to={ctaTo}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          width: "100%",
-          padding: "12px 0",
-          borderRadius: UI.radius.md,
-          fontFamily: UI.font,
-          fontSize: UI.fontSize.labelMd,
-          fontWeight: UI.fontWeight.labelMd,
-          textDecoration: "none",
-          background: highlight ? UI.primary : "transparent",
-          color: highlight ? UI.onPrimary : UI.primary,
-          border: highlight ? "none" : `2px solid ${UI.primary}`,
-          minHeight: 44,
-          transition: highlight ? "opacity 0.2s" : "background 0.2s",
-        }}
-        onMouseEnter={(e) => {
-          if (highlight) e.currentTarget.style.opacity = "0.9";
-          else e.currentTarget.style.background = UI.primaryFixed;
-        }}
-        onMouseLeave={(e) => {
-          if (highlight) e.currentTarget.style.opacity = "1";
-          else e.currentTarget.style.background = "transparent";
-        }}
-      >
-        {cta}
-      </Link>
+      {/* S8.1: gói trả phí (onUpgradeClick) → button checkout login-aware;
+          gói miễn phí → giữ nguyên <Link> tĩnh (hành vi cũ). */}
+      {onUpgradeClick ? (
+        <button
+          type="button"
+          onClick={onUpgradeClick}
+          disabled={loading}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.5rem",
+            width: "100%",
+            padding: "12px 0",
+            borderRadius: UI.radius.md,
+            fontFamily: UI.font,
+            fontSize: UI.fontSize.labelMd,
+            fontWeight: UI.fontWeight.labelMd,
+            background: highlight ? UI.primary : "transparent",
+            color: highlight ? UI.onPrimary : UI.primary,
+            border: highlight ? "none" : `2px solid ${UI.primary}`,
+            minHeight: 44,
+            transition: "opacity 0.2s, background 0.2s",
+            cursor: loading ? "wait" : "pointer",
+            opacity: loading ? 0.7 : 1,
+          }}
+          onMouseEnter={(e) => {
+            if (loading) return;
+            if (highlight) e.currentTarget.style.opacity = "0.9";
+            else e.currentTarget.style.background = UI.primaryFixed;
+          }}
+          onMouseLeave={(e) => {
+            if (loading) return;
+            if (highlight) e.currentTarget.style.opacity = "1";
+            else e.currentTarget.style.background = "transparent";
+          }}
+        >
+          {loading && (
+            <span
+              aria-hidden="true"
+              style={{
+                display: "inline-block",
+                width: 16,
+                height: 16,
+                border: `2px solid ${highlight ? UI.onPrimary : UI.primary}`,
+                borderTopColor: "transparent",
+                borderRadius: "50%",
+                animation: "pricing-section-spin 0.8s linear infinite",
+              }}
+            />
+          )}
+          {loading ? "Đang khởi tạo thanh toán…" : cta}
+        </button>
+      ) : (
+        <Link
+          to={ctaTo}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            padding: "12px 0",
+            borderRadius: UI.radius.md,
+            fontFamily: UI.font,
+            fontSize: UI.fontSize.labelMd,
+            fontWeight: UI.fontWeight.labelMd,
+            textDecoration: "none",
+            background: highlight ? UI.primary : "transparent",
+            color: highlight ? UI.onPrimary : UI.primary,
+            border: highlight ? "none" : `2px solid ${UI.primary}`,
+            minHeight: 44,
+            transition: highlight ? "opacity 0.2s" : "background 0.2s",
+          }}
+          onMouseEnter={(e) => {
+            if (highlight) e.currentTarget.style.opacity = "0.9";
+            else e.currentTarget.style.background = UI.primaryFixed;
+          }}
+          onMouseLeave={(e) => {
+            if (highlight) e.currentTarget.style.opacity = "1";
+            else e.currentTarget.style.background = "transparent";
+          }}
+        >
+          {cta}
+        </Link>
+      )}
+
+      {error && (
+        <p
+          role="alert"
+          style={{
+            fontFamily: UI.font,
+            fontSize: UI.fontSize.labelSm,
+            color: UI.error,
+            margin: "0.5rem 0 0",
+            textAlign: "center",
+          }}
+        >
+          {error}
+        </p>
+      )}
     </div>
   );
 }

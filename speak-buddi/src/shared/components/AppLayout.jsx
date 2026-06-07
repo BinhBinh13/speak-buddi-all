@@ -16,6 +16,7 @@ const PAGE_TITLES = {
   "/vocabulary": { title: "New words",            icon: "" },
   "/profile":    { title: "Hồ sơ & Cài đặt",     icon: "" },
   "/roadmap":    { title: "Lộ trình học",          icon: "" },
+  "/translate":  { title: "Dịch thuật",           icon: "" },
 };
 
 /**
