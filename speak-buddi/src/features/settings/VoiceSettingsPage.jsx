@@ -13,52 +13,9 @@ import {
   getVoicePreference,
   setVoicePreference,
 } from "./services/voiceService";
+import Toast from "../../shared/components/Toast";
 
 const FONT = "'Be Vietnam Pro', system-ui, sans-serif";
-
-function Toast({ message, type = "success", onClose }) {
-  if (!message) return null;
-  const bg = type === "success" ? UI.secondary : UI.error;
-  return (
-    <div
-      role="alert"
-      aria-live="polite"
-      style={{
-        position: "fixed",
-        top: 80,
-        left: "50%",
-        transform: "translateX(-50%)",
-        zIndex: 9999,
-        background: bg,
-        color: UI.onPrimary,
-        padding: "12px 24px",
-        borderRadius: 10,
-        fontFamily: FONT,
-        fontSize: 14,
-        fontWeight: 600,
-        boxShadow: "0 4px 16px rgba(0,0,0,0.18)",
-        minWidth: 280,
-        maxWidth: "90vw",
-      }}
-    >
-      <span>{message}</span>
-      <button
-        onClick={onClose}
-        aria-label="Đóng"
-        style={{
-          marginLeft: 12,
-          background: "transparent",
-          border: "none",
-          color: UI.onPrimary,
-          cursor: "pointer",
-          fontSize: 18,
-        }}
-      >
-        ×
-      </button>
-    </div>
-  );
-}
 
 function genderIcon(gender) {
   if (gender === "male") return <LuUser size={22} />;
@@ -248,7 +205,7 @@ export default function VoiceSettingsPage() {
               Tính năng đổi giọng đọc AI chỉ dành cho gói Pro. Nâng cấp để tùy chỉnh giọng đọc cho gia sư AI của bạn.
             </p>
             <Link
-              to="/pricing"
+              to="/payment/checkout"
               style={{
                 display: "inline-block",
                 background: UI.primary,

@@ -2,9 +2,10 @@
 // ─── Admin Payment Plans (S10.1 + S10.2 soft delete) ────────────────────────
 // UI: speak-buddi-docs/ui/quan_li_goi_thanh_toan_admin/
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { LuPlus } from "react-icons/lu";
 import { COLORS, FONTS } from "../../../shared/constants/theme";
+import AdminPagination from "../components/AdminPagination";
 import AdminToast from "../components/AdminToast";
 import ConfirmDisableModal from "../components/ConfirmDisableModal";
 import PaymentPlanCard from "./components/PaymentPlanCard";
@@ -23,9 +24,11 @@ const STATUS_OPTIONS = [
 ];
 
 export default function AdminPaymentPlansPage() {
-  const [plans, setPlans] = useState([]);
+  const [data, setData] = useState({ items: [], total: 0 });
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [pageSize, setPageSize] = useState(20);
+  const [offset, setOffset] = useState(0);
   const [modal, setModal] = useState({ show: false, initial: null });
   const [disableModal, setDisableModal] = useState({ show: false, plan: null });
   const [disabling, setDisabling] = useState(false);
@@ -34,43 +37,25 @@ export default function AdminPaymentPlansPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const rows = await listPlans(true);
-      setPlans(rows);
+      const res = await listPlans({
+        status: statusFilter,
+        limit: pageSize,
+        offset,
+      });
+      setData(res);
     } catch (err) {
       setToast({ message: err.message || "Không tải được danh sách gói.", type: "error" });
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [statusFilter, pageSize, offset]);
 
   useEffect(() => {
-    let active = true;
-    (async () => {
-      setLoading(true);
-      try {
-        const rows = await listPlans(true);
-        if (active) setPlans(rows);
-      } catch (err) {
-        if (active) {
-          setToast({ message: err.message || "Không tải được danh sách gói.", type: "error" });
-        }
-      } finally {
-        if (active) setLoading(false);
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, []);
+    load();
+  }, [load]);
 
-  const displayedPlans = useMemo(() => {
-    if (statusFilter === "inactive") return plans.filter((p) => !p.is_active);
-    if (statusFilter === "active") return plans.filter((p) => p.is_active);
-    return plans;
-  }, [plans, statusFilter]);
-
-  const highlightId = plans.find((p) => p.is_active && p.price_vnd > 0 && p.duration_days === 30)?.id
-    ?? plans.find((p) => p.is_active && p.price_vnd > 0)?.id;
+  const highlightId = data.items.find((p) => p.is_active && p.price_vnd > 0 && p.duration_days === 30)?.id
+    ?? data.items.find((p) => p.is_active && p.price_vnd > 0)?.id;
 
   function openCreate() {
     setModal({ show: true, initial: null });
@@ -129,7 +114,10 @@ export default function AdminPaymentPlansPage() {
         <select
           className="form-select"
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            setOffset(0);
+          }}
           style={{ maxWidth: 220, minHeight: 44, fontFamily: FONTS.body }}
           aria-label="Lọc trạng thái gói"
         >
@@ -141,14 +129,14 @@ export default function AdminPaymentPlansPage() {
 
       {loading ? (
         <p style={{ color: "#464555" }}>Đang tải…</p>
-      ) : displayedPlans.length === 0 ? (
+      ) : data.items.length === 0 ? (
         <div className="appp-empty">
           <p>
-            {plans.length === 0
+            {data.total === 0 && statusFilter === "all"
               ? "Chưa có gói thanh toán nào."
               : "Không có gói nào khớp bộ lọc."}
           </p>
-          {plans.length === 0 && (
+          {data.total === 0 && statusFilter === "all" && (
             <button type="button" className="appp-create-btn" onClick={openCreate}>
               <LuPlus size={18} />
               Tạo gói đầu tiên
@@ -157,7 +145,7 @@ export default function AdminPaymentPlansPage() {
         </div>
       ) : (
         <div className="appp-grid">
-          {displayedPlans.map((plan) => (
+          {data.items.map((plan) => (
             <PaymentPlanCard
               key={plan.id}
               plan={plan}
@@ -168,6 +156,19 @@ export default function AdminPaymentPlansPage() {
           ))}
         </div>
       )}
+
+      <AdminPagination
+        total={data.total}
+        offset={offset}
+        pageSize={pageSize}
+        onOffsetChange={setOffset}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setOffset(0);
+        }}
+        itemLabel="gói"
+        className="mt-4"
+      />
 
       <PaymentPlanFormModal
         show={modal.show}

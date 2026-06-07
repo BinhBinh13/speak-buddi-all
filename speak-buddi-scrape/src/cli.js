@@ -11,7 +11,14 @@
 const { crawl } = require("./langeek/crawl");
 
 function parseArgs(argv) {
-  const opts = { fixture: false, level: null, fixturePath: null, rateLimitMs: 1000, fail: false };
+  const opts = {
+    fixture: false,
+    level: null,
+    fixturePath: null,
+    rateLimitMs: 1000,
+    maxTopics: 0,
+    fail: false,
+  };
   for (let i = 2; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === "--fixture") opts.fixture = true;
@@ -19,6 +26,7 @@ function parseArgs(argv) {
     else if (arg === "--level" && argv[i + 1]) opts.level = argv[++i];
     else if (arg === "--fixture-path" && argv[i + 1]) opts.fixturePath = argv[++i];
     else if (arg === "--rate-limit" && argv[i + 1]) opts.rateLimitMs = Number(argv[++i]);
+    else if (arg === "--max-topics" && argv[i + 1]) opts.maxTopics = Number(argv[++i]);
   }
   return opts;
 }
@@ -35,6 +43,7 @@ async function main() {
       fixturePath: opts.fixturePath,
       levelFilter: opts.level,
       rateLimitMs: opts.rateLimitMs,
+      maxTopics: opts.maxTopics,
     });
     process.stdout.write(JSON.stringify(batch));
   } catch (err) {

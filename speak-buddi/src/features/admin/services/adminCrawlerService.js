@@ -1,7 +1,7 @@
 // speak-buddi/src/features/admin/services/adminCrawlerService.js
 // ─── Admin Crawler API service (S9.3 + S9.4) ────────────────────────────────
 
-import { apiClient } from "../../../shared/api/client";
+import apiClient from "../../../shared/api/client";
 
 export function getSyncStatus() {
   return apiClient("/api/admin/crawler/sync-status");

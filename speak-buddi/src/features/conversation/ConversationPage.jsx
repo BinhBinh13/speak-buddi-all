@@ -585,7 +585,7 @@ export default function ConversationPage() {
                   : "—"}
               </p>
               <button
-                onClick={() => navigate("/pricing")}
+                onClick={() => navigate("/payment/checkout")}
                 style={{
                   padding:      "6px 16px",
                   borderRadius: 8,

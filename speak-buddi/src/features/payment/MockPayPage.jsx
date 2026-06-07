@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { MdOutlineScience } from "react-icons/md";
 import { UI } from "../../shared/constants/designTokens";
+import { useAuth } from "../../shared/auth/AuthContext";
 import { simulateMockCallback } from "./services/paymentService";
 
 // ─── MockPayPage (S8.1 dev-only UI → S8.2 gọi webhook thật) ───────────────────
@@ -24,6 +25,7 @@ import { simulateMockCallback } from "./services/paymentService";
 export default function MockPayPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
   const transactionId = searchParams.get("tx") || "";
   const providerRef = searchParams.get("ref") || "";
 
@@ -45,7 +47,8 @@ export default function MockPayPage() {
     try {
       await simulateMockCallback({ provider_ref: providerRef, result });
       if (result === "success") {
-        navigate(`/pricing?mock_result=${result}&tx=${encodeURIComponent(transactionId)}`);
+        await refreshUser();
+        navigate(`/payment/success?tx=${encodeURIComponent(transactionId)}`);
       } else {
         navigate(`/payment/result?status=${result}&tx=${encodeURIComponent(transactionId)}`);
       }

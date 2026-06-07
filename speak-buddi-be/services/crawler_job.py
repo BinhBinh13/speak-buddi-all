@@ -34,6 +34,7 @@ def _run_scraper_cli(
     *,
     use_fixture: bool = False,
     simulate_fail: bool = False,
+    rate_limit_ms: int = 1000,
 ) -> dict:
     cli = Path(SCRAPE_ROOT) / "src" / "cli.js"
     if not cli.is_file():
@@ -46,6 +47,7 @@ def _run_scraper_cli(
         cmd.append("--fail")
     if level_code:
         cmd.extend(["--level", level_code.upper()])
+    cmd.extend(["--rate-limit", str(rate_limit_ms)])
 
     env = os.environ.copy()
     if not use_fixture:
@@ -56,6 +58,8 @@ def _run_scraper_cli(
         cwd=str(Path(SCRAPE_ROOT)),
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         timeout=900,
         check=False,
         env=env,
@@ -64,7 +68,7 @@ def _run_scraper_cli(
         stderr = (result.stderr or result.stdout or "").strip()
         raise RuntimeError(stderr or "Scraper thất bại")
 
-    stdout = result.stdout.strip()
+    stdout = (result.stdout or "").strip()
     json_start = stdout.find("{")
     if json_start < 0:
         raise RuntimeError("Scraper không trả JSON hợp lệ")
@@ -158,7 +162,10 @@ async def run_sync(
             )
         else:
             payload = _run_scraper_cli(
-                level_code, use_fixture=False, simulate_fail=simulate_fail
+                level_code,
+                use_fixture=False,
+                simulate_fail=simulate_fail,
+                rate_limit_ms=int(source.get("rate_limit_ms") or 1000),
             )
             await crawl_repo.append_log(
                 db, job_id, "Scraper Playwright hoàn tất", severity="info"
@@ -169,10 +176,10 @@ async def run_sync(
             raise RuntimeError("Batch crawl rỗng — không có topic/từ hợp lệ")
 
         preview = batch_to_preview(batch)
-        stats = await publish_batch(db, batch, job_id, dry_run=dry_run)
-
-        if not dry_run:
-            await crawl_repo.mark_source_success(db, source["id"])
+        async with db.begin_nested():
+            stats = await publish_batch(db, batch, job_id, dry_run=dry_run)
+            if not dry_run:
+                await crawl_repo.mark_source_success(db, source["id"])
 
         finished = await crawl_repo.finish_job(
             db,

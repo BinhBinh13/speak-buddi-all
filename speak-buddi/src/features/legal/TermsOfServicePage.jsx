@@ -70,7 +70,7 @@ export default function TermsOfServicePage() {
           chỉ dành riêng cho người dùng trả phí.
         </li>
       </ul>
-      <p>Chi tiết các gói và mức giá hiện hành được công bố tại trang <Link to="/pricing">Bảng giá</Link>.</p>
+      <p>Chi tiết các gói và mức giá hiện hành được công bố tại mục <Link to="/#pricing">Bảng giá</Link> trên trang chủ.</p>
 
       {/* 5. Thanh toán & hoàn tiền */}
       <h2>5. Thanh toán &amp; hoàn tiền</h2>

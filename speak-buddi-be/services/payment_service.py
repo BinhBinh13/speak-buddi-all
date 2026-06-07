@@ -15,10 +15,16 @@
 # ─────────────────────────────────────────────────────────────────────────────
 
 import logging
+from datetime import datetime, timedelta, timezone
 
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from core.config import (
+    PAYMENT_PENDING_TIMEOUT_SECONDS,
+    SEPAY_ACCOUNT_NUMBER,
+    SEPAY_BANK_CODE,
+)
 from repositories import payment_repo, subscription_repo, user_repo
 from schemas.payment import CancelResponse, CheckoutResponse
 from services.email_service import send_payment_failed_email
@@ -45,6 +51,47 @@ def reason_to_message(reason: str | None) -> str:
     if not reason:
         return "Giao dịch không thành công."
     return _FAILURE_REASON_MESSAGES.get(reason, "Giao dịch bị từ chối hoặc không hoàn tất.")
+
+
+def _as_utc(dt: datetime) -> datetime:
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
+
+
+def _format_created_at(created_at: datetime | None) -> str | None:
+    if created_at is None:
+        return None
+    return _as_utc(created_at).isoformat()
+
+
+async def _expire_pending_if_timed_out(
+    db: AsyncSession, tx: dict, *, notify: bool = True
+) -> dict:
+    """
+    Lazy-expire: giao dịch `pending` quá PAYMENT_PENDING_TIMEOUT_SECONDS →
+    `failed` + failure_reason='timeout'. Idempotent nếu đã xử lý.
+    """
+    if tx.get("status") != "pending":
+        return tx
+
+    created_at = tx.get("created_at")
+    if not isinstance(created_at, datetime):
+        return tx
+
+    now = datetime.now(timezone.utc)
+    if now - _as_utc(created_at) <= timedelta(seconds=PAYMENT_PENDING_TIMEOUT_SECONDS):
+        return tx
+
+    await payment_repo.mark_transaction_failed(
+        db, tx_id=tx["id"], reason="timeout", raw_payload=None
+    )
+    log.info("PAYMENT_TIMEOUT  user=%s tx=%s plan=%s", tx["user_id"], tx["id"], tx["plan_id"])
+    if notify:
+        await _notify_payment_failed(db, tx, "timeout")
+
+    refreshed = await payment_repo.get_transaction_for_user(db, tx["id"], tx["user_id"])
+    return refreshed if refreshed is not None else {**tx, "status": "failed", "failure_reason": "timeout"}
 
 
 async def _notify_payment_failed(db: AsyncSession, tx: dict, reason: str) -> None:
@@ -176,6 +223,14 @@ async def handle_webhook(
         log.info("WEBHOOK_DUPLICATE_SKIP  provider=%s tx=%s", provider.name, tx["id"])
         return {"success": True}
 
+    tx = await _expire_pending_if_timed_out(db, tx, notify=True)
+    if tx.get("status") != "pending":
+        log.info(
+            "WEBHOOK_SKIP_AFTER_TIMEOUT  provider=%s tx=%s status=%s",
+            provider.name, tx["id"], tx.get("status"),
+        )
+        return {"success": True}
+
     if result.status == "success":
         # Verify số tiền — chống thiếu tiền (mục 3.0.3 plan). Lệch → không
         # activate, giữ transaction pending để admin/S8.3 xử lý.
@@ -261,6 +316,8 @@ async def cancel_checkout(db: AsyncSession, user: dict, transaction_id: str) -> 
     if tx is None:
         raise HTTPException(status_code=404, detail="Giao dịch không tồn tại")
 
+    tx = await _expire_pending_if_timed_out(db, tx, notify=True)
+
     if tx["status"] in ("cancelled", "failed"):
         # Idempotent — FE có thể gọi lại (double-click, mất mạng) mà không lỗi.
         return CancelResponse(status=tx["status"])
@@ -296,4 +353,27 @@ async def get_transaction_status(db: AsyncSession, user: dict, transaction_id: s
     if tx is None:
         raise HTTPException(status_code=404, detail="Giao dịch không tồn tại")
 
-    return tx
+    tx = await _expire_pending_if_timed_out(db, tx, notify=True)
+
+    return {
+        "id": tx["id"],
+        "status": tx["status"],
+        "failure_reason": tx.get("failure_reason"),
+        "plan_id": tx["plan_id"],
+        "plan_name": tx["plan_name"],
+        "amount_vnd": tx["amount_vnd"],
+        "provider": tx.get("provider") or "",
+        "payment_code": tx.get("provider_transaction_id"),
+        "bank_account_number": (
+            SEPAY_ACCOUNT_NUMBER or None
+            if tx.get("provider") == "sepay" and tx["status"] == "pending"
+            else None
+        ),
+        "bank_code": (
+            SEPAY_BANK_CODE or None
+            if tx.get("provider") == "sepay" and tx["status"] == "pending"
+            else None
+        ),
+        "created_at": _format_created_at(tx.get("created_at")),
+        "pending_timeout_seconds": PAYMENT_PENDING_TIMEOUT_SECONDS,
+    }

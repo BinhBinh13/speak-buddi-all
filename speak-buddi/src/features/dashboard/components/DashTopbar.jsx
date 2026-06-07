@@ -1,43 +1,23 @@
-import { useState } from "react";
+import { Link } from "react-router-dom";
 import { COLORS, FONTS } from "../../../shared/constants/theme";
-import { LuGlobe, LuBell } from "react-icons/lu";
 
 export default function DashTopbar({
   user = { name: "Minh" },
 }) {
-  const [notifOpen, setNotifOpen] = useState(false);
-
   return (
     <>
       <style>{TOPBAR_CSS}</style>
       <header className="dash-topbar">
         {/* Left: brand name */}
-        <a href="/dashboard" className="topbar-brand">
+        <a href="/roadmap" className="topbar-brand">
           SpeakBuddi
         </a>
 
-        {/* Right: globe + bell + avatar */}
+        {/* Right: avatar */}
         <div className="topbar-right">
-          {/* Language / Globe */}
-          <button className="topbar-icon-btn" aria-label="Chọn ngôn ngữ">
-            <LuGlobe size={18} strokeWidth={1.8} />
-          </button>
-
-          {/* Notifications */}
-          <button
-            className={`topbar-icon-btn${notifOpen ? " active" : ""}`}
-            onClick={() => setNotifOpen((v) => !v)}
-            aria-label={notifOpen ? "Đóng thông báo" : "Xem thông báo"}
-            aria-expanded={notifOpen}
-          >
-            <LuBell size={18} strokeWidth={1.8} />
-            <span className="topbar-notif-dot" aria-hidden="true" />
-          </button>
-
-          {/* Avatar */}
-          <button className="topbar-avatar" aria-label="Tài khoản của tôi">
+          <Link to="/profile" className="topbar-avatar" aria-label="Tài khoản của tôi">
             {user.name?.[0]?.toUpperCase() ?? "U"}
-          </button>
+          </Link>
         </div>
       </header>
     </>
@@ -77,44 +57,6 @@ const TOPBAR_CSS = `
     gap: 6px;
   }
 
-  /* Icon buttons */
-  .topbar-icon-btn {
-    width: 36px;
-    height: 36px;
-    min-width: 44px;
-    min-height: 44px;
-    border-radius: 10px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    color: ${COLORS.onSurfaceVariant};
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    transition: background 0.15s, color 0.15s;
-  }
-  .topbar-icon-btn:hover {
-    background: ${COLORS.surfaceContainer};
-    color: ${COLORS.onSurface};
-  }
-  .topbar-icon-btn.active {
-    background: ${COLORS.primaryBg};
-    color: ${COLORS.primary};
-  }
-
-  /* Notification dot */
-  .topbar-notif-dot {
-    position: absolute;
-    top: 9px;
-    right: 9px;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: ${COLORS.coral};
-    border: 1.5px solid ${COLORS.white};
-  }
-
   /* Avatar button */
   .topbar-avatar {
     width: 34px;
@@ -132,6 +74,7 @@ const TOPBAR_CSS = `
     display: flex;
     align-items: center;
     justify-content: center;
+    text-decoration: none;
     transition: opacity 0.15s;
   }
   .topbar-avatar:hover {

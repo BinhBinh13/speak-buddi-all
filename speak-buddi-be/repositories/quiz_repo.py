@@ -208,16 +208,24 @@ async def list_tests_admin(
     topic_id: str | None = None,
     level_id: str | None = None,
     include_inactive: bool = True,
-) -> list[dict]:
+    status: str | None = None,
+    limit: int = 20,
+    offset: int = 0,
+) -> tuple[list[dict], int]:
     """
-    Danh sách bài kiểm tra cho Admin (kèm question_count + attempt_count tổng).
-    Mặc định include_inactive=True để Admin thấy cả test draft/inactive.
+    Danh sách bài kiểm tra cho Admin (kèm question_count + attempt_count tổng), có phân trang.
+    status: active|inactive|all — ưu tiên hơn include_inactive khi được truyền.
     """
     conditions = []
-    params: dict = {}
+    params: dict = {"limit": limit, "offset": offset}
 
-    if not include_inactive:
+    if status == "inactive":
+        conditions.append("vt.is_active = FALSE")
+    elif status == "active":
         conditions.append("vt.is_active = TRUE")
+    elif not include_inactive:
+        conditions.append("vt.is_active = TRUE")
+
     if search:
         conditions.append("(vt.title ILIKE :search OR vt.description ILIKE :search)")
         params["search"] = f"%{search}%"
@@ -229,6 +237,11 @@ async def list_tests_admin(
         params["level_id"] = level_id
 
     where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+
+    count_sql = f"SELECT COUNT(*) FROM vocabulary_test vt {where_clause}"
+    count_r = await db.execute(text(count_sql), params)
+    total = count_r.scalar() or 0
+
     sql = f"""
         SELECT vt.id::text,
                vt.topic_id::text,
@@ -250,93 +263,10 @@ async def list_tests_admin(
         {where_clause}
         GROUP  BY vt.id, t.name, l.code
         ORDER  BY vt.created_at DESC
+        LIMIT  :limit OFFSET :offset
     """
     r = await db.execute(text(sql), params)
-    return [dict(row) for row in r.mappings().all()]
-
-
-async def update_test(db: AsyncSession, test_id: str, data: dict) -> dict | None:
-    """Cập nhật metadata bài kiểm tra (Admin S9.1). Trả None nếu không tìm thấy."""
-    r = await db.execute(
-        text("""
-            UPDATE vocabulary_test
-            SET    topic_id    = CAST(:topic_id AS UUID),
-                   level_id    = CAST(:level_id AS UUID),
-                   title       = :title,
-                   description = :description
-            WHERE  id = CAST(:test_id AS UUID)
-            RETURNING id::text,
-                      topic_id::text,
-                      level_id::text,
-                      title,
-                      description,
-                      is_active,
-                      created_by::text,
-                      created_at
-        """),
-        {
-            "test_id":     test_id,
-            "topic_id":    data.get("topic_id"),
-            "level_id":    data.get("level_id"),
-            "title":       data["title"],
-            "description": data.get("description"),
-        },
-    )
-    row = r.mappings().first()
-    return dict(row) if row else None
-
-
-async def list_tests_admin(
-    db: AsyncSession,
-    search: str | None = None,
-    topic_id: str | None = None,
-    level_id: str | None = None,
-    include_inactive: bool = True,
-) -> list[dict]:
-    """
-    Danh sách bài kiểm tra cho Admin (kèm question_count + attempt_count tổng).
-    Mặc định include_inactive=True để Admin thấy cả test draft/inactive.
-    """
-    conditions = []
-    params: dict = {}
-
-    if not include_inactive:
-        conditions.append("vt.is_active = TRUE")
-    if search:
-        conditions.append("(vt.title ILIKE :search OR vt.description ILIKE :search)")
-        params["search"] = f"%{search}%"
-    if topic_id:
-        conditions.append("vt.topic_id = CAST(:topic_id AS UUID)")
-        params["topic_id"] = topic_id
-    if level_id:
-        conditions.append("vt.level_id = CAST(:level_id AS UUID)")
-        params["level_id"] = level_id
-
-    where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
-    sql = f"""
-        SELECT vt.id::text,
-               vt.topic_id::text,
-               t.name AS topic_name,
-               vt.level_id::text,
-               l.code AS level_code,
-               vt.title,
-               vt.description,
-               vt.is_active,
-               vt.created_by::text,
-               vt.created_at,
-               COUNT(DISTINCT qq.id)::int AS question_count,
-               COUNT(DISTINCT qa.id) FILTER (WHERE qa.status = 'submitted')::int AS attempt_count
-        FROM   vocabulary_test vt
-        LEFT JOIN topic t          ON t.id = vt.topic_id
-        LEFT JOIN level l          ON l.id = vt.level_id
-        LEFT JOIN quiz_question qq ON qq.vocabulary_test_id = vt.id
-        LEFT JOIN quiz_attempt qa  ON qa.vocabulary_test_id = vt.id
-        {where_clause}
-        GROUP  BY vt.id, t.name, l.code
-        ORDER  BY vt.created_at DESC
-    """
-    r = await db.execute(text(sql), params)
-    return [dict(row) for row in r.mappings().all()]
+    return [dict(row) for row in r.mappings().all()], total
 
 
 async def update_test(db: AsyncSession, test_id: str, data: dict) -> dict | None:
@@ -467,7 +397,7 @@ async def create_question_with_answers(
     question = dict(r.mappings().first())
     question_id = question["id"]
 
-    # Chèn đáp án (nếu có — flashcard/fill_blank không có answers)
+    # Chèn đáp án (nếu có — flashcard không có answers; fill_blank có đáp án đúng + gợi ý)
     inserted_answers: list[dict] = []
     for ans in answers_data:
         r_ans = await db.execute(

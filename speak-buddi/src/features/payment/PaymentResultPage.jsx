@@ -8,7 +8,7 @@ import { getTransaction, startCheckout } from "./services/paymentService";
 // Màn kết quả thanh toán khi THẤT BẠI/HỦY: hiển thị thông điệp §5.2
 // (`❌ Thanh toán không thành công. Lý do: [reason]`), giữ nguyên gói hiện tại
 // (BE không đụng user_subscription ở nhánh fail/cancel — xem payment_service.py),
-// và cho phép "Thử lại" (tạo giao dịch mới qua startCheckout) hoặc "Về trang chủ".
+// và cho phép "Thử lại" (tạo giao dịch mới qua startCheckout) hoặc "Về Dashboard" (/roadmap).
 //
 // Port từ mockup `speak-buddi-docs/ui/thanh_toan_that_bai_desktop` (Việt hóa
 // toàn bộ — bản gốc tiếng Anh + nhắc "card/CVV" không phù hợp Sepay/chuyển
@@ -281,7 +281,7 @@ export default function PaymentResultPage() {
 
             <button
               type="button"
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/roadmap")}
               style={{
                 width: "100%",
                 minHeight: 44,

@@ -6,6 +6,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Button, Form, Modal, Spinner } from "react-bootstrap";
 import { LuPlay, LuRefreshCw } from "react-icons/lu";
+import AdminPagination from "../components/AdminPagination";
 import AdminToast from "../components/AdminToast";
 import {
   getCrawlJob,
@@ -69,6 +70,9 @@ function StatusBadge({ status }) {
 export default function AdminCrawlerPage() {
   const [syncStatus, setSyncStatus] = useState(null);
   const [jobs, setJobs] = useState([]);
+  const [jobsTotal, setJobsTotal] = useState(0);
+  const [pageSize, setPageSize] = useState(20);
+  const [offset, setOffset] = useState(0);
   const [preview, setPreview] = useState(null);
   const [levelCode, setLevelCode] = useState("");
   const [loading, setLoading] = useState(true);
@@ -90,10 +94,11 @@ export default function AdminCrawlerPage() {
     try {
       const [status, jobList] = await Promise.all([
         getSyncStatus(),
-        listCrawlJobs({ limit: 10 }),
+        listCrawlJobs({ limit: pageSize, offset }),
       ]);
       setSyncStatus(status);
       setJobs(jobList.items || []);
+      setJobsTotal(jobList.total ?? 0);
       if (status?.last_job_id) {
         try {
           const detail = await getCrawlJob(status.last_job_id);
@@ -107,7 +112,7 @@ export default function AdminCrawlerPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [pageSize, offset]);
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -363,6 +368,18 @@ export default function AdminCrawlerPage() {
                     </tbody>
                   </table>
                 </div>
+                <AdminPagination
+                  total={jobsTotal}
+                  offset={offset}
+                  pageSize={pageSize}
+                  onOffsetChange={setOffset}
+                  onPageSizeChange={(size) => {
+                    setPageSize(size);
+                    setOffset(0);
+                  }}
+                  itemLabel="job"
+                  className="mt-3"
+                />
               </div>
             </div>
           </div>

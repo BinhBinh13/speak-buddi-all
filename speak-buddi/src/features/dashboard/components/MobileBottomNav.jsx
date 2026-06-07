@@ -5,8 +5,7 @@ import mic from "../../../assets/icons/microphone.svg";
 import vocab from "../../../assets/icons/vocab.svg";
 
 const NAV_ITEMS = [
-  { label: "Home",      icon: house, path: "/dashboard"  },
-  { label: "Roadmap",   icon: null,  path: "/roadmap"    },
+  { label: "Roadmap",   icon: house, path: "/roadmap"    },
   { label: "Speaking",  icon: mic,   path: "/speaking"   },
   { label: "New words", icon: vocab, path: "/vocabulary" },
 ];
@@ -16,7 +15,7 @@ const NAV_ITEMS = [
  * Touch target: mỗi item tối thiểu 44×44px (NFR §4.8-3).
  * ARIA: aria-label + aria-current cho screen reader (NFR §4.8-6).
  */
-export default function MobileBottomNav({ activePath = "/dashboard" }) {
+export default function MobileBottomNav({ activePath = "/roadmap" }) {
   return (
     <>
       <style>{BOTTOM_NAV_CSS}</style>

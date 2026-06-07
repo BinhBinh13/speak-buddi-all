@@ -5,7 +5,7 @@
 import { useEffect, useState } from "react";
 import { LuFilter } from "react-icons/lu";
 import { COLORS, FONTS } from "../../../shared/constants/theme";
-import { listPlans } from "../payment-plans/services/paymentPlanService";
+import { listPlansAll } from "../payment-plans/services/paymentPlanService";
 import { formatPlanPrice } from "../payment-plans/utils/formatPrice";
 
 const PRESETS = [
@@ -34,7 +34,7 @@ export default function RevenueFilterPanel({ onApply, loading = false, result = 
     let active = true;
     (async () => {
       try {
-        const rows = await listPlans(true);
+        const rows = await listPlansAll({ includeInactive: true });
         if (active) setPlans(rows);
       } catch (err) {
         if (active) setPlansError(err.message || "Không tải được danh sách gói.");

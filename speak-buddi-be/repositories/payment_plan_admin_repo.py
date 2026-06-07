@@ -12,9 +12,28 @@ def _normalize_features(features: list[str] | None) -> list[str]:
     return [f.strip() for f in features if f and f.strip()]
 
 
-async def list_plans(db: AsyncSession, include_inactive: bool = True) -> list[dict]:
-    """Danh sách gói cho Admin — mặc định gồm cả inactive (S10.2)."""
-    where = "" if include_inactive else "WHERE is_active = TRUE"
+async def list_plans(
+    db: AsyncSession,
+    include_inactive: bool = True,
+    status: str | None = None,
+    limit: int = 20,
+    offset: int = 0,
+) -> tuple[list[dict], int]:
+    """Danh sách gói cho Admin — phân trang; status: active|inactive|all."""
+    conditions: list[str] = []
+    if status == "inactive":
+        conditions.append("is_active = FALSE")
+    elif status == "active":
+        conditions.append("is_active = TRUE")
+    elif not include_inactive:
+        conditions.append("is_active = TRUE")
+
+    where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+    params = {"limit": limit, "offset": offset}
+
+    count_r = await db.execute(text(f"SELECT COUNT(*) FROM payment_plan {where_clause}"), params)
+    total = count_r.scalar() or 0
+
     r = await db.execute(
         text(f"""
             SELECT id::text,
@@ -28,16 +47,18 @@ async def list_plans(db: AsyncSession, include_inactive: bool = True) -> list[di
                    created_at,
                    updated_at
             FROM   payment_plan
-            {where}
+            {where_clause}
             ORDER  BY sort_order ASC, created_at ASC
-        """)
+            LIMIT  :limit OFFSET :offset
+        """),
+        params,
     )
     rows = []
     for row in r.mappings().all():
         d = dict(row)
         d["features"] = list(d.get("features") or [])
         rows.append(d)
-    return rows
+    return rows, total
 
 
 async def get_plan(db: AsyncSession, plan_id: str) -> dict | None:

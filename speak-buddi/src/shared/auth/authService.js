@@ -1,6 +1,5 @@
 import apiClient from "../api/client";
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { API_URL } from "../api/config";
 
 // ── Token storage keys ────────────────────────────────────────────────────────
 const KEY_ACCESS  = "token";
@@ -81,6 +80,22 @@ export async function refreshAccessToken() {
   const data = await res.json();
   localStorage.setItem(KEY_ACCESS, data.access_token);
   return data.access_token;
+}
+
+/** Lấy profile user hiện tại từ BE (is_paid luôn đọc từ DB). */
+export async function fetchCurrentUser() {
+  return apiClient("/api/auth/me");
+}
+
+/**
+ * Làm mới access token (cập nhật is_paid trong JWT) + user object trong localStorage.
+ * Gọi sau thanh toán thành công để FE nhận trạng thái Pro ngay.
+ */
+export async function refreshSession() {
+  const access_token = await refreshAccessToken();
+  const user = await fetchCurrentUser();
+  setUser(user);
+  return { access_token, user };
 }
 
 /**
@@ -179,11 +194,5 @@ export const resetPassword = (token, new_password) =>
     method: "POST",
     body: JSON.stringify({ token, new_password }),
   });
-
-/** @deprecated Dùng clearTokens() thay thế. Giữ lại để không vỡ các caller cũ. */
-export const logout = () => {
-  clearTokens();
-  window.location.href = "/login";
-};
 
 export const isAuthenticated = () => !!localStorage.getItem(KEY_ACCESS);

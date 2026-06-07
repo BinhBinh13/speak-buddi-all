@@ -1,9 +1,7 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { MdCheckCircle } from "react-icons/md";
 import { UI } from "../../../shared/constants/designTokens";
-import { useAuth } from "../../../shared/auth/AuthContext";
-import { getPlans, startCheckout } from "../../payment/services/paymentService";
+import { PAYMENT_CHECKOUT_PATH } from "../../payment/utils/resolveProPlanId";
 
 const PLANS = [
   {
@@ -34,59 +32,13 @@ const PLANS = [
   },
 ];
 
-/**
- * Map gói "Pro" hiển thị → plan_id UUID thật (S8.1).
- * Bám cùng quy tắc với PricingPage: chọn gói trả phí có sort_order nhỏ nhất.
- */
-function resolveProPlanId(plans) {
-  const paid = plans.filter((p) => p.price_vnd > 0);
-  if (paid.length === 0) return null;
-  return paid.reduce((min, p) => (p.sort_order < min.sort_order ? p : min), paid[0]).id;
-}
-
 export default function PricingSection() {
-  const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
-
-  const [proPlanId, setProPlanId] = useState(null);
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
-  const [checkoutError, setCheckoutError] = useState("");
-
-  useEffect(() => {
-    let cancelled = false;
-    getPlans()
-      .then((plans) => { if (!cancelled) setProPlanId(resolveProPlanId(plans || [])); })
-      .catch(() => { if (!cancelled) setProPlanId(null); });
-    return () => { cancelled = true; };
-  }, []);
-
-  /**
-   * CTA "Nâng cấp Pro" trên landing (S8.1, AC-10-01) — login-aware:
-   *  - Chưa đăng nhập → /login?next=/  (giữ trải nghiệm landing).
-   *  - Đã đăng nhập   → startCheckout(plan_id) → redirect sang redirect_url.
-   */
-  async function handleUpgradeClick() {
-    setCheckoutError("");
-    if (!isAuthenticated) {
-      navigate("/login?next=" + encodeURIComponent("/"));
-      return;
-    }
-    if (!proPlanId) {
-      setCheckoutError("Không tải được thông tin gói. Vui lòng thử lại sau.");
-      return;
-    }
-    setCheckoutLoading(true);
-    try {
-      const { redirect_url } = await startCheckout(proPlanId);
-      window.location.href = redirect_url;
-    } catch (err) {
-      setCheckoutError(err.message || "Không thể khởi tạo thanh toán. Vui lòng thử lại.");
-      setCheckoutLoading(false);
-    }
+  function handleUpgradeClick() {
+    window.location.href = PAYMENT_CHECKOUT_PATH;
   }
 
   return (
-    <section style={{ background: UI.surfaceContainer, padding: "6rem 0" }}>
+    <section id="pricing" style={{ background: UI.surfaceContainer, padding: "6rem 0" }}>
       <div
         style={{
           maxWidth: UI.spacing.maxWidth,
@@ -143,8 +95,8 @@ export default function PricingSection() {
               key={plan.name}
               {...plan}
               onUpgradeClick={plan.isPaid ? handleUpgradeClick : undefined}
-              loading={plan.isPaid ? checkoutLoading : false}
-              error={plan.isPaid ? checkoutError : ""}
+              loading={false}
+              error=""
             />
           ))}
         </div>

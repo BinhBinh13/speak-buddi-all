@@ -68,3 +68,9 @@ class TransactionStatusOut(BaseModel):
     plan_id: str
     plan_name: str
     amount_vnd: int
+    provider: str = ""
+    payment_code: str | None = None
+    bank_account_number: str | None = None
+    bank_code: str | None = None
+    created_at: str | None = None
+    pending_timeout_seconds: int = 300

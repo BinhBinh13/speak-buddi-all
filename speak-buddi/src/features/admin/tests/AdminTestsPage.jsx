@@ -1,10 +1,11 @@
 // speak-buddi/src/features/admin/tests/AdminTestsPage.jsx
 // ─── Admin Tests Repository (S9.1 + S9.2 soft delete) ────────────────────────
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LuBan, LuPlus, LuRotateCcw, LuSearch } from "react-icons/lu";
 import { COLORS, FONTS } from "../../../shared/constants/theme";
+import AdminPagination from "../components/AdminPagination";
 import AdminToast from "../components/AdminToast";
 import ConfirmDisableModal from "../components/ConfirmDisableModal";
 import ConfirmEnableModal from "../components/ConfirmEnableModal";
@@ -18,9 +19,11 @@ const STATUS_OPTIONS = [
 
 export default function AdminTestsPage() {
   const navigate = useNavigate();
-  const [tests, setTests] = useState([]);
+  const [data, setData] = useState({ items: [], total: 0 });
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [pageSize, setPageSize] = useState(20);
+  const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(true);
   const [disableModal, setDisableModal] = useState({ show: false, test: null });
   const [enableModal, setEnableModal] = useState({ show: false, test: null });
@@ -31,28 +34,24 @@ export default function AdminTestsPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const rows = await listTests({
+      const res = await listTests({
         search: search || undefined,
-        includeInactive: statusFilter !== "active",
+        status: statusFilter,
+        limit: pageSize,
+        offset,
       });
-      setTests(rows);
+      setData(res);
     } catch (err) {
       setToast({ message: err.message || "Không tải được bài kiểm tra.", type: "error" });
     } finally {
       setLoading(false);
     }
-  }, [search, statusFilter]);
+  }, [search, statusFilter, pageSize, offset]);
 
   useEffect(() => {
     const t = setTimeout(load, 300);
     return () => clearTimeout(t);
   }, [load]);
-
-  const displayedTests = useMemo(() => {
-    if (statusFilter === "inactive") return tests.filter((t) => !t.is_active);
-    if (statusFilter === "active") return tests.filter((t) => t.is_active);
-    return tests;
-  }, [tests, statusFilter]);
 
   async function handleConfirmDisable() {
     if (!disableModal.test) return;
@@ -122,14 +121,20 @@ export default function AdminTestsPage() {
             className="form-control ps-5"
             placeholder="Tìm bài kiểm tra…"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setOffset(0);
+            }}
             style={{ minHeight: 44 }}
           />
         </div>
         <select
           className="form-select"
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            setOffset(0);
+          }}
           style={{ maxWidth: 180, minHeight: 44 }}
         >
           {STATUS_OPTIONS.map((o) => (
@@ -140,7 +145,7 @@ export default function AdminTestsPage() {
 
       {loading ? (
         <div style={{ color: COLORS.onSurfaceVariant }}>Đang tải…</div>
-      ) : displayedTests.length === 0 ? (
+      ) : data.items.length === 0 ? (
         <div
           style={{
             textAlign: "center",
@@ -154,7 +159,7 @@ export default function AdminTestsPage() {
         </div>
       ) : (
         <div className="row g-3">
-          {displayedTests.map((test) => (
+          {data.items.map((test) => (
             <div key={test.id} className="col-12 col-md-6 col-xl-4">
               <div
                 className="card h-100"
@@ -238,6 +243,19 @@ export default function AdminTestsPage() {
           ))}
         </div>
       )}
+
+      <AdminPagination
+        total={data.total}
+        offset={offset}
+        pageSize={pageSize}
+        onOffsetChange={setOffset}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setOffset(0);
+        }}
+        itemLabel="bài kiểm tra"
+        className="mt-4"
+      />
 
       <ConfirmDisableModal
         show={disableModal.show}

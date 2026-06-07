@@ -12,14 +12,14 @@
   },
   "summary": {
     "totalEpics": 12,
-    "totalStories": 46,
-    "completedStories": 39,
+    "totalStories": 47,
+    "completedStories": 40,
     "progressPercent": 85,
     "byStatus": {
       "todo": 6,
       "in_progress": 1,
       "review": 1,
-      "done": 39,
+      "done": 40,
       "blocked": 0
     }
   },
@@ -41,7 +41,8 @@
         { "id": "S1.5", "title": "Dang nhap + JWT access/refresh token", "ac": "AC-02-02, 4.5", "priority": "P0", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S1.5-plan.md", "implement": "implement/S1.5-implement.md", "review": "review/S1.5-review.md" }, "updatedAt": "2026-06-06" },
         { "id": "S1.6", "title": "Google OAuth", "ac": "AC-02-03", "priority": "P1", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S1.6-plan.md", "implement": "implement/S1.6-implement.md", "review": "review/S1.6-review.md" }, "updatedAt": "2026-06-06" },
         { "id": "S1.7", "title": "Reset mat khau qua email (Gmail SMTP)", "ac": "AC-02-04", "priority": "P1", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S1.7-plan.md", "implement": "implement/S1.7-implement.md", "review": "review/S1.7-review.md" }, "updatedAt": "2026-06-06" },
-        { "id": "S1.8", "title": "Phan quyen role + subscription state", "ac": "4.5", "priority": "P0", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S1.8-plan.md", "implement": "implement/S1.8-implement.md", "review": "review/S1.8-review.md" }, "updatedAt": "2026-06-06" }
+        { "id": "S1.8", "title": "Phan quyen role + subscription state", "ac": "4.5", "priority": "P0", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S1.8-plan.md", "implement": "implement/S1.8-implement.md", "review": "review/S1.8-review.md" }, "updatedAt": "2026-06-06" },
+        { "id": "S1.9", "title": "Dang xuat: xoa JWT client-side + nut logout UI (user + admin)", "ac": "AC-02-02, 4.5", "priority": "P1", "status": "done", "assignee": "", "notes": "Review PASS -- mobile chua co entry logout (sidebar an <=768px); tuy chon GSI disableAutoSelect sau logout (xem review/S1.9-review.md).", "artifacts": { "plan": "plan/S1.9-plan.md", "implement": "implement/S1.9-implement.md", "review": "review/S1.9-review.md" }, "updatedAt": "2026-06-07" }
       ]
     },
     {
