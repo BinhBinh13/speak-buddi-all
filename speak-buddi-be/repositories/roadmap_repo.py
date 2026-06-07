@@ -34,10 +34,26 @@ async def get_profile_for_roadmap(db: AsyncSession, user_id: str) -> dict | None
     return dict(row) if row else None
 
 
+def _compute_topic_status(
+    total_words: int,
+    known_count: int,
+    progress_count: int,
+    has_active_session: bool,
+    in_user_topics: bool,
+) -> str:
+    """Xác định trạng thái node roadmap theo tiến độ học thực tế."""
+    if total_words > 0 and known_count >= total_words:
+        return "completed"
+    if has_active_session or progress_count > 0 or in_user_topics:
+        return "in_progress"
+    return "available"
+
+
 async def get_roadmap_topics(
     db: AsyncSession,
     level_code: str,
     interests: list[str],
+    user_id: str | None = None,
 ) -> list[dict]:
     """Query topic active thuộc level_code.
     interests: list slug/name từ user_profile.interests — dùng để đánh dấu is_interest.
@@ -61,7 +77,38 @@ async def get_roadmap_topics(
                     WHERE  tw.topic_id  = t.id
                       AND  tw.is_active = TRUE
                 )                             AS word_count,
-                (t.slug = ANY(:interests) OR t.name = ANY(:interests)) AS is_interest
+                (t.slug = ANY(:interests) OR t.name = ANY(:interests)) AS is_interest,
+                COALESCE((
+                    SELECT COUNT(uwp.id) FILTER (WHERE uwp.status = 'known')
+                    FROM   topic_word tw2
+                    JOIN   user_word_progress uwp
+                           ON uwp.topic_word_id = tw2.id
+                          AND uwp.user_id       = CAST(:uid AS UUID)
+                    WHERE  tw2.topic_id  = t.id
+                      AND  tw2.is_active = TRUE
+                ), 0)                         AS known_count,
+                COALESCE((
+                    SELECT COUNT(uwp.id)
+                    FROM   topic_word tw2
+                    JOIN   user_word_progress uwp
+                           ON uwp.topic_word_id = tw2.id
+                          AND uwp.user_id       = CAST(:uid AS UUID)
+                    WHERE  tw2.topic_id  = t.id
+                      AND  tw2.is_active = TRUE
+                ), 0)                         AS progress_count,
+                EXISTS (
+                    SELECT 1
+                    FROM   user_session_progress usp
+                    WHERE  usp.user_id  = CAST(:uid AS UUID)
+                      AND  usp.topic_id = t.id
+                      AND  usp.status   = 'in_progress'
+                )                             AS has_active_session,
+                EXISTS (
+                    SELECT 1
+                    FROM   user_topic ut
+                    WHERE  ut.user_id  = CAST(:uid AS UUID)
+                      AND  ut.topic_id = t.id
+                )                             AS in_user_topics
             FROM  topic  t
             JOIN  level  l ON t.level_id = l.id
             WHERE l.code      = UPPER(:level_code)
@@ -70,7 +117,7 @@ async def get_roadmap_topics(
                 t.difficulty ASC,
                 t.name
         """),
-        {"level_code": level_code, "interests": interests},
+        {"level_code": level_code, "interests": interests, "uid": user_id or "00000000-0000-0000-0000-000000000000"},
     )
     rows = r.mappings().all()
     return [dict(row) for row in rows]
@@ -107,10 +154,11 @@ async def get_roadmap(db: AsyncSession, user_id: str) -> dict | None:
             "nodes":           [],
         }
 
-    topics = await get_roadmap_topics(db, target_level, interests)
+    topics = await get_roadmap_topics(db, target_level, interests, user_id)
 
     nodes: list[dict] = []
     for idx, t in enumerate(topics):
+        total_words = int(t["word_count"])
         nodes.append({
             "id":          t["id"],
             "name":        t["name"],
@@ -119,8 +167,14 @@ async def get_roadmap(db: AsyncSession, user_id: str) -> dict | None:
             "order_index": idx,
             "difficulty":  int(t["difficulty"]),
             "is_interest": bool(t["is_interest"]),
-            "status":      "available",   # placeholder — tracking story sau
-            "word_count":  int(t["word_count"]),
+            "status":      _compute_topic_status(
+                total_words,
+                int(t["known_count"]),
+                int(t["progress_count"]),
+                bool(t["has_active_session"]),
+                bool(t["in_user_topics"]),
+            ),
+            "word_count":  total_words,
         })
 
     level_name = topics[0]["level_name"] if topics else _default_level_name(target_level)
