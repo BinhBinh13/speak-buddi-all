@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ── AI ────────────────────────────────────────────────────────────────────────
+# Provider hội thoại AI: "anthropic" (mặc định) hoặc "gemini"
+AI_PROVIDER:         str = os.getenv("AI_PROVIDER", "anthropic")
 ANTHROPIC_API_KEY:   str = os.getenv("ANTHROPIC_API_KEY", "")
 GEMINI_API_KEY:      str = os.getenv("GEMINI_API_KEY", "")
 AI_PROVIDER:         str = os.getenv("AI_PROVIDER", "anthropic")
@@ -11,7 +13,7 @@ AI_PROVIDER:         str = os.getenv("AI_PROVIDER", "anthropic")
 ANTHROPIC_MODEL:     str = os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001")
 GEMINI_MODEL:        str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite")
 
-# ── Xiaomi MiMo (dịch 1 từ) ───────────────────────────────────────────────────
+# ── Xiaomi MiMo (dịch câu/đoạn; fallback Anthropic khi lỗi) ───────────────────
 MIMO_API_KEY:        str = os.getenv("MIMO_API_KEY", "")
 MIMO_MODEL:          str = os.getenv("MIMO_MODEL", "mimo-v2.5-pro")
 
@@ -56,6 +58,9 @@ SEPAY_WEBHOOK_API_KEY: str = os.getenv("SEPAY_WEBHOOK_API_KEY", "")
 SEPAY_ACCOUNT_NUMBER:  str = os.getenv("SEPAY_ACCOUNT_NUMBER", "")
 SEPAY_BANK_CODE:       str = os.getenv("SEPAY_BANK_CODE", "")
 SEPAY_PAYMENT_PREFIX:  str = os.getenv("SEPAY_PAYMENT_PREFIX", "SB")
+
+# Thời gian chờ thanh toán tối đa (giây) — giao dịch `pending` quá hạn → `failed`/`timeout`
+PAYMENT_PENDING_TIMEOUT_SECONDS: int = int(os.getenv("PAYMENT_PENDING_TIMEOUT_SECONDS", str(5 * 60)))
 
 # ── Langeek Crawler (S9.3 / S9.4) ─────────────────────────────────────────────
 LANGEEK_CRAWL_ENABLED: bool = os.getenv("LANGEEK_CRAWL_ENABLED", "true").lower() in ("1", "true", "yes")

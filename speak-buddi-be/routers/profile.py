@@ -19,11 +19,16 @@ from auth.deps import current_user
 from db.connection import get_db
 from repositories import user_repo
 from schemas.profile import (
+    ChangePasswordOut,
+    ChangePasswordRequest,
     DeleteAccountOut,
     DeleteAccountRequest,
     UpdateLevelOut,
     UpdateLevelRequest,
+    UpdateNameOut,
+    UpdateNameRequest,
 )
+from utils.validators import validate_password
 
 log = logging.getLogger("speakbuddi.profile")
 
@@ -69,6 +74,74 @@ async def update_level(
     return UpdateLevelOut(
         level=result["target_level"],
         onboarding_completed=result["target_level"] is not None,
+    )
+
+
+# ─── PATCH /api/profile/name ──────────────────────────────────────────────────
+
+@router.patch("/name", response_model=UpdateNameOut)
+async def update_name(
+    req: UpdateNameRequest,
+    payload: dict = Depends(current_user),
+    db: AsyncSession = Depends(get_db),
+) -> UpdateNameOut:
+    """Cập nhật tên hiển thị trong user_profile."""
+    name = (req.name or "").strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="Tên không được để trống.")
+    if len(name) > 80:
+        raise HTTPException(status_code=400, detail="Tên không được vượt quá 80 ký tự.")
+
+    user_id = payload.get("sub", "")
+    updated = await user_repo.update_name(db, user_id=user_id, name=name)
+    if updated is None:
+        raise HTTPException(status_code=404, detail="Người dùng không tồn tại.")
+
+    log.info("PROFILE update_name user=%s", user_id)
+    return UpdateNameOut(name=updated)
+
+
+# ─── PATCH /api/profile/password ──────────────────────────────────────────────
+
+@router.patch("/password", response_model=ChangePasswordOut)
+async def change_password(
+    req: ChangePasswordRequest,
+    payload: dict = Depends(current_user),
+    db: AsyncSession = Depends(get_db),
+) -> ChangePasswordOut:
+    """
+    Đổi hoặc đặt mật khẩu.
+    - Có password_hash: bắt buộc current_password đúng.
+    - OAuth-only (không password): cho phép đặt mật khẩu mới không cần current.
+    """
+    user_id = payload.get("sub", "")
+    user = await user_repo.get_user_by_id(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Người dùng không tồn tại.")
+
+    new_pw = req.new_password or ""
+    if not validate_password(new_pw):
+        raise HTTPException(
+            status_code=400,
+            detail="Mật khẩu phải có ít nhất 8 ký tự và 1 chữ số.",
+        )
+
+    if user.get("password_hash"):
+        current = req.current_password or ""
+        if not current:
+            raise HTTPException(status_code=400, detail="Vui lòng nhập mật khẩu hiện tại.")
+        current_hash = hashlib.sha256(current.encode()).hexdigest()
+        if not hmac.compare_digest(current_hash, user["password_hash"]):
+            raise HTTPException(status_code=400, detail="Mật khẩu hiện tại không đúng.")
+
+    pw_hash = hashlib.sha256(new_pw.encode()).hexdigest()
+    await user_repo.update_password(db, user_id, pw_hash)
+    await db.commit()
+
+    log.info("PROFILE change_password user=%s", user_id)
+    return ChangePasswordOut(
+        message="Mật khẩu đã được cập nhật thành công.",
+        has_password=True,
     )
 
 

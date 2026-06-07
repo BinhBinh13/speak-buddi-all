@@ -2,11 +2,7 @@
 // ─── Service export báo cáo admin (S11.3 — AC-12-03) ────────────────────────
 
 import apiClient from "../../../shared/api/client";
-
-const API_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  import.meta.env.VITE_API_URL ||
-  "http://localhost:8000";
+import { authenticatedFetch } from "../../../shared/api/authMiddleware";
 
 /**
  * POST export — trả blob file (không dùng apiClient JSON).
@@ -20,15 +16,12 @@ const API_URL =
  * }} payload
  */
 export async function exportReport(payload) {
-  const token = localStorage.getItem("token");
-  const res = await fetch(`${API_URL}/api/admin/analytics/export`, {
+  const res = await authenticatedFetch("/api/admin/analytics/export", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token && { Authorization: `Bearer ${token}` }),
-    },
     body: JSON.stringify(payload),
   });
+
+  if (!res) return;
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -45,7 +38,9 @@ export async function exportReport(payload) {
   const blob = await res.blob();
   const disposition = res.headers.get("Content-Disposition") || "";
   const match = disposition.match(/filename="?([^";\n]+)"?/);
-  const fileName = match ? match[1] : `speakbuddi-export.${payload.export_format}`;
+  const fileName = match
+    ? match[1]
+    : `SpeakBuddi_bao-cao_${payload.report_type}_${payload.from}_den_${payload.to}.${payload.export_format}`;
   return { blob, fileName };
 }
 

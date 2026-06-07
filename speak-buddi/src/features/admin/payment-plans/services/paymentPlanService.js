@@ -2,29 +2,49 @@
 // ─── Admin Payment Plan API (S10.1) ─────────────────────────────────────────
 
 import apiClient from "../../../../shared/api/client";
-
-const API_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  import.meta.env.VITE_API_URL ||
-  "http://localhost:8000";
+import { authenticatedFetch } from "../../../../shared/api/authMiddleware";
 
 async function apiDelete(endpoint) {
-  const token = localStorage.getItem("token");
-  const res = await fetch(`${API_URL}${endpoint}`, {
-    method: "DELETE",
-    headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
-    },
-  });
+  const res = await authenticatedFetch(endpoint, { method: "DELETE" });
+  if (!res) return;
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.detail || err.message || "Something went wrong");
   }
 }
 
-export async function listPlans(includeInactive = true) {
-  const q = includeInactive ? "" : "?include_inactive=false";
-  return apiClient(`/api/admin/payment-plans${q}`);
+export async function listPlans({
+  includeInactive = true,
+  status,
+  limit = 20,
+  offset = 0,
+} = {}) {
+  const qs = new URLSearchParams();
+  if (status) qs.set("status", status);
+  else if (!includeInactive) qs.set("include_inactive", "false");
+  qs.set("limit", String(limit));
+  qs.set("offset", String(offset));
+  return apiClient(`/api/admin/payment-plans?${qs.toString()}`);
+}
+
+/** Lấy toàn bộ gói cho dropdown (báo cáo, filter). BE giới hạn limit ≤ 100/request. */
+export async function listPlansAll({ includeInactive = true } = {}) {
+  const PAGE = 100;
+  const status = includeInactive ? "all" : "active";
+  const items = [];
+  let offset = 0;
+  let total = Infinity;
+
+  while (offset < total) {
+    const res = await listPlans({ includeInactive, status, limit: PAGE, offset });
+    const batch = res.items ?? [];
+    items.push(...batch);
+    total = res.total ?? items.length;
+    if (batch.length < PAGE) break;
+    offset += PAGE;
+  }
+
+  return items;
 }
 
 export async function getPlan(id) {

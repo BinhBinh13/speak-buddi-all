@@ -20,31 +20,22 @@ import { getWords, saveWordProgress, getTopicProgress } from "./services/vocabul
 import { getUserTopics } from "../roadmap/services/sessionService";
 import { getTestsByTopic } from "../quiz/services/quizService";
 import { BsArrowLeft, BsArrowRight, BsQuestionCircle } from "react-icons/bs";
+import { authenticatedFetch } from "../../shared/api/authMiddleware";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helper: phát audio từ URL hoặc fallback /tts
 // ─────────────────────────────────────────────────────────────────────────────
-const API_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  import.meta.env.VITE_API_URL ||
-  "http://localhost:8000";
 
 async function playWordAudio(word) {
   try {
     let audioUrl = word.audio_url;
 
     if (!audioUrl) {
-      // Fallback: POST /tts
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${API_URL}/tts`, {
+      const res = await authenticatedFetch("/tts", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token && { Authorization: `Bearer ${token}` }),
-        },
         body: JSON.stringify({ text: word.word }),
       });
-      if (!res.ok) return;
+      if (!res || !res.ok) return;
       const blob = await res.blob();
       audioUrl = URL.createObjectURL(blob);
     }

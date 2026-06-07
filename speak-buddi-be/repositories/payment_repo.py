@@ -146,7 +146,8 @@ async def get_transaction_by_provider_ref(
                    amount_vnd,
                    currency,
                    status,
-                   user_subscription_id::text
+                   user_subscription_id::text,
+                   created_at
             FROM   payment_transaction
             WHERE  provider = :provider
               AND  provider_transaction_id = :ref
@@ -230,6 +231,9 @@ async def get_transaction_for_user(db: AsyncSession, tx_id: str, user_id: str) -
                    t.status,
                    t.failure_reason,
                    t.amount_vnd,
+                   t.provider,
+                   t.provider_transaction_id,
+                   t.created_at,
                    p.name AS plan_name
             FROM   payment_transaction t
             JOIN   payment_plan p ON p.id = t.plan_id

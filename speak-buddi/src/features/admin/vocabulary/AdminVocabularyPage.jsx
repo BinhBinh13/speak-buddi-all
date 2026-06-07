@@ -6,13 +6,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { LuBan, LuLock, LuPlus, LuRotateCcw, LuSearch } from "react-icons/lu";
 import { BADGE_COLORS } from "../../profile/constants/levels";
 import { COLORS, FONTS } from "../../../shared/constants/theme";
+import AdminPagination from "../components/AdminPagination";
 import AdminToast from "../components/AdminToast";
 import ConfirmDisableModal from "../components/ConfirmDisableModal";
 import ConfirmEnableModal from "../components/ConfirmEnableModal";
 import ContentFormModal from "../components/ContentFormModal";
 import {
   listWords,
-  listTopics,
+  listTopicsAll,
   listLevels,
   createWord,
   updateWord,
@@ -20,7 +21,7 @@ import {
   enableWord,
 } from "../services/adminContentService";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE_DEFAULT = 20;
 const STATUS_OPTIONS = [
   { value: "all", label: "Status: All" },
   { value: "active", label: "Status: Active" },
@@ -62,6 +63,7 @@ export default function AdminVocabularyPage() {
   const [statusFilter, setStatusFilter] = useState("active");
   const [sourceFilter, setSourceFilter] = useState("all");
   const [offset, setOffset] = useState(0);
+  const [pageSize, setPageSize] = useState(PAGE_SIZE_DEFAULT);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState({ show: false, initial: null });
   const [disableModal, setDisableModal] = useState({ show: false, word: null });
@@ -71,7 +73,7 @@ export default function AdminVocabularyPage() {
   const [toast, setToast] = useState({ message: "", type: "success" });
 
   useEffect(() => {
-    Promise.all([listTopics({ includeInactive: true }), listLevels()])
+    Promise.all([listTopicsAll({ includeInactive: true }), listLevels()])
       .then(([t, l]) => {
         setTopics(t);
         setLevels(l);
@@ -87,7 +89,7 @@ export default function AdminVocabularyPage() {
         topicId: topicFilter || undefined,
         levelId: levelFilter || undefined,
         includeInactive: statusFilter !== "active",
-        limit: PAGE_SIZE,
+        limit: pageSize,
         offset,
       });
       setData(res);
@@ -96,7 +98,7 @@ export default function AdminVocabularyPage() {
     } finally {
       setLoading(false);
     }
-  }, [search, topicFilter, levelFilter, statusFilter, offset]);
+  }, [search, topicFilter, levelFilter, statusFilter, pageSize, offset]);
 
   useEffect(() => {
     const t = setTimeout(load, 300);
@@ -165,8 +167,6 @@ export default function AdminVocabularyPage() {
     }
   }
 
-  const pageStart = data.total === 0 ? 0 : offset + 1;
-  const pageEnd = Math.min(offset + PAGE_SIZE, data.total);
 
   return (
     <>
@@ -380,33 +380,18 @@ export default function AdminVocabularyPage() {
         </table>
       </div>
 
-      {data.total > 0 && (
-        <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
-          <span style={{ fontSize: 14, color: COLORS.onSurfaceVariant }}>
-            Showing {pageStart} to {pageEnd} of {data.total} words
-          </span>
-          <div className="d-flex gap-2">
-            <button
-              type="button"
-              className="btn btn-outline-secondary btn-sm"
-              disabled={offset === 0}
-              onClick={() => setOffset((o) => Math.max(0, o - PAGE_SIZE))}
-              style={{ minHeight: 44 }}
-            >
-              Trước
-            </button>
-            <button
-              type="button"
-              className="btn btn-outline-secondary btn-sm"
-              disabled={offset + PAGE_SIZE >= data.total}
-              onClick={() => setOffset((o) => o + PAGE_SIZE)}
-              style={{ minHeight: 44 }}
-            >
-              Sau
-            </button>
-          </div>
-        </div>
-      )}
+      <AdminPagination
+        total={data.total}
+        offset={offset}
+        pageSize={pageSize}
+        onOffsetChange={setOffset}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setOffset(0);
+        }}
+        itemLabel="từ"
+        className="mt-3"
+      />
 
       <ContentFormModal
         show={modal.show}

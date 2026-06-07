@@ -7,20 +7,21 @@ import PaidRoute from "../shared/auth/PaidRoute";
 
 // ── Public pages ──────────────────────────────────────────────────────────────
 import LandingPage from "../features/landing/LandingPage";
-import PricingPage from "../features/pricing/PricingPage";
+import PaymentCheckoutPage from "../features/payment/PaymentCheckoutPage";
 import LoginPage from "../features/auth/pages/LoginPage";
 import RegisterPage from "../features/auth/pages/RegisterPage";
 import OAuthCallbackPage from "../features/auth/pages/OAuthCallbackPage";
 import ForgotPasswordPage from "../features/auth/pages/ForgotPasswordPage";
 import ResetPasswordPage from "../features/auth/pages/ResetPasswordPage";
 import MockPayPage from "../features/payment/MockPayPage";
+import SepayPayPage from "../features/payment/SepayPayPage";
+import PaymentSuccessPage from "../features/payment/PaymentSuccessPage";
 import PaymentResultPage from "../features/payment/PaymentResultPage";
 import PrivacyPolicyPage from "../features/legal/PrivacyPolicyPage";
 import TermsOfServicePage from "../features/legal/TermsOfServicePage";
 import ContactPage from "../features/support/ContactPage";
 
 // ── Protected pages ───────────────────────────────────────────────────────────
-import DashboardPage from "../features/dashboard/DashboardPage";
 import SpeakingPage from "../features/speaking/SpeakingPage";
 import VocabularyPage from "../features/vocabulary/VocabularyPage";
 import QuizListPage from "../features/quiz/QuizListPage";
@@ -32,6 +33,7 @@ import RoadmapPage    from "../features/roadmap/RoadmapPage";
 import TranslatePage  from "../features/translate/TranslatePage";
 import VoiceSettingsPage from "../features/settings/VoiceSettingsPage";
 import PronunciationPage from "../features/pronunciation/PronunciationPage";
+import AnalyticsPage from "../features/analytics/AnalyticsPage";
 
 // ── Admin pages (S9.1) ────────────────────────────────────────────────────────
 import AdminLayout from "../features/admin/components/AdminLayout";
@@ -43,6 +45,7 @@ import AdminCrawlerPage from "../features/admin/crawler/AdminCrawlerPage";
 import AdminPaymentPlansPage from "../features/admin/payment-plans/AdminPaymentPlansPage";
 import AdminDashboardPage from "../features/admin/AdminDashboardPage";
 import AdminReportsPage from "../features/admin/reports/AdminReportsPage";
+import AdminProfilePage from "../features/admin/AdminProfilePage";
 
 // S7.1: lazy-load ConversationPage để không ảnh hưởng bundle size ban đầu
 const ConversationPage = lazy(() => import("../features/conversation/ConversationPage"));
@@ -54,7 +57,9 @@ export default function App() {
         <Routes>
           {/* ── Public routes (không yêu cầu đăng nhập) ─────────────────── */}
           <Route path="/" element={<LandingPage />} />
-          <Route path="/pricing" element={<PricingPage />} />
+          {/* Legacy URL — chuyển thẳng sang luồng thanh toán */}
+          <Route path="/pricing" element={<Navigate to="/payment/checkout" replace />} />
+          <Route path="/payment/checkout" element={<PaymentCheckoutPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
@@ -65,6 +70,12 @@ export default function App() {
               PAYMENT_PROVIDER=mock (mặc định, vì SRS để Payment Provider = TBD).
               Dev/QA-only: chỉ truy cập được qua luồng checkout → redirect_url. */}
           <Route path="/payment/mock" element={<MockPayPage />} />
+
+          {/* S8.2/S8.3: màn VietQR Sepay — đích redirect của SepayProvider */}
+          <Route path="/payment/sepay" element={<SepayPayPage />} />
+
+          {/* S8.3: màn kết quả thanh toán thành công — mockup thanh_toan_thanh_cong_desktop */}
+          <Route path="/payment/success" element={<PaymentSuccessPage />} />
 
           {/* S8.3: màn kết quả thanh toán (thất bại/hủy — AC-10-03). Đích điều
               hướng sau webhook fail/cancel: /payment/result?status=&tx=&plan= */}
@@ -82,7 +93,7 @@ export default function App() {
             {/* S2.1: Onboarding wizard — bắt buộc sau khi đăng ký */}
             <Route path="/onboarding" element={<OnboardingPage />} />
 
-            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/dashboard" element={<Navigate to="/roadmap" replace />} />
             <Route path="/speaking" element={<SpeakingPage />} />
 
             {/* S3.2: Vocabulary page */}
@@ -122,6 +133,9 @@ export default function App() {
             {/* S5.1: Translate page */}
             <Route path="/translate" element={<TranslatePage />} />
 
+            {/* User analytics / progress */}
+            <Route path="/analytics" element={<AnalyticsPage />} />
+
             {/* Các route sẽ có page thật khi các story tương ứng hoàn thành */}
             {/* <Route path="/translation" element={<TranslationPage />} /> */}
             {/* <Route path="/settings/*" element={<SettingsPage />} /> */}
@@ -141,6 +155,7 @@ export default function App() {
               <Route path="/admin/crawler" element={<AdminCrawlerPage />} />
               <Route path="/admin/payments" element={<AdminPaymentPlansPage />} />
               <Route path="/admin/reports" element={<AdminReportsPage />} />
+              <Route path="/admin/profile" element={<AdminProfilePage />} />
             </Route>
           </Route>
 

@@ -83,7 +83,7 @@ class VocabularyTestAdminOut(VocabularyTestOut):
 # ── QuizAnswer ─────────────────────────────────────────────────────────────────
 
 class QuizAnswerCreate(BaseModel):
-    """Tạo đáp án cho câu hỏi multiple_choice / grammar_mapping."""
+    """Tạo đáp án: multiple_choice / grammar_mapping / fill_blank (đáp án đúng + gợi ý)."""
 
     answer_text: str
     is_correct: bool = False

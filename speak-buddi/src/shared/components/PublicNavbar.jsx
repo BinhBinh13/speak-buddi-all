@@ -6,13 +6,13 @@ import { useScrolled } from "../hooks/useScrolled";
 
 // ── Config ─────────────────────────────────────────────────────────
 const APP_NAV_ITEMS = [
-  { label: "Dashboard",  path: "/dashboard"  },
+  { label: "Roadmap",    path: "/roadmap"    },
   { label: "Speaking",   path: "/speaking"   },
   { label: "Vocabulary", path: "/vocabulary" },
   { label: "Progress",   path: "/analytics"  },
 ];
 
-const APP_ROUTES = ["/dashboard", "/speaking", "/vocabulary", "/schedule", "/analytics"];
+const APP_ROUTES = ["/roadmap", "/speaking", "/vocabulary", "/schedule", "/analytics"];
 
 function isAppRoute(path) {
   return APP_ROUTES.some((r) => path.startsWith(r));
@@ -90,7 +90,7 @@ function PublicLinks() {
         Tính năng
       </Link>
       <Link
-        to="/pricing"
+        to="/#pricing"
         style={{
           fontFamily: UI.font, fontSize: UI.fontSize.labelMd, fontWeight: UI.fontWeight.labelMd,
           color: UI.onSurfaceVariant, textDecoration: "none",

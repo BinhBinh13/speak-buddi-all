@@ -2,7 +2,7 @@
 // ─── Top bar cho khu vực Admin (S11.1) ──────────────────────────────────────
 // UI tham chiếu: dashboard_quan_tri_desktop/code.html (TopNavBar — sticky + blur)
 
-import { LuBell, LuSettings } from "react-icons/lu";
+import { Link } from "react-router-dom";
 import { COLORS, FONTS } from "../../../shared/constants/theme";
 
 /**
@@ -15,15 +15,9 @@ export default function AdminTopbar({ title = "Dashboard", adminName = "Admin" }
       <header className="admin-topbar">
         <div className="admin-topbar-title">{title}</div>
         <div className="admin-topbar-right">
-          <button className="admin-topbar-icon-btn" aria-label="Thông báo">
-            <LuBell size={18} strokeWidth={1.8} />
-          </button>
-          <button className="admin-topbar-icon-btn" aria-label="Cài đặt">
-            <LuSettings size={18} strokeWidth={1.8} />
-          </button>
-          <div className="admin-topbar-avatar" aria-label="Tài khoản admin">
+          <Link to="/admin/profile" className="admin-topbar-avatar" aria-label="Hồ sơ quản trị">
             {adminName?.[0]?.toUpperCase() ?? "A"}
-          </div>
+          </Link>
         </div>
       </header>
     </>
@@ -32,9 +26,11 @@ export default function AdminTopbar({ title = "Dashboard", adminName = "Admin" }
 
 const TOPBAR_CSS = `
   .admin-topbar {
-    position: sticky;
+    position: fixed;
     top: 0;
-    z-index: 10;
+    left: 256px;
+    right: 0;
+    z-index: 40;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -56,25 +52,6 @@ const TOPBAR_CSS = `
     align-items: center;
     gap: 8px;
   }
-  .admin-topbar-icon-btn {
-    width: 40px;
-    height: 40px;
-    min-width: 44px;
-    min-height: 44px;
-    border-radius: 999px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    color: ${COLORS.onSurfaceVariant};
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.15s, color 0.15s;
-  }
-  .admin-topbar-icon-btn:hover {
-    background: ${COLORS.surfaceContainerHigh};
-    color: ${COLORS.primary};
-  }
   .admin-topbar-avatar {
     width: 36px;
     height: 36px;
@@ -89,15 +66,23 @@ const TOPBAR_CSS = `
     font-family: ${FONTS.display};
     font-size: 14px;
     font-weight: 700;
+    text-decoration: none;
+    transition: opacity 0.15s;
+  }
+  .admin-topbar-avatar:hover {
+    opacity: 0.9;
   }
 
   /* Focus visible (NFR §4.8-5) */
-  .admin-topbar button:focus-visible {
+  .admin-topbar a:focus-visible {
     outline: 3px solid ${COLORS.primary};
     outline-offset: 2px;
     border-radius: 999px;
   }
 
+  @media (max-width: 1024px) {
+    .admin-topbar { left: 0; }
+  }
   @media (max-width: 768px) {
     .admin-topbar { padding: 12px 16px; }
     .admin-topbar-title { font-size: 18px; }

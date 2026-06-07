@@ -1,73 +1,21 @@
-import { refreshAccessToken, clearTokens } from "../auth/authService";
-
-// S1.1: chuẩn hóa sang VITE_API_BASE_URL; fallback VITE_API_URL (cũ) rồi localhost.
-const API_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  import.meta.env.VITE_API_URL ||
-  "http://localhost:8000";
-
-// ── Tránh loop: các endpoint không được trigger refresh ────────────────────
-const NO_REFRESH_PATHS = ["/api/auth/refresh", "/api/auth/login"];
+import { authenticatedFetch } from "./authMiddleware";
 
 /**
- * Kiểm tra endpoint có nằm trong danh sách không refresh không.
+ * apiClient — JSON REST helper; 401/refresh do authMiddleware xử lý.
  * @param {string} endpoint
+ * @param {RequestInit} [options]
  */
-function shouldSkipRefresh(endpoint) {
-  return NO_REFRESH_PATHS.some((p) => endpoint.includes(p));
-}
-
-// ── Thực hiện 1 request fetch (dùng chung cho lần đầu và retry) ──────────────
-async function doFetch(endpoint, options = {}, overrideToken = null) {
-  const token = overrideToken ?? localStorage.getItem("token");
-
-  return fetch(`${API_URL}${endpoint}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token && { Authorization: `Bearer ${token}` }),
-      ...options.headers,
-    },
-  });
-}
-
-// ── apiClient ─────────────────────────────────────────────────────────────────
 const apiClient = async (endpoint, options = {}) => {
-  let res = await doFetch(endpoint, options);
-
-  // ── 401 → thử refresh token (chỉ 1 lần, không đệ quy) ──────────────────
-  if (res.status === 401 && !shouldSkipRefresh(endpoint)) {
-    try {
-      const newAccess = await refreshAccessToken();
-      // Retry request gốc với access token mới
-      res = await doFetch(endpoint, options, newAccess);
-    } catch {
-      // Refresh thất bại → đá người dùng ra login
-      clearTokens();
-      sessionStorage.setItem(
-        "auth_msg",
-        "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại."
-      );
-      window.location.href = "/login";
-      return;
-    }
-  }
-
-  // ── Vẫn 401 sau retry → kick về login (chỉ áp với protected route, không áp auth endpoint) ──
-  if (res.status === 401 && !shouldSkipRefresh(endpoint)) {
-    clearTokens();
-    window.location.href = "/login";
-    return;
-  }
+  const res = await authenticatedFetch(endpoint, options);
+  if (!res) return;
 
   if (!res.ok) {
-    const body  = await res.json().catch(() => ({}));
+    const body = await res.json().catch(() => ({}));
     const error = new Error(body.detail || body.message || "Something went wrong");
-    error.status = res.status;   // FE có thể kiểm tra err.status thay vì so chuỗi
+    error.status = res.status;
     throw error;
   }
 
-  // 204 No Content — không có body JSON (vd: DELETE)
   if (res.status === 204) return null;
 
   return res.json();

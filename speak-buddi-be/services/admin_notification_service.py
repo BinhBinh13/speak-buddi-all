@@ -36,10 +36,11 @@ async def notify_crawler_failure(
     Gửi email Admin (nếu SMTP OK) + ghi log info trên job.
     §11.6: URL, reason, last success, retry status, cache status.
     """
+    last_success = source.get("last_success_at")
     context: dict[str, Any] = {
         "source_url": source.get("base_url", ""),
         "failure_reason": reason[:500],
-        "last_success_at": source.get("last_success_at"),
+        "last_success_at": last_success.isoformat() if last_success else None,
         "retry_status": retry_status,
         "retry_count": retry_count,
         "cache_active": cache_active,

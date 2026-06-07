@@ -15,6 +15,7 @@ const TITLE_MAP = [
   { match: /^\/admin\/tests$/, title: "Tests Repository" },
   { match: /^\/admin\/crawler$/, title: "Content Crawler Tool" },
   { match: /^\/admin\/payments$/, title: "Payment Plans" },
+  { match: /^\/admin\/profile$/, title: "Hồ sơ & Cài đặt" },
   { match: /^\/admin\/reports$/, title: "Báo cáo & Xuất file" },
   { match: /^\/admin\/tests\//, title: "Edit Test Q&A" },
 ];
@@ -33,7 +34,9 @@ export default function AdminLayout() {
     <>
       <style>{LAYOUT_CSS}</style>
       <div className="admin-layout">
-        <AdminSidebar activePath={pathname} adminName={adminName} />
+        <div className="admin-sidebar-slot">
+          <AdminSidebar activePath={pathname} adminName={adminName} />
+        </div>
         <div className="admin-main">
           <AdminTopbar title={resolveTitle(pathname)} adminName={adminName} />
           <main className="admin-content">
@@ -51,18 +54,25 @@ const LAYOUT_CSS = `
     min-height: 100vh;
     background: ${COLORS.surface};
   }
+  .admin-sidebar-slot {
+    width: 256px;
+    min-width: 256px;
+    flex-shrink: 0;
+  }
   .admin-main {
     flex: 1;
     min-width: 0;
     display: flex;
     flex-direction: column;
+    padding-top: 64px;
   }
   .admin-content {
     flex: 1;
     padding: 24px 32px 40px;
     box-sizing: border-box;
   }
-  @media (max-width: 768px) {
+  @media (max-width: 1024px) {
+    .admin-sidebar-slot { display: none; }
     .admin-content { padding: 16px; }
   }
 `;

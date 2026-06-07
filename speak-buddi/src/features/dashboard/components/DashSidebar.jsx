@@ -1,37 +1,37 @@
 import { useState } from "react";
 import { COLORS, FONTS } from "../../../shared/constants/theme";
+import LogoutButton from "../../../shared/components/LogoutButton";
+import { useAuth } from "../../../shared/auth/AuthContext";
 import {
-  LuHouse,
   LuMap,
   LuBookOpen,
   LuClipboardList,
   LuMic,
   LuChartBar,
-  LuSettings,
   LuLanguages,
 } from "react-icons/lu";
 
 const NAV_ITEMS = [
-  { label: "Home",       Icon: LuHouse,          path: "/dashboard"  },
   { label: "Roadmap",    Icon: LuMap,             path: "/roadmap"    },
   { label: "Vocabulary", Icon: LuBookOpen,        path: "/vocabulary" },
   { label: "Quiz",       Icon: LuClipboardList,   path: "/quiz"       },
   { label: "Dịch thuật", Icon: LuLanguages,       path: "/translate"  },
   { label: "Speaking",   Icon: LuMic,             path: "/speaking"   },
   { label: "Analytics",  Icon: LuChartBar,        path: "/analytics"  },
-  { label: "Settings",   Icon: LuSettings,        path: "/settings"   },
 ];
 
 export default function DashSidebar({
-  activePath = "/dashboard",
+  activePath = "/roadmap",
 }) {
+  const { isPaid } = useAuth();
+
   return (
     <>
       <style>{SIDEBAR_CSS}</style>
       <aside className="dash-sidebar">
 
         {/* ── Logo ── */}
-        <a href="/dashboard" className="sidebar-logo">
+        <a href="/roadmap" className="sidebar-logo">
           <div className="sidebar-logo-badge">
             <span className="sidebar-logo-initials">SB</span>
           </div>
@@ -42,7 +42,7 @@ export default function DashSidebar({
         </a>
 
         {/* ── Nav ── */}
-        <nav className="sidebar-nav" aria-label="Điều hướng chính">
+        <nav className="sidebar-nav" aria-label="Điều hướng học tập">
           {NAV_ITEMS.map((item) => (
             <SidebarNavItem
               key={item.label}
@@ -52,11 +52,15 @@ export default function DashSidebar({
           ))}
         </nav>
 
-        {/* ── Bottom: Upgrade button ── */}
+        {/* ── Bottom ── */}
         <div className="sidebar-bottom">
-          <a href="/pricing" className="sidebar-upgrade-btn">
-            Upgrade to Pro
-          </a>
+          {!isPaid && (
+            <a href="/payment/checkout" className="sidebar-upgrade-btn">
+              Upgrade to Pro
+            </a>
+          )}
+          <div className="sidebar-bottom-divider" aria-hidden="true" />
+          <LogoutButton variant="sidebar-user" />
         </div>
       </aside>
     </>
@@ -85,11 +89,12 @@ function SidebarNavItem({ item, isActive }) {
 
 const SIDEBAR_CSS = `
   .dash-sidebar {
-    width: 240px;
-    min-width: 240px;
-    height: 100vh;
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    z-index: 50;
+    width: 240px;
+    height: 100vh;
     background: ${COLORS.surfaceLow};
     border-right: 1px solid ${COLORS.outlineVariant};
     display: flex;
@@ -97,6 +102,7 @@ const SIDEBAR_CSS = `
     padding: 24px 16px 20px;
     box-sizing: border-box;
     overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
   /* ── Logo ── */
@@ -181,7 +187,6 @@ const SIDEBAR_CSS = `
     background: ${COLORS.surfaceContainerHigh};
     color: ${COLORS.onSurface};
   }
-
   .sidebar-nav-icon {
     display: flex;
     align-items: center;
@@ -194,6 +199,9 @@ const SIDEBAR_CSS = `
 
   /* ── Bottom ── */
   .sidebar-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     padding-top: 20px;
     border-top: 1px solid ${COLORS.outlineVariant};
     margin-top: 16px;
@@ -220,9 +228,16 @@ const SIDEBAR_CSS = `
     color: #ffffff;
     transform: translateY(-1px);
   }
+  .sidebar-bottom-divider {
+    height: 1px;
+    width: 100%;
+    background: ${COLORS.outlineVariant};
+    margin: 4px 0;
+  }
 
   /* Focus visible (NFR §4.8-5) */
-  .dash-sidebar a:focus-visible {
+  .dash-sidebar a:focus-visible,
+  .dash-sidebar button:focus-visible {
     outline: 3px solid ${COLORS.primary};
     outline-offset: 2px;
     border-radius: 10px;
