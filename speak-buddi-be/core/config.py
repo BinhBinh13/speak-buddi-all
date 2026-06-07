@@ -29,3 +29,33 @@ SMTP_PORT:    int = int(os.getenv("SMTP_PORT", "587"))
 SMTP_USER:    str = os.getenv("SMTP_USER", "")
 SMTP_PASS:    str = os.getenv("SMTP_PASS", "")
 FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
+# ── Payment (S8.1 — Provider TBD: dùng MockPaymentProvider mặc định) ──────────
+# Đổi 'mock' → 'vnpay'/'momo'/… khi business chốt provider thật (xem
+# services/payment_providers/__init__.py — chỉ cần thêm class + map, không
+# đụng router/schema/FE).
+PAYMENT_PROVIDER: str = os.getenv("PAYMENT_PROVIDER", "mock")
+
+# ── Sepay (S8.2 — Provider đã chốt = Sepay, PO 2026-06-07) ───────────────────
+# Sepay đối soát chuyển khoản VietQR — KHÔNG phải redirect-checkout truyền thống.
+# Webhook xác thực bằng header `Authorization: Apikey <SEPAY_WEBHOOK_API_KEY>`.
+# Các biến này CHỈ cần khi PAYMENT_PROVIDER=sepay; rỗng vẫn chạy MockProvider OK.
+# TODO (chờ PO cấp credential thật — xem implement/S8.2-implement.md mục "Ngoài phạm vi"):
+SEPAY_WEBHOOK_API_KEY: str = os.getenv("SEPAY_WEBHOOK_API_KEY", "")
+SEPAY_ACCOUNT_NUMBER:  str = os.getenv("SEPAY_ACCOUNT_NUMBER", "")
+SEPAY_BANK_CODE:       str = os.getenv("SEPAY_BANK_CODE", "")
+SEPAY_PAYMENT_PREFIX:  str = os.getenv("SEPAY_PAYMENT_PREFIX", "SB")
+
+# ── Langeek Crawler (S9.3 / S9.4) ─────────────────────────────────────────────
+LANGEEK_CRAWL_ENABLED: bool = os.getenv("LANGEEK_CRAWL_ENABLED", "true").lower() in ("1", "true", "yes")
+LANGEEK_USE_FIXTURE: bool = os.getenv("LANGEEK_USE_FIXTURE", "true").lower() in ("1", "true", "yes")
+CRAWLER_SCHEDULER_ENABLED: bool = os.getenv("CRAWLER_SCHEDULER_ENABLED", "false").lower() in ("1", "true", "yes")
+ADMIN_CRAWLER_NOTIFY_EMAIL: str = os.getenv("ADMIN_CRAWLER_NOTIFY_EMAIL", "")
+SCRAPE_ROOT: str = os.getenv(
+    "SCRAPE_ROOT",
+    os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", "speak-buddi-scrape")),
+)
+FIXTURE_BATCH_PATH: str = os.getenv(
+    "FIXTURE_BATCH_PATH",
+    os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "tests", "fixtures", "langeek_batch.json")),
+)

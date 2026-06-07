@@ -4,8 +4,8 @@
 // Design system  : speak-buddi-docs/ui/speak_buddi/DESIGN.md
 //
 // Phạm vi S2.3 = section "Trình độ học" (đổi level + confirm modal).
-// Các section khác (avatar, bio, password, notifications, 2FA, delete account)
-// được render dưới dạng placeholder và ghi TODO để story sau bổ sung.
+// S12.2 = section "Vùng nguy hiểm" (xóa tài khoản & dữ liệu cá nhân).
+// Các section khác (avatar, bio, password, notifications) vẫn placeholder.
 //
 // Stack: React functional + hooks + react-bootstrap Modal + Bootstrap.
 // KHÔNG dùng Tailwind — dùng inline-style theo phong cách codebase.
@@ -15,6 +15,7 @@ import { Modal } from "react-bootstrap";
 import AppLayout    from "../../shared/components/AppLayout";
 import { useAuth }  from "../../shared/auth/AuthContext";
 import LevelSelector from "./components/LevelSelector";
+import DeleteAccountSection from "./components/DeleteAccountSection";
 import { LEVELS, BADGE_COLORS } from "./constants/levels";
 import { updateLevel } from "./services/profileService";
 
@@ -218,6 +219,9 @@ export default function ProfilePage() {
             <span style={styles.navLinkDisabled}>Thông tin cá nhân</span>
             <span style={styles.navLinkDisabled}>Bảo mật tài khoản</span>
             <span style={styles.navLinkDisabled}>Thông báo</span>
+            <a href="#danger-zone" style={{ ...styles.navLinkDisabled, color: ON_SURFACE, fontWeight: 600 }}>
+              Xóa tài khoản
+            </a>
           </nav>
 
           {/* ── Sections ──────────────────────────────────────────────────── */}
@@ -299,6 +303,11 @@ export default function ProfilePage() {
                 <p style={styles.placeholderText}>Tính năng đang được phát triển.</p>
               </div>
             </section>
+
+            {/* SECTION: Vùng nguy hiểm (S12.2) */}
+            <DeleteAccountSection
+              onSuccess={(msg) => setToast({ message: msg, type: "success" })}
+            />
 
           </div>
         </div>

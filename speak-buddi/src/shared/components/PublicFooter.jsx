@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
 import { UI } from "../constants/designTokens";
 
+// S12.1: "Điều khoản"/"Bảo mật" trỏ tới trang pháp lý thật (route nội bộ → dùng <Link>).
+// S12.3: "Liên hệ"/"Trợ giúp" trỏ tới form hỗ trợ /contact.
 const FOOTER_LINKS = [
-  { label: "Điều khoản", href: "#" },
-  { label: "Bảo mật",    href: "#" },
-  { label: "Liên hệ",    href: "#" },
-  { label: "Trợ giúp",   href: "#" },
+  { label: "Điều khoản", to: "/terms" },
+  { label: "Bảo mật",    to: "/privacy" },
+  { label: "Liên hệ",    to: "/contact" },
+  { label: "Trợ giúp",   to: "/contact" },
 ];
 
 export default function PublicFooter() {
@@ -79,11 +81,17 @@ export default function PublicFooter() {
 
         {/* Links */}
         <nav style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: UI.spacing.md }}>
-          {FOOTER_LINKS.map((link) => (
-            <a key={link.label} href={link.href} className="footer-link-vi">
-              {link.label}
-            </a>
-          ))}
+          {FOOTER_LINKS.map((link) =>
+            link.to ? (
+              <Link key={link.label} to={link.to} className="footer-link-vi">
+                {link.label}
+              </Link>
+            ) : (
+              <a key={link.label} href={link.href} className="footer-link-vi">
+                {link.label}
+              </a>
+            )
+          )}
         </nav>
       </div>
     </footer>

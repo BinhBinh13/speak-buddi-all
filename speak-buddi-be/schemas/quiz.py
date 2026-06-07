@@ -37,6 +37,11 @@ class VocabularyTestCreate(BaseModel):
     description: Optional[str] = None
 
 
+class VocabularyTestUpdate(VocabularyTestCreate):
+    """Cập nhật metadata bài kiểm tra (Admin S9.1) — cùng shape với Create."""
+    pass
+
+
 class VocabularyTestOut(BaseModel):
     """Bài kiểm tra kèm metadata — trả về trong response."""
 
@@ -60,6 +65,18 @@ class VocabularyTestWithAttemptCountOut(VocabularyTestOut):
     attempt_count: số lượt làm bài có status='submitted'.
     """
 
+    attempt_count: int = 0
+
+
+class VocabularyTestAdminOut(VocabularyTestOut):
+    """
+    Bài kiểm tra cho Admin list (S9.1 — Tests Repository).
+    topic_name: tên topic (JOIN); question_count: tổng số câu hỏi;
+    attempt_count: tổng số lượt làm (status='submitted') của mọi user.
+    """
+
+    topic_name: Optional[str] = None
+    question_count: int = 0
     attempt_count: int = 0
 
 
@@ -112,6 +129,46 @@ class QuizQuestionOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# ── Test editor (Admin S9.1 — nested questions/answers) ───────────────────────
+# Dùng cho GET/PUT /api/admin/tests/{id} — sync toàn bộ question/answer 1 lần.
+
+class AnswerEditorIn(BaseModel):
+    """1 đáp án trong editor — request body lồng trong QuestionEditorIn."""
+
+    answer_text: str = Field(..., min_length=1)
+    is_correct: bool = False
+    display_order: int = 0
+
+
+class QuestionEditorIn(BaseModel):
+    """1 câu hỏi trong editor — request body lồng trong TestEditorIn."""
+
+    question_text: str = Field(..., min_length=1)
+    question_type: QuestionType
+    topic_word_id: Optional[uuid.UUID] = None
+    display_order: int = 0
+    answers: list[AnswerEditorIn] = Field(default_factory=list)
+
+
+class TestEditorIn(BaseModel):
+    """
+    Request body cho POST/PUT bài kiểm tra kèm toàn bộ câu hỏi + đáp án (Admin S9.1).
+    BE validate: title không rỗng, ≥1 question, multiple_choice phải có ≥1 đáp án đúng.
+    """
+
+    title: str = Field(..., max_length=200)
+    topic_id: Optional[uuid.UUID] = None
+    level_id: Optional[uuid.UUID] = None
+    description: Optional[str] = None
+    questions: list[QuestionEditorIn] = Field(default_factory=list)
+
+
+class TestEditorOut(VocabularyTestOut):
+    """Bài kiểm tra kèm toàn bộ câu hỏi + đáp án — trả về cho trang editor (S9.1)."""
+
+    questions: list[QuizQuestionOut] = Field(default_factory=list)
 
 
 # ── QuizAttempt ────────────────────────────────────────────────────────────────

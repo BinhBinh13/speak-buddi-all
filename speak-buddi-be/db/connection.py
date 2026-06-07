@@ -48,6 +48,9 @@ _AsyncSessionLocal: sessionmaker = sessionmaker(  # type: ignore[call-overload]
     expire_on_commit=False,
 )
 
+# Alias cho background jobs (S9.3 crawler scheduler)
+async_session_factory = _AsyncSessionLocal
+
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """FastAPI Depends — yield AsyncSession, commit khi thành công, rollback khi lỗi."""

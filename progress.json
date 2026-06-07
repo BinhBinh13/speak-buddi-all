@@ -13,13 +13,13 @@
   "summary": {
     "totalEpics": 12,
     "totalStories": 46,
-    "completedStories": 22,
-    "progressPercent": 48,
+    "completedStories": 39,
+    "progressPercent": 85,
     "byStatus": {
-      "todo": 22,
+      "todo": 6,
       "in_progress": 1,
       "review": 1,
-      "done": 22,
+      "done": 39,
       "blocked": 0
     }
   },
@@ -144,13 +144,13 @@
       "features": ["F12", "F13"],
       "businessRules": ["BR04", "BR06"],
       "owner": "Dev B",
-      "status": "todo",
-      "progressPercent": 0,
+      "status": "done",
+      "progressPercent": 100,
       "stories": [
-        { "id": "S8.1", "title": "Khoi tao giao dich + redirect provider", "ac": "AC-10-01", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S8.2", "title": "Webhook/callback -> kich hoat subscription", "ac": "AC-10-02, BR04", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S8.3", "title": "Xu ly that bai/huy: giu plan + retry + email", "ac": "AC-10-03, 5.2", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S8.4", "title": "Paid User doi voice/model; chan free user", "ac": "AC-11-01/02/03, BR06", "priority": "P2", "status": "todo", "assignee": "", "notes": "" }
+        { "id": "S8.1", "title": "Khoi tao giao dich + redirect provider", "ac": "AC-10-01", "priority": "P1", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S8.1-plan.md", "implement": "implement/S8.1-implement.md", "review": "review/S8.1-review.md" }, "updatedAt": "2026-06-07" },
+        { "id": "S8.2", "title": "Webhook/callback -> kich hoat subscription", "ac": "AC-10-02, BR04", "priority": "P1", "status": "done", "assignee": "", "notes": "PO chot Payment Provider = Sepay (2026-06-07). Review PASS -- luu y hardening truoc production: them khoa/unique de chong race condition tao trung user_subscription khi Sepay retry webhook song song (xem review/S8.2-review.md).", "artifacts": { "plan": "plan/S8.2-plan.md", "implement": "implement/S8.2-implement.md", "review": "review/S8.2-review.md" }, "updatedAt": "2026-06-07" },
+        { "id": "S8.3", "title": "Xu ly that bai/huy: giu plan + retry + email", "ac": "AC-10-03, 5.2", "priority": "P1", "status": "done", "assignee": "", "notes": "Review PASS -- 2 viec nho khong chan: (1) sua comment 403->404 trong routers/payment.py va payment_service.py, (2) tuy chon truyen them 'plan' qua query trong MockPayPage de retry khong phu thuoc getTransaction (xem review/S8.3-review.md).", "artifacts": { "plan": "plan/S8.3-plan.md", "implement": "implement/S8.3-implement.md", "review": "review/S8.3-review.md" }, "updatedAt": "2026-06-07" },
+        { "id": "S8.4", "title": "Paid User doi voice/model; chan free user", "ac": "AC-11-01/02/03, BR06", "priority": "P2", "status": "done", "assignee": "", "notes": "Review PASS -- 2 viec nho khong chan: (1) thong nhat commit pattern voice_repo vs get_db, (2) tuy chon try/except fallback voice lookup trong ai.py neu chua migrate schema_voice (xem review/S8.4-review.md).", "artifacts": { "plan": "plan/S8.4-plan.md", "implement": "implement/S8.4-implement.md", "review": "review/S8.4-review.md" }, "updatedAt": "2026-06-07" }
       ]
     },
     {
@@ -160,14 +160,14 @@
       "features": ["F15", "F17", "F18"],
       "businessRules": ["BR07", "BR10", "BR11", "BR12"],
       "owner": "Dev C",
-      "status": "in_progress",
-      "progressPercent": 0,
+      "status": "done",
+      "progressPercent": 100,
       "stories": [
-        { "id": "S9.1", "title": "Admin CRUD topic/vocab/test + validation inline", "ac": "AC-13-01/02, 5.2", "priority": "P0", "status": "in_progress", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S9.1-plan.md", "implement": "", "review": "" }, "updatedAt": "2026-06-06" },
-        { "id": "S9.2", "title": "Soft delete is_active=false", "ac": "AC-13-03, 5.3", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S9.3", "title": "Crawler Langeek tuan + map A1-C2 + auto-publish", "ac": "AC-13-04, BR10, FR-18/19", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S9.4", "title": "Fallback Langeek loi: cache/retry/log/notify", "ac": "AC-13-05, BR12, FR-20", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S9.5", "title": "Admin chinh/disable noi dung da crawl", "ac": "AC-13-06, BR11", "priority": "P2", "status": "todo", "assignee": "", "notes": "" }
+        { "id": "S9.1", "title": "Admin CRUD topic/vocab/test + validation inline", "ac": "AC-13-01/02, 5.2", "priority": "P0", "status": "done", "assignee": "", "notes": "Review PASS -- smoke test runtime tren PostgreSQL that + nav mobile hamburger chua co (xem review/S9.1-review.md).", "artifacts": { "plan": "plan/S9.1-plan.md", "implement": "implement/S9.1-implement.md", "review": "review/S9.1-review.md" }, "updatedAt": "2026-06-07" },
+        { "id": "S9.2", "title": "Soft delete is_active=false", "ac": "AC-13-03, 5.3", "priority": "P1", "status": "done", "assignee": "", "notes": "Review PASS -- pagination vocabulary filter Draft client-side co the sai total/trang; apiDelete chua refresh token 401 (xem review/S9.2-review.md).", "artifacts": { "plan": "plan/S9.2-plan.md", "implement": "implement/S9.2-implement.md", "review": "review/S9.2-review.md" }, "updatedAt": "2026-06-07" },
+        { "id": "S9.3", "title": "Crawler Langeek tuan + map A1-C2 + auto-publish", "ac": "AC-13-04, BR10, FR-18/19", "priority": "P1", "status": "done", "assignee": "", "notes": "Review PASS -- live Langeek DOM selectors chua verify production; smoke test PostgreSQL E2E chua chay trong session (xem review/S9.3-review.md).", "artifacts": { "plan": "plan/S9.3-plan.md", "implement": "implement/S9.3-implement.md", "review": "review/S9.3-review.md" }, "updatedAt": "2026-06-07" },
+        { "id": "S9.4", "title": "Fallback Langeek loi: cache/retry/log/notify", "ac": "AC-13-05, BR12, FR-20", "priority": "P1", "status": "done", "assignee": "", "notes": "Review PASS -- smoke PostgreSQL E2E chua chay; retry_status job failed cu co the stale sau auto-retry success; FE chua dung getJobLogs (xem review/S9.4-review.md).", "artifacts": { "plan": "plan/S9.4-plan.md", "implement": "implement/S9.4-implement.md", "review": "review/S9.4-review.md" }, "updatedAt": "2026-06-07" },
+        { "id": "S9.5", "title": "Admin chinh/disable noi dung da crawl", "ac": "AC-13-06, BR11", "priority": "P2", "status": "done", "assignee": "", "notes": "Review PASS -- smoke PostgreSQL E2E sau migration schema_learning_s9_5 chua chay; apiPatch chua refresh token 401 (xem review/S9.5-review.md).", "artifacts": { "plan": "plan/S9.5-plan.md", "implement": "implement/S9.5-implement.md", "review": "review/S9.5-review.md" }, "updatedAt": "2026-06-07" }
       ]
     },
     {
@@ -177,11 +177,11 @@
       "features": ["F16"],
       "businessRules": [],
       "owner": "Dev C",
-      "status": "todo",
-      "progressPercent": 0,
+      "status": "done",
+      "progressPercent": 100,
       "stories": [
-        { "id": "S10.1", "title": "CRUD payment plan + validation", "ac": "AC-14-01/02, 5.2", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S10.2", "title": "Soft delete payment plan", "ac": "AC-14-03", "priority": "P2", "status": "todo", "assignee": "", "notes": "" }
+        { "id": "S10.1", "title": "CRUD payment plan + validation", "ac": "AC-14-01/02, 5.2", "priority": "P1", "status": "done", "assignee": "", "notes": "Review PASS -- BE chua bat price>0 cho goi tra phi (chi FE form); smoke PostgreSQL E2E chua chay (xem review/S10.1-review.md).", "artifacts": { "plan": "plan/S10.1-plan.md", "implement": "implement/S10.1-implement.md", "review": "review/S10.1-review.md" }, "updatedAt": "2026-06-07" },
+        { "id": "S10.2", "title": "Soft delete payment plan", "ac": "AC-14-03", "priority": "P2", "status": "done", "assignee": "", "notes": "Review PASS -- disablePlan/apiDelete chua refresh token 401; smoke PostgreSQL E2E chua chay (xem review/S10.2-review.md).", "artifacts": { "plan": "plan/S10.2-plan.md", "implement": "implement/S10.2-implement.md", "review": "review/S10.2-review.md" }, "updatedAt": "2026-06-07" }
       ]
     },
     {
@@ -191,12 +191,12 @@
       "features": ["F14"],
       "businessRules": [],
       "owner": "Dev C",
-      "status": "todo",
-      "progressPercent": 0,
+      "status": "done",
+      "progressPercent": 100,
       "stories": [
-        { "id": "S11.1", "title": "Dashboard doanh thu/user/learning/AI", "ac": "AC-12-01, 3.6", "priority": "P2", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S11.2", "title": "Loc doanh thu theo ngay/thang/nam/goi", "ac": "AC-12-02", "priority": "P2", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S11.3", "title": "Export Excel/PDF + luu lich su", "ac": "AC-12-03", "priority": "P2", "status": "todo", "assignee": "", "notes": "" }
+        { "id": "S11.1", "title": "Dashboard doanh thu/user/learning/AI", "ac": "AC-12-01, 3.6", "priority": "P2", "status": "done", "assignee": "", "notes": "Review PASS -- smoke PostgreSQL E2E chua chay; getOverview/getTimeseries chua refresh token 401 (xem review/S11.1-review.md).", "artifacts": { "plan": "plan/S11.1-plan.md", "implement": "implement/S11.1-implement.md", "review": "review/S11.1-review.md" }, "updatedAt": "2026-06-07" },
+        { "id": "S11.2", "title": "Loc doanh thu theo ngay/thang/nam/goi", "ac": "AC-12-02", "priority": "P2", "status": "done", "assignee": "", "notes": "Review PASS -- smoke PostgreSQL E2E chua chay; getRevenueFiltered chua refresh token 401; preset TZ theo server DB (xem review/S11.2-review.md).", "artifacts": { "plan": "plan/S11.2-plan.md", "implement": "implement/S11.2-implement.md", "review": "review/S11.2-review.md" }, "updatedAt": "2026-06-07" },
+        { "id": "S11.3", "title": "Export Excel/PDF + luu lich su", "ac": "AC-12-03", "priority": "P2", "status": "done", "assignee": "", "notes": "Review PASS -- smoke PostgreSQL E2E chua chay; exportReport chua refresh token 401; khong re-download file cu (xem review/S11.3-review.md).", "artifacts": { "plan": "plan/S11.3-plan.md", "implement": "implement/S11.3-implement.md", "review": "review/S11.3-review.md" }, "updatedAt": "2026-06-07" }
       ]
     },
     {
@@ -206,13 +206,13 @@
       "features": [],
       "businessRules": [],
       "owner": "Dev C",
-      "status": "todo",
-      "progressPercent": 0,
+      "status": "done",
+      "progressPercent": 100,
       "notes": "Bo sung tu SRS 4.6/4.7 - backlog goc chua tach story rieng. S12.3 la extra-scope ngoai SRS.",
       "stories": [
-        { "id": "S12.1", "title": "Trang Privacy Policy + Terms of Service", "ac": "4.7", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S12.2", "title": "Nguoi dung yeu cau xoa du lieu ca nhan", "ac": "4.7, 4.6", "priority": "P2", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S12.3", "title": "Form lien he / ho tro + support email", "ac": "extra-scope (ngoai SRS)", "priority": "P2", "status": "todo", "assignee": "", "notes": "Khong co requirement trong SRS v1.1.0; giu lai nhu extra-scope." }
+        { "id": "S12.1", "title": "Trang Privacy Policy + Terms of Service", "ac": "4.7", "priority": "P1", "status": "done", "assignee": "", "notes": "Review PASS -- email ho tro/ten phap ly la placeholder; can ra soat noi dung phap ly truoc production; cap nhat Privacy khi S12.2/S12.3 xong (xem review/S12.1-review.md).", "artifacts": { "plan": "plan/S12.1-plan.md", "implement": "implement/S12.1-implement.md", "review": "review/S12.1-review.md" }, "updatedAt": "2026-06-07" },
+        { "id": "S12.2", "title": "Nguoi dung yeu cau xoa du lieu ca nhan", "ac": "4.7, 4.6", "priority": "P2", "status": "done", "assignee": "", "notes": "Review PASS -- smoke PostgreSQL E2E chua chay; mo rong delete khi Epic 6/7 co schema audio/transcript (xem review/S12.2-review.md).", "artifacts": { "plan": "plan/S12.2-plan.md", "implement": "implement/S12.2-implement.md", "review": "review/S12.2-review.md" }, "updatedAt": "2026-06-07" },
+        { "id": "S12.3", "title": "Form lien he / ho tro + support email", "ac": "extra-scope (ngoai SRS)", "priority": "P2", "status": "done", "assignee": "", "notes": "Review PASS -- inbox = SMTP_USER; smoke SMTP E2E chua chay (xem review/S12.3-review.md).", "artifacts": { "plan": "plan/S12.3-plan.md", "implement": "implement/S12.3-implement.md", "review": "review/S12.3-review.md" }, "updatedAt": "2026-06-07" }
       ]
     }
   ]

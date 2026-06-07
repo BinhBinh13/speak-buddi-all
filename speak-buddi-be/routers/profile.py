@@ -1,14 +1,15 @@
 # speak-buddi-be/routers/profile.py
-# ─── Profile API routes (S2.3) ────────────────────────────────────────────────
+# ─── Profile API routes (S2.3, S12.2) ───────────────────────────────────────
 #
 # Endpoints:
-#   PATCH /api/profile/level   → UpdateLevelOut
+#   PATCH  /api/profile/level    → UpdateLevelOut
+#   DELETE /api/profile/account  → DeleteAccountOut (S12.2)
 #
 # Guard: Depends(current_user) — yêu cầu đăng nhập (JWT hợp lệ).
-# Validate BR09: level phải thuộc {A1, A2, B1, B2, C1, C2}.
-# Chỉ UPDATE target_level — không đụng interests/daily_minutes/words_per_session.
 # ─────────────────────────────────────────────────────────────────────────────
 
+import hashlib
+import hmac
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -17,7 +18,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from auth.deps import current_user
 from db.connection import get_db
 from repositories import user_repo
-from schemas.profile import UpdateLevelOut, UpdateLevelRequest
+from schemas.profile import (
+    DeleteAccountOut,
+    DeleteAccountRequest,
+    UpdateLevelOut,
+    UpdateLevelRequest,
+)
 
 log = logging.getLogger("speakbuddi.profile")
 
@@ -64,3 +70,55 @@ async def update_level(
         level=result["target_level"],
         onboarding_completed=result["target_level"] is not None,
     )
+
+
+# ─── DELETE /api/profile/account (S12.2) ──────────────────────────────────────
+
+CONFIRM_DELETE_TEXT = "XOA"
+
+
+@router.delete("/account", response_model=DeleteAccountOut)
+async def delete_account(
+    req: DeleteAccountRequest,
+    payload: dict = Depends(current_user),
+    db: AsyncSession = Depends(get_db),
+) -> DeleteAccountOut:
+    """
+    Xóa dữ liệu cá nhân và vô hiệu hóa tài khoản (§4.6/§4.7).
+    Yêu cầu confirm_text='XOA' và mật khẩu nếu tài khoản có password_hash.
+    Admin không được tự xóa qua luồng này (BR07).
+    """
+    user_id = payload.get("sub", "")
+    user = await user_repo.get_user_by_id(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Người dùng không tồn tại.")
+
+    if user.get("role") == "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Tài khoản quản trị không thể tự xóa qua ứng dụng. Vui lòng liên hệ đội vận hành.",
+        )
+
+    if (req.confirm_text or "").strip() != CONFIRM_DELETE_TEXT:
+        raise HTTPException(
+            status_code=400,
+            detail="Vui lòng nhập đúng cụm xác nhận XOA để tiếp tục.",
+        )
+
+    if user.get("password_hash"):
+        pw = req.password or ""
+        if not pw:
+            raise HTTPException(
+                status_code=400,
+                detail="Vui lòng nhập mật khẩu để xác nhận xóa tài khoản.",
+            )
+        pw_hash = hashlib.sha256(pw.encode()).hexdigest()
+        if not hmac.compare_digest(pw_hash, user["password_hash"]):
+            raise HTTPException(status_code=400, detail="Mật khẩu không đúng.")
+
+    ok = await user_repo.delete_user_personal_data(db, user_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Người dùng không tồn tại.")
+
+    log.info("ACCOUNT_DELETE ok user=%s", user_id)
+    return DeleteAccountOut(message="Tài khoản và dữ liệu cá nhân đã được xóa.")

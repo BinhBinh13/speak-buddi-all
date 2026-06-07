@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "../shared/auth/AuthContext";
 import ProtectedRoute from "../shared/auth/ProtectedRoute";
 import AdminRoute from "../shared/auth/AdminRoute";
@@ -12,6 +12,11 @@ import RegisterPage from "../features/auth/pages/RegisterPage";
 import OAuthCallbackPage from "../features/auth/pages/OAuthCallbackPage";
 import ForgotPasswordPage from "../features/auth/pages/ForgotPasswordPage";
 import ResetPasswordPage from "../features/auth/pages/ResetPasswordPage";
+import MockPayPage from "../features/payment/MockPayPage";
+import PaymentResultPage from "../features/payment/PaymentResultPage";
+import PrivacyPolicyPage from "../features/legal/PrivacyPolicyPage";
+import TermsOfServicePage from "../features/legal/TermsOfServicePage";
+import ContactPage from "../features/support/ContactPage";
 
 // ── Protected pages ───────────────────────────────────────────────────────────
 import DashboardPage from "../features/dashboard/DashboardPage";
@@ -24,6 +29,18 @@ import OnboardingPage from "../features/onboarding/OnboardingPage";
 import ProfilePage    from "../features/profile/ProfilePage";
 import RoadmapPage    from "../features/roadmap/RoadmapPage";
 import TranslatePage  from "../features/translate/TranslatePage";
+import VoiceSettingsPage from "../features/settings/VoiceSettingsPage";
+
+// ── Admin pages (S9.1) ────────────────────────────────────────────────────────
+import AdminLayout from "../features/admin/components/AdminLayout";
+import AdminTopicsPage from "../features/admin/topics/AdminTopicsPage";
+import AdminVocabularyPage from "../features/admin/vocabulary/AdminVocabularyPage";
+import AdminTestsPage from "../features/admin/tests/AdminTestsPage";
+import AdminTestEditorPage from "../features/admin/tests/AdminTestEditorPage";
+import AdminCrawlerPage from "../features/admin/crawler/AdminCrawlerPage";
+import AdminPaymentPlansPage from "../features/admin/payment-plans/AdminPaymentPlansPage";
+import AdminDashboardPage from "../features/admin/AdminDashboardPage";
+import AdminReportsPage from "../features/admin/reports/AdminReportsPage";
 
 export default function App() {
   return (
@@ -38,8 +55,22 @@ export default function App() {
           <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/privacy" element={<LandingPage />} />        {/* placeholder */}
-          <Route path="/terms" element={<LandingPage />} />          {/* placeholder */}
+
+          {/* S8.1: màn mock-pay nội bộ — đích redirect của MockPaymentProvider khi
+              PAYMENT_PROVIDER=mock (mặc định, vì SRS để Payment Provider = TBD).
+              Dev/QA-only: chỉ truy cập được qua luồng checkout → redirect_url. */}
+          <Route path="/payment/mock" element={<MockPayPage />} />
+
+          {/* S8.3: màn kết quả thanh toán (thất bại/hủy — AC-10-03). Đích điều
+              hướng sau webhook fail/cancel: /payment/result?status=&tx=&plan= */}
+          <Route path="/payment/result" element={<PaymentResultPage />} />
+
+          {/* S12.1: Privacy Policy + Terms of Service — trang tĩnh công khai */}
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms" element={<TermsOfServicePage />} />
+
+          {/* S12.3: Form liên hệ / hỗ trợ (extra-scope) */}
+          <Route path="/contact" element={<ContactPage />} />
 
           {/* ── Protected routes (yêu cầu đăng nhập) ────────────────────── */}
           <Route element={<ProtectedRoute />}>
@@ -76,15 +107,26 @@ export default function App() {
             {/* <Route path="/payment/*" element={<PaymentPage />} /> */}
           </Route>
 
-          {/* ── Admin routes (yêu cầu role=admin) — S9.x sẽ thêm page thật ── */}
+          {/* ── Admin routes (yêu cầu role=admin) — S9.1 content CRUD ── */}
           <Route element={<AdminRoute />}>
-            {/* <Route path="/admin/*" element={<AdminLayout />} /> */}
+            <Route element={<AdminLayout />}>
+              <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+              <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+              <Route path="/admin/topics" element={<AdminTopicsPage />} />
+              <Route path="/admin/vocabulary" element={<AdminVocabularyPage />} />
+              <Route path="/admin/tests" element={<AdminTestsPage />} />
+              <Route path="/admin/tests/new" element={<AdminTestEditorPage />} />
+              <Route path="/admin/tests/:id/edit" element={<AdminTestEditorPage />} />
+              <Route path="/admin/crawler" element={<AdminCrawlerPage />} />
+              <Route path="/admin/payments" element={<AdminPaymentPlansPage />} />
+              <Route path="/admin/reports" element={<AdminReportsPage />} />
+            </Route>
           </Route>
 
           {/* ── Paid routes (yêu cầu is_paid=true) — S7.3/S8.4 sẽ thêm ──── */}
           <Route element={<PaidRoute />}>
             {/* <Route path="/ai-chat/unlimited" element={<AIChatPage />} /> */}
-            {/* <Route path="/settings/voice" element={<VoiceSettingsPage />} /> */}
+            <Route path="/settings/voice" element={<VoiceSettingsPage />} />
           </Route>
         </Routes>
       </AuthProvider>

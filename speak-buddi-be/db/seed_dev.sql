@@ -68,3 +68,38 @@ FROM (VALUES
 ) AS v (email, name, target_level, learning_goal, interests, timezone)
 JOIN users u ON u.email = v.email
 WHERE NOT EXISTS (SELECT 1 FROM user_profile WHERE user_id = u.id);
+
+-- ── 3. elevenlabs_voice_model (S8.4) ─────────────────────────────────────────
+-- Voice mặc định khớp ELEVENLABS_VOICE_ID (pNInz6obpgDQGcFmaJgB).
+
+INSERT INTO elevenlabs_voice_model (id, voice_id, model_id, display_name, accent, gender, is_pro, is_active, sort_order)
+SELECT id, voice_id, model_id, display_name, accent, gender, is_pro, is_active, sort_order FROM (VALUES
+    ('10000000-0000-0000-0000-000000000001'::uuid,
+     'pNInz6obpgDQGcFmaJgB',
+     'eleven_multilingual_v2',
+     'Sarah',
+     'Tiếng Anh Mỹ',
+     'female',
+     FALSE,
+     TRUE,
+     0),
+    ('10000000-0000-0000-0000-000000000002'::uuid,
+     'EXAVITQu4vr4xnSDxMaL',
+     'eleven_multilingual_v2',
+     'James',
+     'Tiếng Anh Anh',
+     'male',
+     TRUE,
+     TRUE,
+     1),
+    ('10000000-0000-0000-0000-000000000003'::uuid,
+     'jsCqWAovK2LkecY7zXl4',
+     'eleven_multilingual_v2',
+     'Chloe',
+     'Tiếng Anh Úc',
+     'female',
+     TRUE,
+     TRUE,
+     2)
+) AS v (id, voice_id, model_id, display_name, accent, gender, is_pro, is_active, sort_order)
+WHERE NOT EXISTS (SELECT 1 FROM elevenlabs_voice_model LIMIT 1);

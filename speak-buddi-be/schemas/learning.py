@@ -54,7 +54,7 @@ class TagOut(TagCreate):
 # ── Topic ─────────────────────────────────────────────────────────────────────
 
 class TopicCreate(BaseModel):
-    """Tạo / cập nhật topic (Admin S9.1)."""
+    """Tạo topic mới (Admin S9.1)."""
 
     name: str               = Field(..., max_length=150)
     slug: str               = Field(..., max_length=180)
@@ -63,12 +63,19 @@ class TopicCreate(BaseModel):
     display_order: int             = 0
 
 
+class TopicUpdate(TopicCreate):
+    """Cập nhật topic (Admin S9.1) — cùng shape với Create (PUT thay thế toàn bộ)."""
+    pass
+
+
 class TopicOut(TopicCreate):
     """Topic kèm metadata — trả về trong response."""
 
     id: uuid.UUID
+    level_code: Optional[str] = None   # S9.1 — mã level (A1/A2/…), JOIN từ level table
     source: str             # 'admin' | 'langeek'
     is_active: bool
+    admin_locked: bool = False   # S9.5 — Admin đã chỉnh/disable; crawler không ghi đè
     created_at: datetime
 
     class Config:
@@ -78,7 +85,7 @@ class TopicOut(TopicCreate):
 # ── TopicListItem (Topic + word_count) ───────────────────────────────────────
 
 class TopicListItemOut(TopicOut):
-    """Topic kèm số từ active — dùng cho list endpoint (S3.2)."""
+    """Topic kèm số từ active — dùng cho list endpoint (S3.2 / S9.1 admin)."""
 
     word_count: int = 0
 
@@ -86,7 +93,7 @@ class TopicListItemOut(TopicOut):
 # ── TopicWord ─────────────────────────────────────────────────────────────────
 
 class TopicWordCreate(BaseModel):
-    """Tạo / cập nhật từ vựng trong topic (Admin S9.1 hoặc Crawler S9.3)."""
+    """Tạo từ vựng trong topic (Admin S9.1 hoặc Crawler S9.3)."""
 
     topic_id: uuid.UUID
     level_id: Optional[uuid.UUID]  = None
@@ -101,12 +108,19 @@ class TopicWordCreate(BaseModel):
     tag_ids: list[uuid.UUID]        = Field(default_factory=list)    # M:N → topic_word_tag
 
 
+class TopicWordUpdate(TopicWordCreate):
+    """Cập nhật từ vựng (Admin S9.1) — cùng shape với Create (PUT thay thế toàn bộ)."""
+    pass
+
+
 class TopicWordOut(BaseModel):
     """Từ vựng kèm metadata + tags — trả về trong response."""
 
     id: uuid.UUID
     topic_id: uuid.UUID
+    topic_name: Optional[str] = None    # S9.1 — JOIN từ topic, hiển thị cột "Topic"
     level_id: Optional[uuid.UUID]
+    level_code: Optional[str] = None    # S9.1 — JOIN từ level, badge "Difficulty"
     word: str
     phonetic: Optional[str]
     meaning_vi: str
@@ -117,9 +131,11 @@ class TopicWordOut(BaseModel):
     display_order: int
     source: str             # 'admin' | 'langeek'
     is_active: bool
+    admin_locked: bool = False   # S9.5
     created_by: Optional[uuid.UUID]
     created_at: datetime
     tags: list[TagOut] = Field(default_factory=list)
+    tag_ids: list[uuid.UUID] = Field(default_factory=list)   # S9.1 — prefill form sửa
 
     class Config:
         from_attributes = True
