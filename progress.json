@@ -3,8 +3,14 @@
   "version": "1.1.0",
   "source": "Project/docs/speak-buddi/SRS_speak-buddi_v1.1.0.md",
   "backlog": "backlog.md",
-  "lastUpdated": "2026-06-06",
-  "statusLegend": ["todo", "in_progress", "review", "done", "blocked"],
+  "lastUpdated": "2026-06-07",
+  "statusLegend": [
+    "todo",
+    "in_progress",
+    "review",
+    "done",
+    "blocked"
+  ],
   "priorityLegend": {
     "P0": "Blocker - chan cac story khac",
     "P1": "Chinh - tinh nang must-have",
@@ -12,14 +18,14 @@
   },
   "summary": {
     "totalEpics": 12,
-    "totalStories": 46,
-    "completedStories": 15,
-    "progressPercent": 33,
+    "totalStories": 47,
+    "completedStories": 21,
+    "progressPercent": 45,
     "byStatus": {
-      "todo": 29,
+      "todo": 23,
       "in_progress": 1,
-      "review": 1,
-      "done": 15,
+      "review": 2,
+      "done": 21,
       "blocked": 0
     }
   },
@@ -27,176 +33,745 @@
     {
       "id": "EPIC-1",
       "name": "Nen tang & Xac thuc",
-      "useCases": ["UC01", "UC02"],
-      "features": ["F01", "F02"],
-      "businessRules": ["BR01"],
+      "useCases": [
+        "UC01",
+        "UC02"
+      ],
+      "features": [
+        "F01",
+        "F02"
+      ],
+      "businessRules": [
+        "BR01"
+      ],
       "owner": "Shared",
       "status": "done",
       "progressPercent": 100,
       "stories": [
-        { "id": "S1.1", "title": "Setup du an + base layout responsive", "ac": "NFR-4.8", "priority": "P0", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S1.1-plan.md", "implement": "implement/S1.1-implement.md", "review": "review/S1.1-review.md" }, "updatedAt": "2026-06-06" },
-        { "id": "S1.2", "title": "Trang landing + pricing cong khai", "ac": "AC-01-01/02", "priority": "P1", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S1.2-plan.md", "implement": "implement/S1.2-implement.md", "review": "review/S1.2-review.md" }, "updatedAt": "2026-06-06" },
-        { "id": "S1.3", "title": "Chan Guest truy cap tinh nang hoc", "ac": "AC-01-03, BR01", "priority": "P1", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S1.3-plan.md", "implement": "implement/S1.3-implement.md", "review": "review/S1.3-review.md" }, "updatedAt": "2026-06-06" },
-        { "id": "S1.4", "title": "Dang ky email/password + validation", "ac": "AC-02-01, 5.2", "priority": "P0", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S1.4-plan.md", "implement": "implement/S1.4-implement.md", "review": "review/S1.4-review.md" }, "updatedAt": "2026-06-06" },
-        { "id": "S1.5", "title": "Dang nhap + JWT access/refresh token", "ac": "AC-02-02, 4.5", "priority": "P0", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S1.5-plan.md", "implement": "implement/S1.5-implement.md", "review": "review/S1.5-review.md" }, "updatedAt": "2026-06-06" },
-        { "id": "S1.6", "title": "Google OAuth", "ac": "AC-02-03", "priority": "P1", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S1.6-plan.md", "implement": "implement/S1.6-implement.md", "review": "review/S1.6-review.md" }, "updatedAt": "2026-06-06" },
-        { "id": "S1.7", "title": "Reset mat khau qua email (Gmail SMTP)", "ac": "AC-02-04", "priority": "P1", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S1.7-plan.md", "implement": "implement/S1.7-implement.md", "review": "review/S1.7-review.md" }, "updatedAt": "2026-06-06" },
-        { "id": "S1.8", "title": "Phan quyen role + subscription state", "ac": "4.5", "priority": "P0", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S1.8-plan.md", "implement": "implement/S1.8-implement.md", "review": "review/S1.8-review.md" }, "updatedAt": "2026-06-06" }
+        {
+          "id": "S1.1",
+          "title": "Setup du an + base layout responsive",
+          "ac": "NFR-4.8",
+          "priority": "P0",
+          "status": "done",
+          "assignee": "",
+          "notes": "",
+          "artifacts": {
+            "plan": "plan/S1.1-plan.md",
+            "implement": "implement/S1.1-implement.md",
+            "review": "review/S1.1-review.md"
+          },
+          "updatedAt": "2026-06-06"
+        },
+        {
+          "id": "S1.2",
+          "title": "Trang landing + pricing cong khai",
+          "ac": "AC-01-01/02",
+          "priority": "P1",
+          "status": "done",
+          "assignee": "",
+          "notes": "",
+          "artifacts": {
+            "plan": "plan/S1.2-plan.md",
+            "implement": "implement/S1.2-implement.md",
+            "review": "review/S1.2-review.md"
+          },
+          "updatedAt": "2026-06-06"
+        },
+        {
+          "id": "S1.3",
+          "title": "Chan Guest truy cap tinh nang hoc",
+          "ac": "AC-01-03, BR01",
+          "priority": "P1",
+          "status": "done",
+          "assignee": "",
+          "notes": "",
+          "artifacts": {
+            "plan": "plan/S1.3-plan.md",
+            "implement": "implement/S1.3-implement.md",
+            "review": "review/S1.3-review.md"
+          },
+          "updatedAt": "2026-06-06"
+        },
+        {
+          "id": "S1.4",
+          "title": "Dang ky email/password + validation",
+          "ac": "AC-02-01, 5.2",
+          "priority": "P0",
+          "status": "done",
+          "assignee": "",
+          "notes": "",
+          "artifacts": {
+            "plan": "plan/S1.4-plan.md",
+            "implement": "implement/S1.4-implement.md",
+            "review": "review/S1.4-review.md"
+          },
+          "updatedAt": "2026-06-06"
+        },
+        {
+          "id": "S1.5",
+          "title": "Dang nhap + JWT access/refresh token",
+          "ac": "AC-02-02, 4.5",
+          "priority": "P0",
+          "status": "done",
+          "assignee": "",
+          "notes": "",
+          "artifacts": {
+            "plan": "plan/S1.5-plan.md",
+            "implement": "implement/S1.5-implement.md",
+            "review": "review/S1.5-review.md"
+          },
+          "updatedAt": "2026-06-06"
+        },
+        {
+          "id": "S1.6",
+          "title": "Google OAuth",
+          "ac": "AC-02-03",
+          "priority": "P1",
+          "status": "done",
+          "assignee": "",
+          "notes": "",
+          "artifacts": {
+            "plan": "plan/S1.6-plan.md",
+            "implement": "implement/S1.6-implement.md",
+            "review": "review/S1.6-review.md"
+          },
+          "updatedAt": "2026-06-06"
+        },
+        {
+          "id": "S1.7",
+          "title": "Reset mat khau qua email (Gmail SMTP)",
+          "ac": "AC-02-04",
+          "priority": "P1",
+          "status": "done",
+          "assignee": "",
+          "notes": "",
+          "artifacts": {
+            "plan": "plan/S1.7-plan.md",
+            "implement": "implement/S1.7-implement.md",
+            "review": "review/S1.7-review.md"
+          },
+          "updatedAt": "2026-06-06"
+        },
+        {
+          "id": "S1.8",
+          "title": "Phan quyen role + subscription state",
+          "ac": "4.5",
+          "priority": "P0",
+          "status": "done",
+          "assignee": "",
+          "notes": "",
+          "artifacts": {
+            "plan": "plan/S1.8-plan.md",
+            "implement": "implement/S1.8-implement.md",
+            "review": "review/S1.8-review.md"
+          },
+          "updatedAt": "2026-06-06"
+        }
       ]
     },
     {
       "id": "EPIC-2",
       "name": "Onboarding & Lo trinh hoc",
-      "useCases": ["UC03", "UC04"],
-      "features": ["F03", "F04"],
-      "businessRules": ["BR09"],
+      "useCases": [
+        "UC03",
+        "UC04"
+      ],
+      "features": [
+        "F03",
+        "F04"
+      ],
+      "businessRules": [
+        "BR09"
+      ],
       "owner": "Dev A",
       "status": "in_progress",
-      "progressPercent": 75,
+      "progressPercent": 60,
       "stories": [
-        { "id": "S2.1", "title": "Form onboarding + chon level A1-C2 + validation", "ac": "AC-03-01/03, 5.2", "priority": "P0", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S2.1-plan.md", "implement": "implement/S2.1-implement.md", "review": "review/S2.1-review.md" }, "updatedAt": "2026-06-06" },
-        { "id": "S2.2", "title": "Sinh roadmap ca nhan hoa tu level + goal", "ac": "AC-03-02", "priority": "P1", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S2.2-plan.md", "implement": "implement/S2.2-implement.md", "review": "review/S2.2-review.md" }, "updatedAt": "2026-06-06" },
-        { "id": "S2.3", "title": "Cap nhat level trong profile", "ac": "AC-03-04, BR09", "priority": "P2", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S2.3-plan.md", "implement": "implement/S2.3-implement.md", "review": "review/S2.3-review.md" }, "updatedAt": "2026-06-06" },
-        { "id": "S2.4", "title": "Man hinh xem roadmap + empty state", "ac": "AC-04-01/04", "priority": "P1", "status": "review", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S2.4-plan.md", "implement": "implement/S2.4-implement.md", "review": "" }, "updatedAt": "2026-06-06" }
+        {
+          "id": "S2.1",
+          "title": "Form onboarding + chon level A1-C2 + validation",
+          "ac": "AC-03-01/03, 5.2",
+          "priority": "P0",
+          "status": "done",
+          "assignee": "",
+          "notes": "",
+          "artifacts": {
+            "plan": "plan/S2.1-plan.md",
+            "implement": "implement/S2.1-implement.md",
+            "review": "review/S2.1-review.md"
+          },
+          "updatedAt": "2026-06-06"
+        },
+        {
+          "id": "S2.2",
+          "title": "Sinh roadmap ca nhan hoa tu level + goal",
+          "ac": "AC-03-02",
+          "priority": "P1",
+          "status": "done",
+          "assignee": "",
+          "notes": "",
+          "artifacts": {
+            "plan": "plan/S2.2-plan.md",
+            "implement": "implement/S2.2-implement.md",
+            "review": "review/S2.2-review.md"
+          },
+          "updatedAt": "2026-06-06"
+        },
+        {
+          "id": "S2.3",
+          "title": "Cap nhat level trong profile",
+          "ac": "AC-03-04, BR09",
+          "priority": "P2",
+          "status": "done",
+          "assignee": "",
+          "notes": "",
+          "artifacts": {
+            "plan": "plan/S2.3-plan.md",
+            "implement": "implement/S2.3-implement.md",
+            "review": "review/S2.3-review.md"
+          },
+          "updatedAt": "2026-06-06"
+        },
+        {
+          "id": "S2.4",
+          "title": "Man hinh xem roadmap + empty state",
+          "ac": "AC-04-01/04",
+          "priority": "P1",
+          "status": "review",
+          "assignee": "",
+          "notes": "",
+          "artifacts": {
+            "plan": "plan/S2.4-plan.md",
+            "implement": "implement/S2.4-implement.md",
+            "review": ""
+          },
+          "updatedAt": "2026-06-06"
+        },
+        {
+          "id": "S2.5",
+          "title": "Topic modal: chia session theo words_per_session + tracking progress + nut Tiep tuc + truyen data sang AI",
+          "ac": "AC-03-02, AC-04-01",
+          "priority": "P1",
+          "status": "review",
+          "assignee": "",
+          "notes": "",
+          "artifacts": {
+            "plan": "plan/S2.5-plan.md",
+            "implement": "implement/S2.5-implement.md",
+            "review": ""
+          },
+          "updatedAt": "2026-06-07"
+        }
       ]
     },
     {
       "id": "EPIC-3",
       "name": "Hoc tu vung",
-      "useCases": ["UC05"],
-      "features": ["F05"],
+      "useCases": [
+        "UC05"
+      ],
+      "features": [
+        "F05"
+      ],
       "businessRules": [],
       "owner": "Dev A",
       "status": "done",
       "progressPercent": 100,
       "stories": [
-        { "id": "S3.1", "title": "Data model level/topic/topic_word/tag + soft delete", "ac": "5.3", "priority": "P0", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S3.1-plan.md", "implement": "implement/S3.1-implement.md", "review": "review/S3.1-review.md" }, "updatedAt": "2026-06-06" },
-        { "id": "S3.2", "title": "Man hinh hoc tu vung theo level/topic", "ac": "AC-05-01/02", "priority": "P1", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S3.2-plan.md", "implement": "implement/S3.2-implement.md", "review": "review/S3.2-review.md" }, "updatedAt": "2026-06-06" },
-        { "id": "S3.3", "title": "Luu tien do hoc tu/topic", "ac": "AC-05-03", "priority": "P1", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S3.3-plan.md", "implement": "implement/S3.3-implement.md", "review": "review/S3.3-review.md" }, "updatedAt": "2026-06-06" },
-        { "id": "S3.4", "title": "Hien thi noi dung crawl moi, giu tien do cu", "ac": "AC-05-04", "priority": "P2", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S3.4-plan.md", "implement": "implement/S3.4-implement.md", "review": "review/S3.4-review.md" }, "updatedAt": "2026-06-06" }
+        {
+          "id": "S3.1",
+          "title": "Data model level/topic/topic_word/tag + soft delete",
+          "ac": "5.3",
+          "priority": "P0",
+          "status": "done",
+          "assignee": "",
+          "notes": "",
+          "artifacts": {
+            "plan": "plan/S3.1-plan.md",
+            "implement": "implement/S3.1-implement.md",
+            "review": "review/S3.1-review.md"
+          },
+          "updatedAt": "2026-06-06"
+        },
+        {
+          "id": "S3.2",
+          "title": "Man hinh hoc tu vung theo level/topic",
+          "ac": "AC-05-01/02",
+          "priority": "P1",
+          "status": "done",
+          "assignee": "",
+          "notes": "",
+          "artifacts": {
+            "plan": "plan/S3.2-plan.md",
+            "implement": "implement/S3.2-implement.md",
+            "review": "review/S3.2-review.md"
+          },
+          "updatedAt": "2026-06-06"
+        },
+        {
+          "id": "S3.3",
+          "title": "Luu tien do hoc tu/topic",
+          "ac": "AC-05-03",
+          "priority": "P1",
+          "status": "done",
+          "assignee": "",
+          "notes": "",
+          "artifacts": {
+            "plan": "plan/S3.3-plan.md",
+            "implement": "implement/S3.3-implement.md",
+            "review": "review/S3.3-review.md"
+          },
+          "updatedAt": "2026-06-06"
+        },
+        {
+          "id": "S3.4",
+          "title": "Hien thi noi dung crawl moi, giu tien do cu",
+          "ac": "AC-05-04",
+          "priority": "P2",
+          "status": "done",
+          "assignee": "",
+          "notes": "",
+          "artifacts": {
+            "plan": "plan/S3.4-plan.md",
+            "implement": "implement/S3.4-implement.md",
+            "review": "review/S3.4-review.md"
+          },
+          "updatedAt": "2026-06-06"
+        }
       ]
     },
     {
       "id": "EPIC-4",
       "name": "Bai kiem tra tu vung",
-      "useCases": ["UC06"],
-      "features": ["F06"],
-      "businessRules": ["BR08"],
+      "useCases": [
+        "UC06"
+      ],
+      "features": [
+        "F06"
+      ],
+      "businessRules": [
+        "BR08"
+      ],
       "owner": "Dev A",
       "status": "todo",
       "progressPercent": 0,
       "stories": [
-        { "id": "S4.1", "title": "Data model quiz: test/question/answer/attempt", "ac": "5.3", "priority": "P0", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S4.2", "title": "Cac dang cau hoi: flashcard/MC/fill/mapping", "ac": "AC-06-01, 3.4", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S4.3", "title": "Lam bai + chan nop thieu dap an", "ac": "AC-06-02, 5.2", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S4.4", "title": "Cham diem dung/tong x100% + luu attempt", "ac": "AC-06-03, BR08", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S4.5", "title": "Loc test theo level/topic, giu attempt cu", "ac": "AC-06-04", "priority": "P2", "status": "todo", "assignee": "", "notes": "" }
+        {
+          "id": "S4.1",
+          "title": "Data model quiz: test/question/answer/attempt",
+          "ac": "5.3",
+          "priority": "P0",
+          "status": "todo",
+          "assignee": "",
+          "notes": ""
+        },
+        {
+          "id": "S4.2",
+          "title": "Cac dang cau hoi: flashcard/MC/fill/mapping",
+          "ac": "AC-06-01, 3.4",
+          "priority": "P1",
+          "status": "todo",
+          "assignee": "",
+          "notes": ""
+        },
+        {
+          "id": "S4.3",
+          "title": "Lam bai + chan nop thieu dap an",
+          "ac": "AC-06-02, 5.2",
+          "priority": "P1",
+          "status": "todo",
+          "assignee": "",
+          "notes": ""
+        },
+        {
+          "id": "S4.4",
+          "title": "Cham diem dung/tong x100% + luu attempt",
+          "ac": "AC-06-03, BR08",
+          "priority": "P1",
+          "status": "todo",
+          "assignee": "",
+          "notes": ""
+        },
+        {
+          "id": "S4.5",
+          "title": "Loc test theo level/topic, giu attempt cu",
+          "ac": "AC-06-04",
+          "priority": "P2",
+          "status": "todo",
+          "assignee": "",
+          "notes": ""
+        }
       ]
     },
     {
       "id": "EPIC-5",
       "name": "Dich tu",
-      "useCases": ["UC07"],
-      "features": ["F07"],
+      "useCases": [
+        "UC07"
+      ],
+      "features": [
+        "F07"
+      ],
       "businessRules": [],
       "owner": "Dev A",
       "status": "todo",
       "progressPercent": 0,
       "stories": [
-        { "id": "S5.1", "title": "Dich EN->VI + validation input rong", "ac": "AC-07-01/02", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S5.2", "title": "Luu lich su dich", "ac": "AC-07-03", "priority": "P2", "status": "todo", "assignee": "", "notes": "" }
+        {
+          "id": "S5.1",
+          "title": "Dich EN->VI + validation input rong",
+          "ac": "AC-07-01/02",
+          "priority": "P1",
+          "status": "todo",
+          "assignee": "",
+          "notes": ""
+        },
+        {
+          "id": "S5.2",
+          "title": "Luu lich su dich",
+          "ac": "AC-07-03",
+          "priority": "P2",
+          "status": "todo",
+          "assignee": "",
+          "notes": ""
+        }
       ]
     },
     {
       "id": "EPIC-6",
       "name": "Luyen phat am",
-      "useCases": ["UC08"],
-      "features": ["F08"],
+      "useCases": [
+        "UC08"
+      ],
+      "features": [
+        "F08"
+      ],
       "businessRules": [],
       "owner": "Dev B",
-      "status": "todo",
-      "progressPercent": 0,
+      "status": "done",
+      "progressPercent": 100,
       "stories": [
-        { "id": "S6.1", "title": "Ghi am qua mic + xu ly loi mic", "ac": "AC-08-01/02, 5.2", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S6.2", "title": "Cham phat am + hien thi feedback/score", "ac": "AC-08-03", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S6.3", "title": "Luu audio 30 ngay + metadata dai han", "ac": "4.6", "priority": "P2", "status": "todo", "assignee": "", "notes": "" }
+        {
+          "id": "S6.1",
+          "title": "Ghi am qua mic + xu ly loi mic",
+          "ac": "AC-08-01/02, 5.2",
+          "priority": "P1",
+          "status": "done",
+          "assignee": "",
+          "notes": "",
+          "artifacts": {
+            "plan": "plan/S6.1-plan.md",
+            "implement": "implement/S6.1-implement.md",
+            "review": "review/S6.1-review.md"
+          },
+          "updatedAt": "2026-06-07"
+        },
+        {
+          "id": "S6.2",
+          "title": "Cham phat am + hien thi feedback/score",
+          "ac": "AC-08-03",
+          "priority": "P1",
+          "status": "done",
+          "assignee": "",
+          "notes": "",
+          "artifacts": {
+            "plan": "plan/S6.2-plan.md",
+            "implement": "implement/S6.2-implement.md",
+            "review": "review/S6.2-review.md"
+          },
+          "updatedAt": "2026-06-07"
+        },
+        {
+          "id": "S6.3",
+          "title": "Luu audio 30 ngay + metadata dai han",
+          "ac": "4.6",
+          "priority": "P2",
+          "status": "done",
+          "assignee": "",
+          "notes": "Don gian hoa: khong luu file audio, chi luu score + metadata. GET /api/pronunciation/history da implement; POST /score (S6.2) da xu ly save attempt.",
+          "artifacts": {
+            "plan": "plan/S6.3-plan.md",
+            "implement": "implement/S6.3-implement.md",
+            "review": "review/S6.3-review.md"
+          },
+          "updatedAt": "2026-06-07"
+        }
       ]
     },
     {
       "id": "EPIC-7",
       "name": "Hoi thoai AI",
-      "useCases": ["UC09"],
-      "features": ["F09", "F10", "F11"],
-      "businessRules": ["BR02", "BR03", "BR05"],
+      "useCases": [
+        "UC09"
+      ],
+      "features": [
+        "F09",
+        "F10",
+        "F11"
+      ],
+      "businessRules": [
+        "BR02",
+        "BR03",
+        "BR05"
+      ],
       "owner": "Dev B",
-      "status": "todo",
-      "progressPercent": 0,
+      "status": "done",
+      "progressPercent": 100,
       "stories": [
-        { "id": "S7.1", "title": "Tich hop Anthropic + ElevenLabs + fallback 502", "ac": "AC-09-04, 5.2", "priority": "P0", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S7.2", "title": "Quota free 15p/5h + reset -> 429", "ac": "AC-09-01/02, BR02/03", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S7.3", "title": "Paid User hoi thoai khong gioi han", "ac": "AC-09-03, BR05", "priority": "P1", "status": "todo", "assignee": "", "notes": "" }
+        {
+          "id": "S7.1",
+          "title": "Tich hop Anthropic + ElevenLabs + fallback 502",
+          "ac": "AC-09-04, 5.2",
+          "priority": "P0",
+          "status": "done",
+          "assignee": "",
+          "notes": "",
+          "artifacts": {
+            "plan": "plan/S7.1-plan.md",
+            "implement": "implement/S7.1-implement.md",
+            "review": "review/S7.1-review.md"
+          },
+          "updatedAt": "2026-06-07"
+        },
+        {
+          "id": "S7.2",
+          "title": "Quota free 15p/5h + reset -> 429",
+          "ac": "AC-09-01/02, BR02/03",
+          "priority": "P1",
+          "status": "done",
+          "assignee": "",
+          "notes": "",
+          "artifacts": {
+            "plan": "plan/S7.2-plan.md",
+            "implement": "implement/S7.2-implement.md",
+            "review": "review/S7.2-review.md"
+          },
+          "updatedAt": "2026-06-07"
+        },
+        {
+          "id": "S7.3",
+          "title": "Paid User hoi thoai khong gioi han",
+          "ac": "AC-09-03, BR05",
+          "priority": "P1",
+          "status": "done",
+          "assignee": "",
+          "notes": "",
+          "artifacts": {
+            "plan": "plan/S7.3-plan.md",
+            "implement": "implement/S7.3-implement.md",
+            "review": "review/S7.3-review.md"
+          },
+          "updatedAt": "2026-06-07"
+        }
       ]
     },
     {
       "id": "EPIC-8",
       "name": "Thanh toan & Subscription",
-      "useCases": ["UC10", "UC11"],
-      "features": ["F12", "F13"],
-      "businessRules": ["BR04", "BR06"],
+      "useCases": [
+        "UC10",
+        "UC11"
+      ],
+      "features": [
+        "F12",
+        "F13"
+      ],
+      "businessRules": [
+        "BR04",
+        "BR06"
+      ],
       "owner": "Dev B",
       "status": "todo",
       "progressPercent": 0,
       "stories": [
-        { "id": "S8.1", "title": "Khoi tao giao dich + redirect provider", "ac": "AC-10-01", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S8.2", "title": "Webhook/callback -> kich hoat subscription", "ac": "AC-10-02, BR04", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S8.3", "title": "Xu ly that bai/huy: giu plan + retry + email", "ac": "AC-10-03, 5.2", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S8.4", "title": "Paid User doi voice/model; chan free user", "ac": "AC-11-01/02/03, BR06", "priority": "P2", "status": "todo", "assignee": "", "notes": "" }
+        {
+          "id": "S8.1",
+          "title": "Khoi tao giao dich + redirect provider",
+          "ac": "AC-10-01",
+          "priority": "P1",
+          "status": "todo",
+          "assignee": "",
+          "notes": ""
+        },
+        {
+          "id": "S8.2",
+          "title": "Webhook/callback -> kich hoat subscription",
+          "ac": "AC-10-02, BR04",
+          "priority": "P1",
+          "status": "todo",
+          "assignee": "",
+          "notes": ""
+        },
+        {
+          "id": "S8.3",
+          "title": "Xu ly that bai/huy: giu plan + retry + email",
+          "ac": "AC-10-03, 5.2",
+          "priority": "P1",
+          "status": "todo",
+          "assignee": "",
+          "notes": ""
+        },
+        {
+          "id": "S8.4",
+          "title": "Paid User doi voice/model; chan free user",
+          "ac": "AC-11-01/02/03, BR06",
+          "priority": "P2",
+          "status": "todo",
+          "assignee": "",
+          "notes": ""
+        }
       ]
     },
     {
       "id": "EPIC-9",
       "name": "Admin: Noi dung & Crawler Langeek",
-      "useCases": ["UC13"],
-      "features": ["F15", "F17", "F18"],
-      "businessRules": ["BR07", "BR10", "BR11", "BR12"],
+      "useCases": [
+        "UC13"
+      ],
+      "features": [
+        "F15",
+        "F17",
+        "F18"
+      ],
+      "businessRules": [
+        "BR07",
+        "BR10",
+        "BR11",
+        "BR12"
+      ],
       "owner": "Dev C",
       "status": "in_progress",
       "progressPercent": 0,
       "stories": [
-        { "id": "S9.1", "title": "Admin CRUD topic/vocab/test + validation inline", "ac": "AC-13-01/02, 5.2", "priority": "P0", "status": "in_progress", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S9.1-plan.md", "implement": "", "review": "" }, "updatedAt": "2026-06-06" },
-        { "id": "S9.2", "title": "Soft delete is_active=false", "ac": "AC-13-03, 5.3", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S9.3", "title": "Crawler Langeek tuan + map A1-C2 + auto-publish", "ac": "AC-13-04, BR10, FR-18/19", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S9.4", "title": "Fallback Langeek loi: cache/retry/log/notify", "ac": "AC-13-05, BR12, FR-20", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S9.5", "title": "Admin chinh/disable noi dung da crawl", "ac": "AC-13-06, BR11", "priority": "P2", "status": "todo", "assignee": "", "notes": "" }
+        {
+          "id": "S9.1",
+          "title": "Admin CRUD topic/vocab/test + validation inline",
+          "ac": "AC-13-01/02, 5.2",
+          "priority": "P0",
+          "status": "in_progress",
+          "assignee": "",
+          "notes": "",
+          "artifacts": {
+            "plan": "plan/S9.1-plan.md",
+            "implement": "",
+            "review": ""
+          },
+          "updatedAt": "2026-06-06"
+        },
+        {
+          "id": "S9.2",
+          "title": "Soft delete is_active=false",
+          "ac": "AC-13-03, 5.3",
+          "priority": "P1",
+          "status": "todo",
+          "assignee": "",
+          "notes": ""
+        },
+        {
+          "id": "S9.3",
+          "title": "Crawler Langeek tuan + map A1-C2 + auto-publish",
+          "ac": "AC-13-04, BR10, FR-18/19",
+          "priority": "P1",
+          "status": "todo",
+          "assignee": "",
+          "notes": ""
+        },
+        {
+          "id": "S9.4",
+          "title": "Fallback Langeek loi: cache/retry/log/notify",
+          "ac": "AC-13-05, BR12, FR-20",
+          "priority": "P1",
+          "status": "todo",
+          "assignee": "",
+          "notes": ""
+        },
+        {
+          "id": "S9.5",
+          "title": "Admin chinh/disable noi dung da crawl",
+          "ac": "AC-13-06, BR11",
+          "priority": "P2",
+          "status": "todo",
+          "assignee": "",
+          "notes": ""
+        }
       ]
     },
     {
       "id": "EPIC-10",
       "name": "Admin: Goi thanh toan",
-      "useCases": ["UC14"],
-      "features": ["F16"],
+      "useCases": [
+        "UC14"
+      ],
+      "features": [
+        "F16"
+      ],
       "businessRules": [],
       "owner": "Dev C",
       "status": "todo",
       "progressPercent": 0,
       "stories": [
-        { "id": "S10.1", "title": "CRUD payment plan + validation", "ac": "AC-14-01/02, 5.2", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S10.2", "title": "Soft delete payment plan", "ac": "AC-14-03", "priority": "P2", "status": "todo", "assignee": "", "notes": "" }
+        {
+          "id": "S10.1",
+          "title": "CRUD payment plan + validation",
+          "ac": "AC-14-01/02, 5.2",
+          "priority": "P1",
+          "status": "todo",
+          "assignee": "",
+          "notes": ""
+        },
+        {
+          "id": "S10.2",
+          "title": "Soft delete payment plan",
+          "ac": "AC-14-03",
+          "priority": "P2",
+          "status": "todo",
+          "assignee": "",
+          "notes": ""
+        }
       ]
     },
     {
       "id": "EPIC-11",
       "name": "Admin: Phan tich & Bao cao",
-      "useCases": ["UC12"],
-      "features": ["F14"],
+      "useCases": [
+        "UC12"
+      ],
+      "features": [
+        "F14"
+      ],
       "businessRules": [],
       "owner": "Dev C",
       "status": "todo",
       "progressPercent": 0,
       "stories": [
-        { "id": "S11.1", "title": "Dashboard doanh thu/user/learning/AI", "ac": "AC-12-01, 3.6", "priority": "P2", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S11.2", "title": "Loc doanh thu theo ngay/thang/nam/goi", "ac": "AC-12-02", "priority": "P2", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S11.3", "title": "Export Excel/PDF + luu lich su", "ac": "AC-12-03", "priority": "P2", "status": "todo", "assignee": "", "notes": "" }
+        {
+          "id": "S11.1",
+          "title": "Dashboard doanh thu/user/learning/AI",
+          "ac": "AC-12-01, 3.6",
+          "priority": "P2",
+          "status": "todo",
+          "assignee": "",
+          "notes": ""
+        },
+        {
+          "id": "S11.2",
+          "title": "Loc doanh thu theo ngay/thang/nam/goi",
+          "ac": "AC-12-02",
+          "priority": "P2",
+          "status": "todo",
+          "assignee": "",
+          "notes": ""
+        },
+        {
+          "id": "S11.3",
+          "title": "Export Excel/PDF + luu lich su",
+          "ac": "AC-12-03",
+          "priority": "P2",
+          "status": "todo",
+          "assignee": "",
+          "notes": ""
+        }
       ]
     },
     {
@@ -210,9 +785,33 @@
       "progressPercent": 0,
       "notes": "Bo sung tu SRS 4.6/4.7 - backlog goc chua tach story rieng. S12.3 la extra-scope ngoai SRS.",
       "stories": [
-        { "id": "S12.1", "title": "Trang Privacy Policy + Terms of Service", "ac": "4.7", "priority": "P1", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S12.2", "title": "Nguoi dung yeu cau xoa du lieu ca nhan", "ac": "4.7, 4.6", "priority": "P2", "status": "todo", "assignee": "", "notes": "" },
-        { "id": "S12.3", "title": "Form lien he / ho tro + support email", "ac": "extra-scope (ngoai SRS)", "priority": "P2", "status": "todo", "assignee": "", "notes": "Khong co requirement trong SRS v1.1.0; giu lai nhu extra-scope." }
+        {
+          "id": "S12.1",
+          "title": "Trang Privacy Policy + Terms of Service",
+          "ac": "4.7",
+          "priority": "P1",
+          "status": "todo",
+          "assignee": "",
+          "notes": ""
+        },
+        {
+          "id": "S12.2",
+          "title": "Nguoi dung yeu cau xoa du lieu ca nhan",
+          "ac": "4.7, 4.6",
+          "priority": "P2",
+          "status": "todo",
+          "assignee": "",
+          "notes": ""
+        },
+        {
+          "id": "S12.3",
+          "title": "Form lien he / ho tro + support email",
+          "ac": "extra-scope (ngoai SRS)",
+          "priority": "P2",
+          "status": "todo",
+          "assignee": "",
+          "notes": "Khong co requirement trong SRS v1.1.0; giu lai nhu extra-scope."
+        }
       ]
     }
   ]

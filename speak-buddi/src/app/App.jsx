@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "../shared/auth/AuthContext";
 import ProtectedRoute from "../shared/auth/ProtectedRoute";
@@ -20,6 +21,10 @@ import VocabularyPage from "../features/vocabulary/VocabularyPage";
 import OnboardingPage from "../features/onboarding/OnboardingPage";
 import ProfilePage    from "../features/profile/ProfilePage";
 import RoadmapPage    from "../features/roadmap/RoadmapPage";
+import PronunciationPage from "../features/pronunciation/PronunciationPage";
+
+// S7.1: lazy-load ConversationPage để không ảnh hưởng bundle size ban đầu
+const ConversationPage = lazy(() => import("../features/conversation/ConversationPage"));
 
 export default function App() {
   return (
@@ -48,16 +53,31 @@ export default function App() {
             {/* S3.2: Vocabulary page */}
             <Route path="/vocabulary" element={<VocabularyPage />} />
 
+            {/* S2.5: /learn/:topicSlug — VocabularyPage với topic được auto-select */}
+            <Route path="/learn/:topicSlug" element={<VocabularyPage />} />
+
+            {/* S7.1: /conversation — màn hội thoại AI thật (thay ConversationPlaceholder) */}
+            <Route
+              path="/conversation"
+              element={
+                <Suspense fallback={<div style={{ padding: 40, textAlign: "center", fontFamily: "'Be Vietnam Pro', sans-serif" }}>Đang tải...</div>}>
+                  <ConversationPage />
+                </Suspense>
+              }
+            />
+
             {/* S2.3: Profile / Settings page */}
             <Route path="/profile" element={<ProfilePage />} />
 
             {/* S2.4: Roadmap snake-style */}
             <Route path="/roadmap" element={<RoadmapPage />} />
 
+            {/* S6.1: Luyện phát âm */}
+            <Route path="/pronunciation" element={<PronunciationPage />} />
+
             {/* Các route sẽ có page thật khi các story tương ứng hoàn thành */}
             {/* <Route path="/quiz/*" element={<QuizPage />} /> */}
             {/* <Route path="/translation" element={<TranslationPage />} /> */}
-            {/* <Route path="/pronunciation" element={<PronunciationPage />} /> */}
             {/* <Route path="/settings/*" element={<SettingsPage />} /> */}
             {/* <Route path="/payment/*" element={<PaymentPage />} /> */}
           </Route>

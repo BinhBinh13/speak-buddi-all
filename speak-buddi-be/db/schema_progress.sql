@@ -68,3 +68,98 @@ BEGIN
     END IF;
 END;
 $$;
+
+-- ─── S2.5: user_session_progress + user_topic ─────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS user_session_progress (
+    id           UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id      UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    topic_id     UUID        NOT NULL REFERENCES topic(id) ON DELETE CASCADE,
+    batch_index  SMALLINT    NOT NULL,
+    batch_size   SMALLINT    NOT NULL,
+    status       VARCHAR(20) NOT NULL DEFAULT 'in_progress'
+                             CHECK (status IN ('in_progress', 'completed')),
+    started_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    completed_at TIMESTAMPTZ,
+    UNIQUE (user_id, topic_id, batch_index)
+);
+
+CREATE INDEX IF NOT EXISTS idx_usp_user_topic
+    ON user_session_progress (user_id, topic_id);
+
+CREATE TABLE IF NOT EXISTS user_topic (
+    user_id   UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    topic_id  UUID NOT NULL REFERENCES topic(id) ON DELETE CASCADE,
+    added_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (user_id, topic_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_ut_user
+    ON user_topic (user_id);
+
+-- ─── S6.2/S6.3: pronunciation_attempt + pronunciation_syllable_score ──────────
+-- Đồng bộ từ db/migrations/007_pronunciation.sql
+-- Lưu mỗi lần user luyện phát âm: target_text, điểm (overall/accuracy/fluency),
+-- feedback tiếng Việt. Không lưu audio (quyết định thiết kế S6.3).
+
+CREATE TABLE IF NOT EXISTS pronunciation_attempt (
+    id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id       UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    topic_word_id UUID        REFERENCES topic_word(id) ON DELETE SET NULL,
+    target_text   VARCHAR(1000) NOT NULL,
+    audio_url     VARCHAR(500),
+    overall_score  NUMERIC(5,2) CHECK (overall_score  BETWEEN 0 AND 100),
+    accuracy_score NUMERIC(5,2) CHECK (accuracy_score BETWEEN 0 AND 100),
+    fluency_score  NUMERIC(5,2) CHECK (fluency_score  BETWEEN 0 AND 100),
+    feedback      TEXT,
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_pron_attempt_user
+    ON pronunciation_attempt (user_id, created_at);
+
+CREATE TABLE IF NOT EXISTS pronunciation_syllable_score (
+    id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+    attempt_id    UUID        NOT NULL REFERENCES pronunciation_attempt(id) ON DELETE CASCADE,
+    syllable_text VARCHAR(100) NOT NULL,
+    score         NUMERIC(5,2) NOT NULL CHECK (score BETWEEN 0 AND 100),
+    display_order SMALLINT    NOT NULL DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS idx_pron_syl_attempt
+    ON pronunciation_syllable_score (attempt_id);
+
+-- ─── S7.2: ai_quota_window ────────────────────────────────────────────────────
+-- Cửa sổ quota 5 giờ cho hội thoại AI của free user (AC-09-01/02, BR02/03).
+-- Đồng bộ từ db/migrations/008_ai_quota_window.sql.
+-- Fixed 5h window; lazy reset (BR03): cửa sổ hết hạn bị bỏ qua, tạo mới.
+
+CREATE TABLE IF NOT EXISTS ai_quota_window (
+    id              UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id         UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    window_start_at TIMESTAMPTZ NOT NULL,
+    window_end_at   TIMESTAMPTZ NOT NULL,
+    used_seconds    INTEGER     NOT NULL DEFAULT 0 CHECK (used_seconds >= 0),
+    max_seconds     INTEGER     NOT NULL DEFAULT 900,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (user_id, window_start_at)
+);
+
+CREATE INDEX IF NOT EXISTS idx_aiqw_user_end
+    ON ai_quota_window (user_id, window_end_at);
+
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.tables
+        WHERE table_schema = 'public' AND table_name = 'ai_quota_window'
+    ) THEN
+        EXECUTE '
+            CREATE OR REPLACE TRIGGER trg_ai_quota_window_updated_at
+            BEFORE UPDATE ON ai_quota_window
+            FOR EACH ROW EXECUTE FUNCTION set_updated_at()
+        ';
+    END IF;
+END;
+$$;
