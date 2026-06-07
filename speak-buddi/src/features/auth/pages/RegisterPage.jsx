@@ -371,6 +371,35 @@ export default function RegisterPage() {
         {/* Content */}
         <div style={{ position: "relative", zIndex: 1 }}>
 
+          {/* Back button */}
+          <div style={{ marginBottom: "0.75rem" }}>
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                background: "none",
+                border: "none",
+                padding: "6px 0",
+                cursor: "pointer",
+                color: ON_SURFACE_VAR,
+                fontFamily: "'Be Vietnam Pro', system-ui, sans-serif",
+                fontSize: 14,
+                fontWeight: 500,
+                transition: "color 0.2s",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = PRIMARY)}
+              onMouseLeave={(e) => (e.currentTarget.style.color = ON_SURFACE_VAR)}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+              </svg>
+              Quay lại
+            </button>
+          </div>
+
           {/* Header */}
           <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
             <div
