@@ -61,9 +61,14 @@ const apiClient = async (endpoint, options = {}) => {
   }
 
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || err.message || "Something went wrong");
+    const body  = await res.json().catch(() => ({}));
+    const error = new Error(body.detail || body.message || "Something went wrong");
+    error.status = res.status;   // FE có thể kiểm tra err.status thay vì so chuỗi
+    throw error;
   }
+
+  // 204 No Content — không có body JSON (vd: DELETE)
+  if (res.status === 204) return null;
 
   return res.json();
 };

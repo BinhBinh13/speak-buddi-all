@@ -12,11 +12,12 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import AppLayout from "../../shared/components/AppLayout";
 import TopicCard from "./components/TopicCard";
 import Flashcard from "./components/Flashcard";
-import { getLevels, getTopics, getWords, saveWordProgress, getTopicProgress } from "./services/vocabularyService";
+import { getWords, saveWordProgress, getTopicProgress } from "./services/vocabularyService";
+import { getUserTopics } from "../roadmap/services/sessionService";
 import { getTestsByTopic } from "../quiz/services/quizService";
 import { BsArrowLeft, BsArrowRight, BsQuestionCircle } from "react-icons/bs";
 
@@ -83,11 +84,12 @@ function TopicGridSkeleton() {
 // ─────────────────────────────────────────────────────────────────────────────
 export default function VocabularyPage() {
   const navigate = useNavigate();
+  // ── Route param: /learn/:topicSlug (S2.5) ───────────────────────────────
+  const { topicSlug } = useParams();
 
   // ── Data state ──────────────────────────────────────────────────────────
-  const [levels, setLevels] = useState([]);
-  const [selectedLevel, setSelectedLevel] = useState("A1");
-  const [topics, setTopics] = useState([]);
+  // S2.5: thay levels+topics bằng userTopics từ GET /api/user/topics
+  const [userTopics, setUserTopics] = useState([]);
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [words, setWords] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -99,8 +101,7 @@ export default function VocabularyPage() {
   const [knownCount, setKnownCount] = useState(0);
 
   // ── UI state ────────────────────────────────────────────────────────────
-  const [loadingLevels, setLoadingLevels] = useState(true);
-  const [loadingTopics, setLoadingTopics] = useState(false);
+  const [loadingTopics, setLoadingTopics] = useState(true);
   const [loadingWords, setLoadingWords] = useState(false);
   const [loadingQuiz, setLoadingQuiz] = useState(false);
   const [error, setError] = useState(null);
@@ -108,53 +109,10 @@ export default function VocabularyPage() {
   // Prevent double-fetch in StrictMode
   const fetchTopicsRef = useRef(null);
 
-  // ── Load levels on mount ─────────────────────────────────────────────────
-  useEffect(() => {
-    let cancelled = false;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLoadingLevels(true);
-    getLevels()
-      .then((data) => {
-        if (cancelled) return;
-        setLevels(data ?? []);
-      })
-      .catch(() => {
-        if (!cancelled) setError("Không thể tải danh sách level.");
-      })
-      .finally(() => {
-        if (!cancelled) setLoadingLevels(false);
-      });
-    return () => { cancelled = true; };
-  }, []);
-
-  // ── Load topics when selectedLevel changes ───────────────────────────────
-  useEffect(() => {
-    if (!selectedLevel) return;
-    let cancelled = false;
-    fetchTopicsRef.current = selectedLevel;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLoadingTopics(true);
-    setTopics([]);
-    setSelectedTopic(null);
-    setWords([]);
-    setError(null);
-
-    getTopics(selectedLevel)
-      .then((data) => {
-        if (cancelled || fetchTopicsRef.current !== selectedLevel) return;
-        setTopics(data ?? []);
-      })
-      .catch(() => {
-        if (!cancelled) setError("Không thể tải danh sách chủ đề.");
-      })
-      .finally(() => {
-        if (!cancelled) setLoadingTopics(false);
-      });
-    return () => { cancelled = true; };
-  }, [selectedLevel]);
-
   // ── Open topic → load words + hydrate progress (S3.3) ───────────────────
   const handleSelectTopic = useCallback(async (topic) => {
+    // topic từ UserTopicOut có topic_id thay vì id
+    const topicId = topic.id ?? topic.topic_id;
     setSelectedTopic(topic);
     setCurrentIndex(0);
     setWords([]);
@@ -164,8 +122,8 @@ export default function VocabularyPage() {
     setError(null);
     try {
       const [wordsData, progressData] = await Promise.allSettled([
-        getWords(topic.id),
-        getTopicProgress(topic.id),
+        getWords(topicId),
+        getTopicProgress(topicId),
       ]);
 
       const wordList = wordsData.status === "fulfilled" ? (wordsData.value ?? []) : [];
@@ -193,6 +151,35 @@ export default function VocabularyPage() {
       setLoadingWords(false);
     }
   }, []);
+
+  // ── Load user topics on mount (S2.5) ────────────────────────────────────
+  // Đặt sau handleSelectTopic để có thể gọi khi auto-select theo topicSlug
+  useEffect(() => {
+    let cancelled = false;
+    fetchTopicsRef.current = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLoadingTopics(true);
+
+    getUserTopics()
+      .then((data) => {
+        if (cancelled) return;
+        const topics = data ?? [];
+        setUserTopics(topics);
+
+        // Nếu có topicSlug từ route (/learn/:topicSlug) → auto-select
+        if (topicSlug) {
+          const matched = topics.find((t) => t.topic_slug === topicSlug);
+          if (matched) handleSelectTopic(matched);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setError("Không thể tải danh sách chủ đề. Vui lòng thử lại.");
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingTopics(false);
+      });
+    return () => { cancelled = true; };
+  }, [topicSlug, handleSelectTopic]);
 
   // ── Navigation handlers ──────────────────────────────────────────────────
   function handlePrev() {
@@ -224,7 +211,8 @@ export default function VocabularyPage() {
     }
 
     // Gọi API async — không chặn UX học
-    saveWordProgress(selectedTopic.id, wordId, "learning").catch(() => {
+    const topicId = selectedTopic.id ?? selectedTopic.topic_id;
+    saveWordProgress(topicId, wordId, "learning").catch(() => {
       // Rollback optimistic update nếu API lỗi
       setProgressMap((prev) => {
         const next = { ...prev };
@@ -262,7 +250,8 @@ export default function VocabularyPage() {
     }
 
     // Gọi API async — không chặn UX học
-    saveWordProgress(selectedTopic.id, wordId, "known").catch(() => {
+    const topicIdKnow = selectedTopic.id ?? selectedTopic.topic_id;
+    saveWordProgress(topicIdKnow, wordId, "known").catch(() => {
       // Rollback optimistic update nếu API lỗi
       setProgressMap((prev) => {
         const next = { ...prev };
@@ -290,19 +279,17 @@ export default function VocabularyPage() {
     setError(null);
   }
 
+  // ── Derive level code from selectedTopic (UserTopicOut has level_code) ──
+  const levelCode = selectedTopic?.level_code ?? selectedTopic?.level ?? null;
+
   // ── Quiz navigation (S4.2) ───────────────────────────────────────────────
-  /**
-   * Tìm bài kiểm tra đầu tiên của topic hiện tại rồi navigate /quiz/:testId.
-   * Nếu chưa có bài kiểm tra → thông báo ngắn (toast-style via alert tạm thời — S4.x sẽ dùng toast chuẩn).
-   */
   async function handleGoToQuiz() {
     if (!selectedTopic || loadingWords || words.length === 0 || loadingQuiz) return;
     setLoadingQuiz(true);
     try {
-      const tests = await getTestsByTopic(selectedTopic.id);
+      const topicId = selectedTopic.id ?? selectedTopic.topic_id;
+      const tests = await getTestsByTopic(topicId);
       if (!tests || tests.length === 0) {
-        // Không có bài kiểm tra
-        // TODO: thay bằng toast component (S4.x)
         alert("Chủ đề này chưa có bài kiểm tra. Vui lòng thử lại sau.");
         return;
       }
@@ -313,9 +300,6 @@ export default function VocabularyPage() {
       setLoadingQuiz(false);
     }
   }
-
-  // ── Level label helper ───────────────────────────────────────────────────
-  const levelObj = levels.find((l) => l.code === selectedLevel);
 
   // ── Current word ────────────────────────────────────────────────────────
   const currentWord = words[currentIndex] ?? null;
@@ -385,10 +369,10 @@ export default function VocabularyPage() {
                     lineHeight: 1.25,
                   }}
                 >
-                  {selectedTopic.name}
+                  {selectedTopic.name ?? selectedTopic.topic_name}
                 </h1>
                 <div className="d-flex align-items-center justify-content-center gap-2 mt-1">
-                  {levelObj && (
+                  {levelCode && (
                     <span
                       style={{
                         background: "#EEF2FF",
@@ -400,7 +384,7 @@ export default function VocabularyPage() {
                         padding: "3px 10px",
                       }}
                     >
-                      {levelObj.code}
+                      {levelCode}
                     </span>
                   )}
                   {!loadingWords && totalWords > 0 && (
@@ -509,6 +493,9 @@ export default function VocabularyPage() {
                   key={currentWord.id}
                   word={currentWord}
                   onAudioPlay={playWordAudio}
+                  onPronunciation={(w) => navigate("/pronunciation", {
+                    state: { word: w.word, phonetic: w.phonetic, meaning_vi: w.meaning_vi, meaning_en: w.meaning_en },
+                  })}
                   progressStatus={progressMap[currentWord.id] ?? null}
                 />
               </div>
@@ -709,7 +696,7 @@ export default function VocabularyPage() {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Render: Topic selector mode
+  // Render: Topic selector mode (S2.5: hiện userTopics thay vì level dropdown)
   // ─────────────────────────────────────────────────────────────────────────
   return (
     <AppLayout>
@@ -731,65 +718,11 @@ export default function VocabularyPage() {
               marginBottom: 6,
             }}
           >
-            Học từ vựng
+            Từ vựng của tôi
           </h1>
           <p style={{ fontSize: 15, color: "#464555", margin: 0 }}>
-            Chọn trình độ và chủ đề bạn muốn học.
+            Các chủ đề bạn đã thêm từ lộ trình học.
           </p>
-        </div>
-
-        {/* ── Level selector ── */}
-        <div style={{ marginBottom: 24 }}>
-          <label
-            htmlFor="level-select"
-            style={{
-              display: "block",
-              fontSize: 13,
-              fontWeight: 600,
-              color: "#464555",
-              marginBottom: 8,
-              letterSpacing: "0.03em",
-            }}
-          >
-            Chọn trình độ
-          </label>
-          {loadingLevels ? (
-            <div
-              style={{
-                height: 44,
-                background: "#e4e1ee",
-                borderRadius: 10,
-                animation: "pulse 1.5s ease-in-out infinite",
-                width: 220,
-              }}
-            />
-          ) : (
-            <select
-              id="level-select"
-              value={selectedLevel}
-              onChange={(e) => setSelectedLevel(e.target.value)}
-              style={{
-                padding: "10px 16px",
-                borderRadius: 10,
-                border: "1px solid #c7c4d8",
-                background: "#ffffff",
-                fontSize: 14,
-                fontWeight: 500,
-                color: "#1b1b24",
-                cursor: "pointer",
-                outline: "none",
-                minWidth: 180,
-                height: 44,
-                appearance: "auto",
-              }}
-            >
-              {levels.map((lv) => (
-                <option key={lv.id} value={lv.code}>
-                  {lv.code} — {lv.name}
-                </option>
-              ))}
-            </select>
-          )}
         </div>
 
         {/* ── Error ── */}
@@ -811,26 +744,61 @@ export default function VocabularyPage() {
         {/* ── Topic grid ── */}
         {loadingTopics ? (
           <TopicGridSkeleton />
-        ) : topics.length === 0 && !error ? (
+        ) : userTopics.length === 0 && !error ? (
+          /* Empty state (S2.5): CTA "Vào Lộ trình để thêm topic" */
           <div
             style={{
               textAlign: "center",
               color: "#464555",
               fontSize: 15,
               padding: "48px 20px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 16,
             }}
           >
-            <div style={{ fontSize: 48, marginBottom: 12 }}>📂</div>
-            <p style={{ margin: 0 }}>Chưa có chủ đề nào cho level này.</p>
+            <div style={{ fontSize: 48 }}>📚</div>
+            <p style={{ margin: 0, fontWeight: 500 }}>
+              Bạn chưa thêm chủ đề nào.
+            </p>
+            <p style={{ margin: 0, fontSize: 14, color: "#777587" }}>
+              Vào lộ trình học để chọn chủ đề phù hợp với bạn.
+            </p>
+            <Link
+              to="/roadmap"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "12px 24px",
+                borderRadius: 12,
+                background: "#3525cd",
+                color: "#ffffff",
+                fontSize: 14,
+                fontWeight: 600,
+                textDecoration: "none",
+                minHeight: 44,
+                boxShadow: "0 4px 14px rgba(53,37,205,0.30)",
+              }}
+            >
+              Vào Lộ trình
+            </Link>
           </div>
         ) : (
           <div className="row g-3">
-            {topics.map((topic) => (
-              <div key={topic.id} className="col-12 col-md-6">
+            {userTopics.map((topic) => (
+              <div key={topic.topic_id} className="col-12 col-md-6">
                 <TopicCard
-                  topic={topic}
-                  level={levelObj}
-                  onClick={handleSelectTopic}
+                  topic={{
+                    id:          topic.topic_id,
+                    name:        topic.topic_name,
+                    slug:        topic.topic_slug,
+                    word_count:  topic.total_words,
+                    description: null,
+                  }}
+                  level={{ code: topic.level_code, name: topic.level_name }}
+                  onClick={() => handleSelectTopic(topic)}
                 />
               </div>
             ))}

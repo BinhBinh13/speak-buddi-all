@@ -54,6 +54,7 @@
 | S2.2 | Sinh roadmap cá nhân hóa từ level + mục tiêu học | AC-03-02 | P1 |
 | S2.3 | Cập nhật level trong profile → roadmap tương lai dùng level mới | AC-03-04, BR09 | P2 |
 | S2.4 | Màn hình xem roadmap theo level (kèm empty state) | AC-04-01/04 | P1 |
+| S2.5 | Topic modal: chia session theo words_per_session + tracking progress (user_session_progress) + nút Tiếp tục + truyền data sang AI conversation | AC-03-02, AC-04-01 | P1 |
 
 ## Epic 3 — Học từ vựng
 *UC05 · F05 · FR-05*
