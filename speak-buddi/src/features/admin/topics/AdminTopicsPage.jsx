@@ -1,9 +1,10 @@
 // speak-buddi/src/features/admin/topics/AdminTopicsPage.jsx
 // ─── Admin Topics Library (S9.1 + S9.2 soft delete + S9.5 crawl admin) ───────────
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { LuBan, LuPlus, LuRotateCcw, LuSearch } from "react-icons/lu";
 import { COLORS, FONTS } from "../../../shared/constants/theme";
+import AdminPagination from "../components/AdminPagination";
 import AdminToast from "../components/AdminToast";
 import ConfirmDisableModal from "../components/ConfirmDisableModal";
 import ConfirmEnableModal from "../components/ConfirmEnableModal";
@@ -28,13 +29,16 @@ const SOURCE_OPTIONS = [
   { value: "admin", label: "Source: Manual" },
   { value: "langeek", label: "Source: Langeek" },
 ];
+
 export default function AdminTopicsPage() {
-  const [topics, setTopics] = useState([]);
+  const [data, setData] = useState({ items: [], total: 0 });
   const [levels, setLevels] = useState([]);
   const [search, setSearch] = useState("");
   const [levelFilter, setLevelFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("active");
   const [sourceFilter, setSourceFilter] = useState("all");
+  const [pageSize, setPageSize] = useState(20);
+  const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState({ show: false, initial: null });
   const [disableModal, setDisableModal] = useState({ show: false, topic: null });
@@ -50,33 +54,26 @@ export default function AdminTopicsPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const includeInactive = statusFilter !== "active";
-      const rows = await listTopics({
+      const res = await listTopics({
         search: search || undefined,
         levelId: levelFilter || undefined,
-        includeInactive,
+        status: statusFilter,
+        source: sourceFilter !== "all" ? sourceFilter : undefined,
+        limit: pageSize,
+        offset,
       });
-      setTopics(rows);
+      setData(res);
     } catch (err) {
       setToast({ message: err.message || "Không tải được danh sách.", type: "error" });
     } finally {
       setLoading(false);
     }
-  }, [search, levelFilter, statusFilter]);
+  }, [search, levelFilter, statusFilter, sourceFilter, pageSize, offset]);
 
   useEffect(() => {
     const t = setTimeout(load, 300);
     return () => clearTimeout(t);
   }, [load]);
-
-  const displayedTopics = useMemo(() => {
-    let rows = topics;
-    if (statusFilter === "inactive") rows = rows.filter((t) => !t.is_active);
-    else if (statusFilter === "active") rows = rows.filter((t) => t.is_active);
-    if (sourceFilter === "langeek") rows = rows.filter((t) => t.source === "langeek");
-    else if (sourceFilter === "admin") rows = rows.filter((t) => t.source !== "langeek");
-    return rows;
-  }, [topics, statusFilter, sourceFilter]);
 
   async function handleSave(values) {
     const body = {
@@ -126,6 +123,10 @@ export default function AdminTopicsPage() {
     }
   }
 
+  function resetPage() {
+    setOffset(0);
+  }
+
   return (
     <>
       <AdminToast
@@ -164,14 +165,20 @@ export default function AdminTopicsPage() {
             className="form-control ps-5"
             placeholder="Tìm chủ đề…"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              resetPage();
+            }}
             style={{ minHeight: 44, fontFamily: FONTS.body }}
           />
         </div>
         <select
           className="form-select"
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            resetPage();
+          }}
           style={{ maxWidth: 180, minHeight: 44 }}
         >
           {STATUS_OPTIONS.map((o) => (
@@ -181,7 +188,10 @@ export default function AdminTopicsPage() {
         <select
           className="form-select"
           value={sourceFilter}
-          onChange={(e) => setSourceFilter(e.target.value)}
+          onChange={(e) => {
+            setSourceFilter(e.target.value);
+            resetPage();
+          }}
           style={{ maxWidth: 180, minHeight: 44 }}
         >
           {SOURCE_OPTIONS.map((o) => (
@@ -191,7 +201,10 @@ export default function AdminTopicsPage() {
         <select
           className="form-select"
           value={levelFilter}
-          onChange={(e) => setLevelFilter(e.target.value)}
+          onChange={(e) => {
+            setLevelFilter(e.target.value);
+            resetPage();
+          }}
           style={{ maxWidth: 180, minHeight: 44 }}
         >
           <option value="">All Levels</option>
@@ -203,7 +216,7 @@ export default function AdminTopicsPage() {
 
       {loading ? (
         <div style={{ color: COLORS.onSurfaceVariant }}>Đang tải…</div>
-      ) : displayedTopics.length === 0 ? (
+      ) : data.items.length === 0 ? (
         <div
           style={{
             textAlign: "center",
@@ -217,7 +230,7 @@ export default function AdminTopicsPage() {
         </div>
       ) : (
         <div className="row g-3">
-          {displayedTopics.map((topic) => (
+          {data.items.map((topic) => (
             <div key={topic.id} className="col-12 col-md-6 col-xl-4">
               <div
                 className="card h-100"
@@ -319,6 +332,19 @@ export default function AdminTopicsPage() {
           ))}
         </div>
       )}
+
+      <AdminPagination
+        total={data.total}
+        offset={offset}
+        pageSize={pageSize}
+        onOffsetChange={setOffset}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setOffset(0);
+        }}
+        itemLabel="chủ đề"
+        className="mt-4"
+      />
 
       <ContentFormModal
         show={modal.show}

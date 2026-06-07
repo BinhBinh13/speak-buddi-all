@@ -1,10 +1,8 @@
 // src/features/conversation/services/conversationService.js
 // ─── Gọi POST /speak — xử lý 3 nhánh response (S7.1) ────────────────────────
 //
-// QUAN TRỌNG: Không dùng apiClient chung vì:
-//   1. apiClient parse JSON cứng — không đọc được audio/mpeg blob.
-//   2. Cần đọc header X-Reply-Text (percent-encoded).
-//   3. Cần phân biệt Content-Type: audio/mpeg vs application/json.
+// Dùng authenticatedFetch (auth middleware) — vẫn giữ logic phân nhánh
+// audio/mpeg vs JSON vì apiClient parse JSON cứng.
 //
 // Nhánh response:
 //   audio/mpeg  → { replyText, audioUrl }          — happy path
@@ -12,10 +10,7 @@
 //   502         → throw Error với .service = "anthropic"          — AI lỗi
 // ─────────────────────────────────────────────────────────────────────────────
 
-const API_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  import.meta.env.VITE_API_URL ||
-  "http://localhost:8000";
+import { authenticatedFetch } from "../../../shared/api/authMiddleware";
 
 /**
  * Gửi message đến AI và nhận phản hồi.
@@ -25,8 +20,6 @@ const API_URL =
  * @throws {Error} với `.service = "anthropic"` khi Anthropic lỗi (HTTP 502)
  */
 export async function sendMessage({ text, context = null, topic = null, history = [] }) {
-  const token = localStorage.getItem("token");
-
   const body = {
     text,
     ...(context  && { context }),
@@ -34,16 +27,17 @@ export async function sendMessage({ text, context = null, topic = null, history 
     ...(history.length && { history }),
   };
 
-  const res = await fetch(`${API_URL}/speak`, {
-    method:  "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token && { Authorization: `Bearer ${token}` }),
-    },
-    body: JSON.stringify(body),
+  const res = await authenticatedFetch("/speak", {
+    method: "POST",
+    body:   JSON.stringify(body),
   });
 
-  // ── 429 → Quota hết (S7.2): throw với .quotaDetail để FE hiển thị banner ──
+  if (!res) {
+    const err = new Error("Phiên đăng nhập hết hạn.");
+    err.status = 401;
+    throw err;
+  }
+
   if (res.status === 429) {
     let detail = {};
     try {
@@ -60,7 +54,6 @@ export async function sendMessage({ text, context = null, topic = null, history 
     throw err;
   }
 
-  // ── 502 → Anthropic lỗi: throw với .service để FE hiển thị banner retry ──
   if (res.status === 502) {
     let detail = {};
     try {
@@ -77,7 +70,6 @@ export async function sendMessage({ text, context = null, topic = null, history 
     throw err;
   }
 
-  // ── Lỗi HTTP khác (400, 500, v.v.) ────────────────────────────────────────
   if (!res.ok) {
     const parsed = await res.json().catch(() => ({}));
     const err    = new Error(parsed.detail || "Something went wrong");
@@ -85,11 +77,9 @@ export async function sendMessage({ text, context = null, topic = null, history 
     throw err;
   }
 
-  // ── Kiểm tra Content-Type để phân nhánh ───────────────────────────────────
   const contentType = res.headers.get("content-type") ?? "";
 
   if (contentType.includes("audio/mpeg")) {
-    // Happy path: Claude OK + TTS OK → trả audio blob + X-Reply-Text header
     const xReplyText = res.headers.get("X-Reply-Text") ?? "";
     const replyText  = xReplyText ? decodeURIComponent(xReplyText) : "(no reply)";
     const blob       = await res.blob();
@@ -98,7 +88,6 @@ export async function sendMessage({ text, context = null, topic = null, history 
   }
 
   if (contentType.includes("application/json")) {
-    // TTS fallback: Claude OK nhưng ElevenLabs lỗi → 200 JSON
     const data = await res.json();
     return {
       replyText: data.reply_text ?? "",
@@ -107,6 +96,5 @@ export async function sendMessage({ text, context = null, topic = null, history 
     };
   }
 
-  // Không nhận ra Content-Type — ném lỗi generic
   throw new Error(`Unexpected content-type: ${contentType}`);
 }

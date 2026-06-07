@@ -10,9 +10,11 @@ from openpyxl import Workbook
 from openpyxl.styles import Font
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import cm
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+
+from services.pdf_fonts import FONT_BOLD, FONT_REGULAR, ensure_pdf_fonts
 
 REPORT_LABELS = {
     "revenue": "Doanh thu",
@@ -74,23 +76,39 @@ def build_xlsx(report_type: str, payload: dict[str, Any]) -> bytes:
 
 
 def build_pdf(report_type: str, payload: dict[str, Any]) -> bytes:
+    ensure_pdf_fonts()
     bio = BytesIO()
     doc = SimpleDocTemplate(bio, pagesize=A4, leftMargin=1.5 * cm, rightMargin=1.5 * cm)
-    styles = getSampleStyleSheet()
+    base = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        "PdfTitle",
+        parent=base["Title"],
+        fontName=FONT_BOLD,
+    )
+    normal_style = ParagraphStyle(
+        "PdfNormal",
+        parent=base["Normal"],
+        fontName=FONT_REGULAR,
+    )
+    heading_style = ParagraphStyle(
+        "PdfHeading2",
+        parent=base["Heading2"],
+        fontName=FONT_BOLD,
+    )
     story: list[Any] = []
 
     title = payload.get("title") or REPORT_LABELS.get(report_type, report_type)
-    story.append(Paragraph(f"<b>SpeakBuddi — Báo cáo {title}</b>", styles["Title"]))
+    story.append(Paragraph(f"<b>SpeakBuddi — Báo cáo {title}</b>", title_style))
     story.append(Spacer(1, 0.3 * cm))
 
     meta = payload.get("meta") or {}
     if meta.get("from_date") and meta.get("to_date"):
         story.append(Paragraph(
             f"Khoảng: {meta['from_date']} → {meta['to_date']}",
-            styles["Normal"],
+            normal_style,
         ))
     if meta.get("plan_name"):
-        story.append(Paragraph(f"Gói: {meta['plan_name']}", styles["Normal"]))
+        story.append(Paragraph(f"Gói: {meta['plan_name']}", normal_style))
     story.append(Spacer(1, 0.4 * cm))
 
     summary = payload.get("summary_rows") or []
@@ -100,27 +118,30 @@ def build_pdf(report_type: str, payload: dict[str, Any]) -> bytes:
         tbl.setStyle(TableStyle([
             ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#3525cd")),
             ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("FONTNAME", (0, 0), (-1, 0), FONT_BOLD),
+            ("FONTNAME", (0, 1), (-1, -1), FONT_REGULAR),
             ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
             ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
         ]))
         story.append(tbl)
     else:
-        story.append(Paragraph(EMPTY_MSG, styles["Normal"]))
+        story.append(Paragraph(EMPTY_MSG, normal_style))
 
     detail_rows = payload.get("detail_rows") or []
     detail_headers = payload.get("detail_headers") or []
     if detail_headers:
         story.append(Spacer(1, 0.5 * cm))
-        story.append(Paragraph("<b>Chi tiết</b>", styles["Heading2"]))
+        story.append(Paragraph("<b>Chi tiết</b>", heading_style))
         if not detail_rows:
-            story.append(Paragraph(EMPTY_MSG, styles["Normal"]))
+            story.append(Paragraph(EMPTY_MSG, normal_style))
         else:
             cap = min(len(detail_rows), 50)
             table_data = [detail_headers] + [list(row) for row in detail_rows[:cap]]
             detail_tbl = Table(table_data, repeatRows=1)
             detail_tbl.setStyle(TableStyle([
                 ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#eae6f4")),
+                ("FONTNAME", (0, 0), (-1, 0), FONT_BOLD),
+                ("FONTNAME", (0, 1), (-1, -1), FONT_REGULAR),
                 ("GRID", (0, 0), (-1, -1), 0.25, colors.grey),
                 ("FONTSIZE", (0, 0), (-1, -1), 8),
             ]))
@@ -128,7 +149,7 @@ def build_pdf(report_type: str, payload: dict[str, Any]) -> bytes:
             if len(detail_rows) > cap:
                 story.append(Paragraph(
                     f"(Hiển thị {cap}/{len(detail_rows)} dòng — xem Excel để đủ dữ liệu)",
-                    styles["Normal"],
+                    normal_style,
                 ))
 
     doc.build(story)

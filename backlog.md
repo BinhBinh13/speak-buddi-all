@@ -44,6 +44,7 @@
 | S1.6 | Google OAuth (login/link account) | AC-02-03 | P1 |
 | S1.7 | Quên/reset mật khẩu qua email (Resend) | AC-02-04 | P1 |
 | S1.8 | Phân quyền theo role (student/admin) + trạng thái subscription | §4.5 | P0 |
+| S1.9 | Đăng xuất: xóa JWT client-side, redirect về login/landing + nút logout trên UI (user + admin) | AC-02-02, §4.5 | P1 |
 
 ## Epic 2 — Onboarding & Lộ trình học
 *UC03, UC04 · F03, F04 · BR09 · FR-03, FR-04*

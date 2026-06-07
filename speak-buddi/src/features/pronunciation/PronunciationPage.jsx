@@ -13,6 +13,7 @@ import MicErrorAlert          from "./components/MicErrorAlert";
 import ScoreResult            from "./components/ScoreResult";
 import useMediaRecorder       from "./hooks/useMediaRecorder";
 import { scorePronunciation } from "./services/pronunciationService";
+import { authenticatedFetch } from "../../shared/api/authMiddleware";
 
 /** Từ mẫu hardcode — nguồn từ thật (theo level/topic) là việc story sau */
 const SAMPLE_WORDS = [
@@ -220,18 +221,12 @@ export default function PronunciationPage() {
     const t0 = performance.now();
     console.log("[Pronunciation] tts_request  word=%s", currentWord.word);
     try {
-      const API_URL =
-        import.meta.env.VITE_API_BASE_URL ||
-        import.meta.env.VITE_API_URL ||
-        "http://localhost:8000";
-
-      const res = await fetch(`${API_URL}/tts`, {
+      const res = await authenticatedFetch("/tts", {
         method:  "POST",
-        headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({ text: currentWord.word }),
       });
 
-      if (!res.ok) throw new Error(`TTS HTTP ${res.status}`);
+      if (!res || !res.ok) throw new Error(`TTS HTTP ${res?.status ?? 401}`);
 
       const blob     = await res.blob();
       const audioUrl = URL.createObjectURL(blob);

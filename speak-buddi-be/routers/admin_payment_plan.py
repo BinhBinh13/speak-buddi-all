@@ -2,7 +2,7 @@
 # ─── Admin Payment Plan CRUD (S10.1 — UC14, AC-14-01/02) ─────────────────────
 #
 # Endpoints:
-#   GET  /api/admin/payment-plans          → list[PaymentPlanAdminOut]
+#   GET  /api/admin/payment-plans          → AdminPaymentPlanListOut  (phân trang)
 #   GET  /api/admin/payment-plans/{id}     → PaymentPlanAdminOut / 404
 #   POST /api/admin/payment-plans          → PaymentPlanAdminOut (201)
 #   PUT  /api/admin/payment-plans/{id}     → PaymentPlanAdminOut / 404
@@ -15,7 +15,8 @@ from __future__ import annotations
 import logging
 import uuid as uuid_mod
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.deps import require_admin
@@ -97,14 +98,35 @@ def _validate_update(body: PaymentPlanUpdate) -> dict:
     return payload
 
 
-@router.get("/payment-plans", response_model=list[PaymentPlanAdminOut])
+class AdminPaymentPlanListOut(BaseModel):
+    items: list[PaymentPlanAdminOut]
+    total: int
+    limit: int
+    offset: int
+
+
+@router.get("/payment-plans", response_model=AdminPaymentPlanListOut)
 async def admin_list_payment_plans(
     include_inactive: bool = True,
+    status: str | None = Query(None, pattern="^(active|inactive|all)$"),
+    limit: int = Query(20, ge=1, le=100),
+    offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_db),
-) -> list[PaymentPlanAdminOut]:
-    rows = await repo.list_plans(db, include_inactive=include_inactive)
-    log.info("ADMIN_LIST_PAYMENT_PLANS  count=%d", len(rows))
-    return [PaymentPlanAdminOut(**row) for row in rows]
+) -> AdminPaymentPlanListOut:
+    rows, total = await repo.list_plans(
+        db,
+        include_inactive=include_inactive,
+        status=status,
+        limit=limit,
+        offset=offset,
+    )
+    log.info("ADMIN_LIST_PAYMENT_PLANS  count=%d  total=%d", len(rows), total)
+    return AdminPaymentPlanListOut(
+        items=[PaymentPlanAdminOut(**row) for row in rows],
+        total=total,
+        limit=limit,
+        offset=offset,
+    )
 
 
 @router.get("/payment-plans/{plan_id}", response_model=PaymentPlanAdminOut)

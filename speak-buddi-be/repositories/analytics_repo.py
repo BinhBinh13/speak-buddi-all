@@ -470,10 +470,11 @@ async def get_new_users_in_range(
     r = await db.execute(
         text("""
             SELECT u.email,
-                   u.name,
+                   up.name,
                    u.created_at,
                    CASE WHEN sub.user_id IS NOT NULL THEN 'paid' ELSE 'free' END AS tier
             FROM users u
+            LEFT JOIN user_profile up ON up.user_id = u.id
             LEFT JOIN (
                 SELECT DISTINCT user_id
                 FROM user_subscription

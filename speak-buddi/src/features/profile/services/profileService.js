@@ -16,6 +16,32 @@ export const updateLevel = (level) =>
   });
 
 /**
+ * Cập nhật tên hiển thị.
+ * PATCH /api/profile/name
+ * @param {string} name
+ * @returns {Promise<{ name: string }>}
+ */
+export const updateName = (name) =>
+  apiClient("/api/profile/name", {
+    method: "PATCH",
+    body: JSON.stringify({ name }),
+  });
+
+/**
+ * Đổi hoặc đặt mật khẩu.
+ * PATCH /api/profile/password
+ * @param {{ current_password?: string, new_password: string }} payload
+ */
+export const changePassword = ({ current_password, new_password }) =>
+  apiClient("/api/profile/password", {
+    method: "PATCH",
+    body: JSON.stringify({
+      current_password: current_password ?? null,
+      new_password,
+    }),
+  });
+
+/**
  * Xóa tài khoản và dữ liệu cá nhân (S12.2).
  * DELETE /api/profile/account
  * @param {{ confirm_text: string, password?: string }} payload

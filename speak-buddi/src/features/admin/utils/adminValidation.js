@@ -29,7 +29,11 @@ export function mapApiErrorToFields(message) {
   else if (msg.includes("Chủ đề không tồn tại")) fields.topic_id = msg;
   else if (msg.includes("điền đầy đủ")) {
     fields._form = REQUIRED_MSG;
-  } else if (msg.includes("Missing Correct Answer") || msg.includes("đáp án đúng")) {
+  }   else if (msg.includes("Missing Correct Answer") || msg.includes("đáp án đúng")) {
+    fields._form = msg;
+  } else if (msg.includes("___") || msg.includes("Fill Blank")) {
+    fields._form = msg;
+  } else if (msg.includes("Grammar Mapping") || msg.includes(" → ")) {
     fields._form = msg;
   } else if (msg.includes("ít nhất 1 câu hỏi")) {
     fields._form = msg;
@@ -99,8 +103,44 @@ export function validateWordForm(values) {
   return errors;
 }
 
-/** Kiểm tra câu hỏi MC có đáp án đúng chưa (client mirror BE). */
+/** Tách cặp Grammar Mapping: "Từ A → Đáp án A". */
+export function parseMappingPair(answerText) {
+  const text = answerText || "";
+  const idx = text.indexOf(" → ");
+  if (idx === -1) return { left: text.trim(), right: "" };
+  return {
+    left: text.slice(0, idx).trim(),
+    right: text.slice(idx + 3).trim(),
+  };
+}
+
+/** Ghép cặp Grammar Mapping theo format chuẩn. */
+export function formatMappingPair(left, right) {
+  return `${(left || "").trim()} → ${(right || "").trim()}`;
+}
+
+/** Kiểm tra câu hỏi chưa đủ dữ liệu (client mirror BE). */
 export function isQuestionIncomplete(question) {
-  if (question.question_type !== "multiple_choice") return false;
-  return !question.answers?.some((a) => a.is_correct && a.answer_text?.trim());
+  const type = question.question_type;
+
+  if (type === "multiple_choice") {
+    return !question.answers?.some((a) => a.is_correct && a.answer_text?.trim());
+  }
+
+  if (type === "fill_blank") {
+    const hasBlank = (question.question_text || "").includes("___");
+    const hasCorrect = question.answers?.some((a) => a.is_correct && a.answer_text?.trim());
+    return !hasBlank || !hasCorrect;
+  }
+
+  if (type === "grammar_mapping") {
+    const pairs = question.answers || [];
+    if (pairs.length < 2) return true;
+    return pairs.some((a) => {
+      const { left, right } = parseMappingPair(a.answer_text);
+      return !left || !right;
+    });
+  }
+
+  return false;
 }

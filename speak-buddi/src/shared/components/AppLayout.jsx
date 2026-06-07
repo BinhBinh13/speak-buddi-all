@@ -4,19 +4,18 @@
 import { useLocation } from "react-router-dom";
 import { COLORS, FONTS } from "../constants/theme";
 import { MAX_WIDTH } from "../constants/breakpoints";
+import { useAuth } from "../auth/AuthContext";
 import DashSidebar     from "../../features/dashboard/components/DashSidebar";
 import DashTopbar      from "../../features/dashboard/components/DashTopbar";
 import MobileBottomNav from "../../features/dashboard/components/MobileBottomNav";
 
-const USER = { name: "Minh", streak: 12, level: "B2", goal: "IELTS 7.0" };
-
 const PAGE_TITLES = {
-  "/dashboard":  { title: "Learning path",        icon: "" },
   "/speaking":   { title: "Speaking",             icon: "" },
   "/vocabulary": { title: "New words",            icon: "" },
   "/profile":    { title: "Hồ sơ & Cài đặt",     icon: "" },
   "/roadmap":    { title: "Lộ trình học",          icon: "" },
   "/translate":       { title: "Dịch thuật",           icon: "" },
+  "/analytics":       { title: "Thống kê học tập",     icon: "" },
   "/settings/voice":  { title: "Cài đặt giọng đọc",    icon: "" },
 };
 
@@ -42,7 +41,12 @@ const PAGE_TITLES = {
  */
 export default function AppLayout({ children, rightPanel = null }) {
   const { pathname } = useLocation();
+  const { user } = useAuth();
   const { title, icon } = PAGE_TITLES[pathname] ?? { title: "SpeakBuddi", icon: "✨" };
+
+  const topbarUser = {
+    name: user?.name || user?.email?.split("@")[0] || "User",
+  };
 
   return (
     <div style={{ fontFamily: FONTS.body, background: COLORS.surface, minHeight: "100vh" }}>
@@ -50,12 +54,14 @@ export default function AppLayout({ children, rightPanel = null }) {
 
       {/* Topbar — fixed, spans col 2 + col 3 */}
       <div className="shell-topbar-wrapper">
-        <DashTopbar title={title} icon={icon} user={USER} />
+        <DashTopbar title={title} icon={icon} user={topbarUser} />
       </div>
 
       <div className="shell-outer">
-        {/* Col 1: Sidebar (desktop) */}
-        <DashSidebar activePath={pathname} user={USER} />
+        {/* Col 1: Sidebar cố định (desktop) — slot giữ chỗ cho fixed sidebar */}
+        <div className="shell-sidebar-slot" aria-hidden="true">
+          <DashSidebar activePath={pathname} />
+        </div>
 
         {/* Col 2 + 3: main body */}
         <div className="shell-body">
@@ -89,6 +95,13 @@ const SHELL_CSS = `
   .shell-outer {
     display: flex;
     min-height: 100vh;
+  }
+
+  /* Giữ chỗ cho DashSidebar fixed (240px) */
+  .shell-sidebar-slot {
+    width: 240px;
+    min-width: 240px;
+    flex-shrink: 0;
   }
 
   /* ── Body: content area bên phải sidebar ─────────────────────── */
@@ -155,6 +168,10 @@ const SHELL_CSS = `
 
   /* ── ≤768px: mobile layout ─────────────────────────────────────── */
   @media (max-width: 768px) {
+    .shell-sidebar-slot {
+      display: none;
+    }
+
     /* Topbar spans full width (no sidebar) */
     .shell-topbar-wrapper {
       left: 0;

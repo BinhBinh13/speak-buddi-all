@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import re
+import unicodedata
 from datetime import date, datetime
 from uuid import UUID
 
@@ -16,9 +18,49 @@ CONTENT_TYPES = {
     "pdf": "application/pdf",
 }
 
+REPORT_FILE_SLUGS = {
+    "revenue": "doanh-thu",
+    "users": "nguoi-dung",
+    "learning": "hoc-tap-kiem-tra",
+    "ai_usage": "su-dung-ai",
+}
 
-def build_file_name(report_type: str, export_format: str, from_date: date, to_date: date) -> str:
-    return f"speakbuddi-{report_type}-{from_date.isoformat()}-{to_date.isoformat()}.{export_format}"
+
+def _slug_filename_part(text: str, *, max_len: int = 48) -> str:
+    """Chuẩn hóa chuỗi thành phần tên file an toàn (ASCII, không dấu)."""
+    normalized = unicodedata.normalize("NFKD", text)
+    ascii_text = normalized.encode("ascii", "ignore").decode("ascii")
+    slug = re.sub(r"[^a-z0-9]+", "-", ascii_text.lower()).strip("-")
+    if not slug:
+        return "chi-tiet"
+    return slug[:max_len].strip("-")
+
+
+def _fmt_date_vn(value: date) -> str:
+    return value.strftime("%d-%m-%Y")
+
+
+def build_file_name(
+    report_type: str,
+    export_format: str,
+    from_date: date,
+    to_date: date,
+    *,
+    plan_name: str | None = None,
+) -> str:
+    """
+    Tên file rõ nghĩa cho admin, ví dụ:
+    SpeakBuddi_bao-cao-nguoi-dung_01-01-2026_den_08-06-2026.xlsx
+    """
+    report_slug = REPORT_FILE_SLUGS.get(report_type) or _slug_filename_part(report_type)
+    parts = [
+        "SpeakBuddi",
+        f"bao-cao-{report_slug}",
+    ]
+    if plan_name:
+        parts.append(_slug_filename_part(plan_name))
+    parts.append(f"{_fmt_date_vn(from_date)}_den_{_fmt_date_vn(to_date)}")
+    return f"{'_'.join(parts)}.{export_format}"
 
 
 def _fmt_dt(value: datetime | None) -> str:
@@ -196,6 +238,12 @@ async def generate_export_file(
     else:
         file_bytes = build_pdf(report_type, payload)
 
-    file_name = build_file_name(report_type, export_format, from_date, to_date)
+    file_name = build_file_name(
+        report_type,
+        export_format,
+        from_date,
+        to_date,
+        plan_name=(payload.get("meta") or {}).get("plan_name"),
+    )
     content_type = CONTENT_TYPES[export_format]
     return file_bytes, content_type, file_name

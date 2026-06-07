@@ -210,6 +210,23 @@ async def update_level(
     return dict(row) if row else None
 
 
+async def update_name(db: AsyncSession, user_id: str, name: str) -> str | None:
+    """Cập nhật tên hiển thị trong user_profile. Trả name mới hoặc None nếu không tìm thấy."""
+    r = await db.execute(
+        text("""
+            UPDATE user_profile
+            SET    name = :name,
+                   updated_at = NOW()
+            WHERE  user_id = CAST(:uid AS UUID)
+            RETURNING name
+        """),
+        {"name": name, "uid": user_id},
+    )
+    await db.commit()
+    row = r.mappings().first()
+    return row["name"] if row else None
+
+
 async def update_onboarding(
     db: AsyncSession,
     user_id: str,
