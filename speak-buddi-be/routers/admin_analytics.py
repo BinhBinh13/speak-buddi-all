@@ -216,6 +216,7 @@ async def export_report(
         export_format=body.export_format,
         filter_params=filter_params,
     )
+    await db.commit()
 
     try:
         file_bytes, content_type, file_name = await report_export_service.generate_export_file(
@@ -234,7 +235,9 @@ async def export_report(
             export_id,
         )
     except Exception as exc:
+        await db.rollback()
         await report_export_repo.mark_failed(db, export_id, str(exc))
+        await db.commit()
         log.exception(
             "admin_analytics.export failed admin_id=%s export_id=%s status=failed",
             admin_id,

@@ -645,7 +645,7 @@ export default function QuizResultPage() {
 
               {/* Link về lộ trình */}
               <button
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/roadmap")}
                 style={{
                   background: "none",
                   border: "none",

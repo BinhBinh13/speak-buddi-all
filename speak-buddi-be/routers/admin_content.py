@@ -6,7 +6,7 @@
 #
 # Endpoints:
 #   GET  /api/admin/levels                  → list[LevelOut]            (dropdown)
-#   GET  /api/admin/topics                  → list[TopicListItemOut]
+#   GET  /api/admin/topics                  → AdminTopicListOut  (phân trang)
 #   POST /api/admin/topics                  → TopicListItemOut  (201)
 #   GET  /api/admin/topics/{id}             → TopicOut
 #   PUT  /api/admin/topics/{id}             → TopicOut
@@ -14,7 +14,7 @@
 #   POST /api/admin/words                   → TopicWordOut      (201)
 #   GET  /api/admin/words/{id}              → TopicWordOut
 #   PUT  /api/admin/words/{id}              → TopicWordOut
-#   GET  /api/admin/tests                   → list[VocabularyTestAdminOut]
+#   GET  /api/admin/tests                   → AdminTestListOut  (phân trang)
 #   GET  /api/admin/tests/{id}              → TestEditorOut
 #   POST /api/admin/tests                   → TestEditorOut     (201)
 #   PUT  /api/admin/tests/{id}              → TestEditorOut
@@ -37,7 +37,7 @@ from __future__ import annotations
 import logging
 import uuid as uuid_mod
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -122,6 +122,43 @@ def _validate_test_editor(body: TestEditorIn) -> None:
             for a in q.answers:
                 _require_text(a.answer_text)
 
+        elif q.question_type == "fill_blank":
+            if "___" not in q.question_text:
+                raise HTTPException(
+                    status_code=400,
+                    detail=(
+                        f"Câu hỏi {idx}: Fill Blank cần chứa ___ để đánh dấu chỗ trống "
+                        "(vd: I ___ to school every day)."
+                    ),
+                )
+            if not any(a.is_correct for a in q.answers):
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Câu hỏi {idx}: cần ít nhất 1 đáp án đúng để điền vào chỗ trống.",
+                )
+            for a in q.answers:
+                if a.is_correct:
+                    _require_text(a.answer_text)
+
+        elif q.question_type == "grammar_mapping":
+            if len(q.answers) < 2:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Câu hỏi {idx}: Grammar Mapping cần ít nhất 2 cặp nối.",
+                )
+            for pair_idx, a in enumerate(q.answers, start=1):
+                _require_text(a.answer_text)
+                if " → " not in a.answer_text:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=(
+                            f"Câu hỏi {idx}, cặp {pair_idx}: dùng format "
+                            "'Từ A → Đáp án A' (mũi tên → giữa hai phần)."
+                        ),
+                    )
+                left, _, right = a.answer_text.partition(" → ")
+                _require_text(left, right)
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # levels (dropdown)
@@ -138,22 +175,44 @@ async def admin_list_levels(db: AsyncSession = Depends(get_db)) -> list[LevelOut
 # topics
 # ═══════════════════════════════════════════════════════════════════════════════
 
-@router.get("/topics", response_model=list[TopicListItemOut])
+class AdminTopicListOut(BaseModel):
+    """Danh sách topic phân trang cho Admin."""
+
+    items: list[TopicListItemOut]
+    total: int
+    limit: int
+    offset: int
+
+
+@router.get("/topics", response_model=AdminTopicListOut)
 async def admin_list_topics(
     search: str | None = None,
     level_id: uuid_mod.UUID | None = None,
     include_inactive: bool = False,
+    status: str | None = Query(None, pattern="^(active|inactive|all)$"),
+    source: str | None = Query(None, pattern="^(admin|langeek)$"),
+    limit: int = Query(20, ge=1, le=100),
+    offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_db),
-) -> list[TopicListItemOut]:
-    """Danh sách topic cho Admin (kèm word_count); hỗ trợ search + filter level."""
-    rows = await content_repo.list_topics(
+) -> AdminTopicListOut:
+    """Danh sách topic cho Admin (kèm word_count); hỗ trợ search + filter + phân trang."""
+    rows, total = await content_repo.list_topics(
         db,
         search=search,
         level_id=str(level_id) if level_id else None,
         include_inactive=include_inactive,
+        status=status,
+        source=source,
+        limit=limit,
+        offset=offset,
     )
-    log.info("ADMIN_LIST_TOPICS  search=%s  level=%s  count=%d", search, level_id, len(rows))
-    return [TopicListItemOut(**row) for row in rows]
+    log.info("ADMIN_LIST_TOPICS  search=%s  level=%s  count=%d  total=%d", search, level_id, len(rows), total)
+    return AdminTopicListOut(
+        items=[TopicListItemOut(**row) for row in rows],
+        total=total,
+        limit=limit,
+        offset=offset,
+    )
 
 
 @router.post("/topics", response_model=TopicListItemOut, status_code=201)
@@ -353,24 +412,44 @@ async def admin_update_word(
 # tests (vocabulary_test + nested question/answer)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-@router.get("/tests", response_model=list[VocabularyTestAdminOut])
+class AdminTestListOut(BaseModel):
+    """Danh sách bài kiểm tra phân trang cho Admin."""
+
+    items: list[VocabularyTestAdminOut]
+    total: int
+    limit: int
+    offset: int
+
+
+@router.get("/tests", response_model=AdminTestListOut)
 async def admin_list_tests(
     search: str | None = None,
     topic_id: uuid_mod.UUID | None = None,
     level_id: uuid_mod.UUID | None = None,
     include_inactive: bool = True,
+    status: str | None = Query(None, pattern="^(active|inactive|all)$"),
+    limit: int = Query(20, ge=1, le=100),
+    offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_db),
-) -> list[VocabularyTestAdminOut]:
-    """Danh sách bài kiểm tra cho Admin (kèm question_count + attempt_count)."""
-    rows = await quiz_repo.list_tests_admin(
+) -> AdminTestListOut:
+    """Danh sách bài kiểm tra cho Admin (kèm question_count + attempt_count), phân trang."""
+    rows, total = await quiz_repo.list_tests_admin(
         db,
         search=search,
         topic_id=str(topic_id) if topic_id else None,
         level_id=str(level_id) if level_id else None,
         include_inactive=include_inactive,
+        status=status,
+        limit=limit,
+        offset=offset,
     )
-    log.info("ADMIN_LIST_TESTS  search=%s  count=%d", search, len(rows))
-    return [VocabularyTestAdminOut(**row) for row in rows]
+    log.info("ADMIN_LIST_TESTS  search=%s  count=%d  total=%d", search, len(rows), total)
+    return AdminTestListOut(
+        items=[VocabularyTestAdminOut(**row) for row in rows],
+        total=total,
+        limit=limit,
+        offset=offset,
+    )
 
 
 async def _build_test_editor_out(db: AsyncSession, test_row: dict) -> TestEditorOut:

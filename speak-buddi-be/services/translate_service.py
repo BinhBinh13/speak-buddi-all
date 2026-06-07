@@ -2,14 +2,15 @@ import logging
 
 import requests
 
-from core.config import MIMO_API_KEY, MIMO_MODEL
+from core.clients import get_claude_client
+from core.config import ANTHROPIC_MODEL, MIMO_API_KEY, MIMO_MODEL
 
 log = logging.getLogger("speakbuddi.translate")
 
 _MYMEMORY_URL = "https://api.mymemory.translated.net/get"
 
 _MIMO_URL = "https://api.xiaomimimo.com/v1/chat/completions"
-_MIMO_SYSTEM_PROMPT = (
+_TRANSLATE_SYSTEM_PROMPT = (
     "You are a professional English-to-Vietnamese translator.\n"
     "Translate the following English text to Vietnamese naturally and accurately.\n"
     "Return ONLY the Vietnamese translation — no explanation, no extra text, no quotes."
@@ -30,6 +31,22 @@ def _translate_word_mymemory(word: str) -> str:
     return translation
 
 
+def _translate_sentence_anthropic(text: str) -> str:
+    """Dịch câu/đoạn qua Anthropic Claude (fallback khi MiMo lỗi)."""
+    client = get_claude_client()
+    log.info("TRANSLATE  engine=anthropic  model=%s", ANTHROPIC_MODEL)
+    response = client.messages.create(
+        model=ANTHROPIC_MODEL,
+        max_tokens=500,
+        system=_TRANSLATE_SYSTEM_PROMPT,
+        messages=[{"role": "user", "content": text}],
+    )
+    translation = response.content[0].text.strip()
+    if not translation:
+        raise ValueError("Anthropic returned empty translation")
+    return translation
+
+
 def _translate_sentence_mimo(text: str) -> str:
     """Dịch câu/đoạn qua Xiaomi MiMo API (OpenAI-compatible)."""
     if not MIMO_API_KEY:
@@ -40,7 +57,7 @@ def _translate_sentence_mimo(text: str) -> str:
         json={
             "model": MIMO_MODEL,
             "messages": [
-                {"role": "system", "content": _MIMO_SYSTEM_PROMPT},
+                {"role": "system", "content": _TRANSLATE_SYSTEM_PROMPT},
                 {"role": "user", "content": text},
             ],
             "max_completion_tokens": 500,
@@ -56,9 +73,22 @@ def _translate_sentence_mimo(text: str) -> str:
     return translation
 
 
+def _translate_sentence(text: str) -> str:
+    """Dịch câu/đoạn: ưu tiên MiMo, fallback Anthropic khi MiMo lỗi hoặc chưa cấu hình."""
+    if MIMO_API_KEY:
+        try:
+            return _translate_sentence_mimo(text)
+        except Exception as exc:
+            log.warning("MIMO_FALLBACK  %s — falling back to Anthropic", exc)
+    else:
+        log.info("MIMO_SKIP  no API key — using Anthropic")
+
+    return _translate_sentence_anthropic(text)
+
+
 def translate_text(text: str) -> str:
     """Dịch text tiếng Anh sang tiếng Việt.
-    1 từ → MyMemory API (free); nhiều từ/câu → Xiaomi MiMo API.
+    1 từ → MyMemory API (free); nhiều từ/câu → MiMo, fallback Anthropic.
     """
     is_single_word = len(text.strip().split()) == 1
     engine = "mymemory" if is_single_word else "mimo"
@@ -68,7 +98,7 @@ def translate_text(text: str) -> str:
         try:
             return _translate_word_mymemory(text.strip())
         except Exception as exc:
-            log.warning("MYMEMORY_FALLBACK  %s — falling back to MiMo", exc)
-            return _translate_sentence_mimo(text)
+            log.warning("MYMEMORY_FALLBACK  %s — falling back to MiMo/Anthropic", exc)
+            return _translate_sentence(text)
 
-    return _translate_sentence_mimo(text)
+    return _translate_sentence(text)

@@ -335,6 +335,7 @@ export default function QuizPage() {
         onRetry={handleRetry}
         onGoToQuestion={handleGoToQuestion}
         onBack={handleBack}
+        onDismissSubmitError={() => setSubmitError(null)}
       />
     );
   }

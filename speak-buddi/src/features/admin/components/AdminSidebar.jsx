@@ -13,6 +13,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { COLORS, FONTS } from "../../../shared/constants/theme";
+import LogoutButton from "../../../shared/components/LogoutButton";
 import {
   LuLayoutDashboard,
   LuBookOpen,
@@ -21,7 +22,6 @@ import {
   LuChartColumn,
   LuCreditCard,
   LuFlag,
-  LuSettings,
   LuGlobe,
 } from "react-icons/lu";
 
@@ -51,14 +51,18 @@ export default function AdminSidebar({ activePath = "/admin/dashboard", adminNam
       <aside className="admin-sidebar">
         {/* ── Brand + admin info ── */}
         <div className="admin-sidebar-header">
-          <div className="admin-sidebar-brand">SpeakBuddi</div>
-          <div className="admin-sidebar-account">
+          <button
+            type="button"
+            className="admin-sidebar-account"
+            onClick={() => navigate("/admin/profile")}
+            aria-label="Xem hồ sơ quản trị"
+          >
             <div className="admin-sidebar-avatar">{adminName?.[0]?.toUpperCase() ?? "A"}</div>
             <div>
               <div className="admin-sidebar-account-name">{adminName}</div>
               <div className="admin-sidebar-account-role">Quản trị hệ thống</div>
             </div>
-          </div>
+          </button>
         </div>
 
         {/* ── Nav ── */}
@@ -77,16 +81,9 @@ export default function AdminSidebar({ activePath = "/admin/dashboard", adminNam
           ))}
         </nav>
 
-        {/* ── Bottom: Settings (placeholder) ── */}
+        {/* ── Bottom: đăng xuất ── */}
         <div className="admin-sidebar-bottom">
-          <button
-            type="button"
-            className="admin-sidebar-link"
-            onClick={() => navigate("/admin/settings")}
-          >
-            <LuSettings size={18} strokeWidth={1.8} />
-            <span>Cài đặt</span>
-          </button>
+          <LogoutButton variant="sidebar-admin" />
         </div>
       </aside>
     </>
@@ -116,18 +113,21 @@ function AdminNavItem({ item, isActive, onNavigate }) {
 
 const SIDEBAR_CSS = `
   .admin-sidebar {
-    width: 256px;
-    min-width: 256px;
-    height: 100vh;
-    position: sticky;
+    position: fixed;
     top: 0;
-    background: ${COLORS.surfaceLow};
-    border-right: 1px solid ${COLORS.surfaceContainerHigh};
+    left: 0;
+    z-index: 50;
+    width: 256px;
+    height: 100vh;
+    background: linear-gradient(180deg, ${COLORS.surfaceLow} 0%, #f0ecff 100%);
+    border-right: 1px solid ${COLORS.primary};
+    box-shadow: 4px 0 24px rgba(53, 37, 205, 0.06);
     display: flex;
     flex-direction: column;
     padding: 16px 8px 20px;
     box-sizing: border-box;
     overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
   /* ── Header ── */
@@ -136,18 +136,22 @@ const SIDEBAR_CSS = `
     margin-bottom: 16px;
     border-bottom: 1px solid ${COLORS.surfaceContainerHigh};
   }
-  .admin-sidebar-brand {
-    font-family: ${FONTS.display};
-    font-size: 24px;
-    font-weight: 700;
-    color: ${COLORS.primary};
-    margin-bottom: 16px;
-    letter-spacing: -0.2px;
-  }
   .admin-sidebar-account {
     display: flex;
     align-items: center;
     gap: 10px;
+    width: 100%;
+    padding: 4px 8px;
+    margin: 0;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .admin-sidebar-account:hover {
+    background: ${COLORS.surfaceContainerHigh};
   }
   .admin-sidebar-avatar {
     width: 40px;
@@ -227,33 +231,13 @@ const SIDEBAR_CSS = `
 
   /* ── Bottom ── */
   .admin-sidebar-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
     padding-top: 12px;
     border-top: 1px solid ${COLORS.surfaceContainerHigh};
     margin-top: 12px;
   }
-  .admin-sidebar-link {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    padding: 11px 14px;
-    border-radius: 8px;
-    border: none;
-    background: transparent;
-    text-align: left;
-    cursor: pointer;
-    font-family: ${FONTS.body};
-    font-size: 14px;
-    font-weight: 500;
-    color: ${COLORS.onSurfaceVariant};
-    min-height: 44px;
-    transition: background 0.15s, color 0.15s;
-  }
-  .admin-sidebar-link:hover {
-    background: ${COLORS.surfaceContainerHigh};
-    color: ${COLORS.onSurface};
-  }
-
   /* Focus visible (NFR §4.8-5) */
   .admin-sidebar button:focus-visible {
     outline: 3px solid ${COLORS.primary};

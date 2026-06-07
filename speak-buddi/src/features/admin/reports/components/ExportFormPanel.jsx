@@ -5,7 +5,7 @@
 import { useEffect, useState } from "react";
 import { LuDownload } from "react-icons/lu";
 import { COLORS, FONTS } from "../../../../shared/constants/theme";
-import { listPlans } from "../../payment-plans/services/paymentPlanService";
+import { listPlansAll } from "../../payment-plans/services/paymentPlanService";
 
 const REPORT_TYPES = [
   { value: "users", label: "Người dùng" },
@@ -49,7 +49,7 @@ export default function ExportFormPanel({ onExport, loading = false, error = "" 
     let active = true;
     (async () => {
       try {
-        const rows = await listPlans(true);
+        const rows = await listPlansAll({ includeInactive: true });
         if (active) setPlans(rows);
       } catch (err) {
         if (active) setPlansError(err.message || "Không tải được danh sách gói.");

@@ -17,30 +17,67 @@ from sqlalchemy.ext.asyncio import AsyncSession
 # topic
 # ═══════════════════════════════════════════════════════════════════════════════
 
-async def list_topics(
-    db: AsyncSession,
+def _topic_list_conditions(
     search: str | None = None,
     level_id: str | None = None,
     include_inactive: bool = False,
-) -> list[dict]:
-    """
-    Danh sách topic cho Admin (kèm word_count).
-    search: lọc theo name/slug (ILIKE); level_id: lọc theo level; include_inactive:
-    True → trả cả topic đã soft-delete (is_active=false), dùng cho trang quản trị.
-    """
-    conditions = []
+    status: str | None = None,
+    source: str | None = None,
+) -> tuple[list[str], dict]:
+    """Điều kiện WHERE dùng chung cho list/count topic Admin."""
+    conditions: list[str] = []
     params: dict = {}
 
-    if not include_inactive:
+    if status == "inactive":
+        conditions.append("t.is_active = FALSE")
+    elif status == "active":
         conditions.append("t.is_active = TRUE")
+    elif not include_inactive:
+        conditions.append("t.is_active = TRUE")
+
     if search:
         conditions.append("(t.name ILIKE :search OR t.slug ILIKE :search)")
         params["search"] = f"%{search}%"
     if level_id:
         conditions.append("t.level_id = CAST(:level_id AS UUID)")
         params["level_id"] = level_id
+    if source == "langeek":
+        conditions.append("t.source = 'langeek'")
+    elif source == "admin":
+        conditions.append("(t.source IS NULL OR t.source != 'langeek')")
 
+    return conditions, params
+
+
+async def list_topics(
+    db: AsyncSession,
+    search: str | None = None,
+    level_id: str | None = None,
+    include_inactive: bool = False,
+    status: str | None = None,
+    source: str | None = None,
+    limit: int = 20,
+    offset: int = 0,
+) -> tuple[list[dict], int]:
+    """
+    Danh sách topic cho Admin (kèm word_count), có phân trang.
+    search: lọc theo name/slug (ILIKE); level_id: lọc theo level; status: active|inactive|all;
+    source: langeek|admin; include_inactive: legacy — dùng khi status không được truyền.
+    """
+    conditions, params = _topic_list_conditions(
+        search=search,
+        level_id=level_id,
+        include_inactive=include_inactive,
+        status=status,
+        source=source,
+    )
     where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+
+    count_sql = f"SELECT COUNT(*) FROM topic t {where_clause}"
+    count_r = await db.execute(text(count_sql), params)
+    total = count_r.scalar() or 0
+
+    params = {**params, "limit": limit, "offset": offset}
     sql = f"""
         SELECT t.id::text,
                t.level_id::text,
@@ -60,9 +97,10 @@ async def list_topics(
         {where_clause}
         GROUP  BY t.id, l.code
         ORDER  BY t.display_order ASC, t.name ASC
+        LIMIT  :limit OFFSET :offset
     """
     r = await db.execute(text(sql), params)
-    return [dict(row) for row in r.mappings().all()]
+    return [dict(row) for row in r.mappings().all()], total
 
 
 async def get_topic_by_id(db: AsyncSession, topic_id: str) -> dict | None:
@@ -572,10 +610,27 @@ async def get_topic_by_slug(db: AsyncSession, slug: str) -> dict | None:
                    display_order, source, is_active,
                    COALESCE(admin_locked, FALSE) AS admin_locked
             FROM   topic
-            WHERE  slug = :slug
+            WHERE  LOWER(slug) = LOWER(:slug)
             LIMIT  1
         """),
         {"slug": slug},
+    )
+    row = r.mappings().first()
+    return dict(row) if row else None
+
+
+async def get_topic_by_name(db: AsyncSession, name: str) -> dict | None:
+    """Lookup topic theo tên (case-insensitive) — dùng khi slug Langeek khác slug seed/admin."""
+    r = await db.execute(
+        text("""
+            SELECT id::text, level_id::text, name, slug, description,
+                   display_order, source, is_active,
+                   COALESCE(admin_locked, FALSE) AS admin_locked
+            FROM   topic
+            WHERE  LOWER(name) = LOWER(:name)
+            LIMIT  1
+        """),
+        {"name": name},
     )
     row = r.mappings().first()
     return dict(row) if row else None
@@ -595,6 +650,8 @@ async def upsert_langeek_topic(
     Trả (topic, skip_reason). skip_reason: admin_conflict | admin_locked.
     """
     existing = await get_topic_by_slug(db, slug)
+    if not existing:
+        existing = await get_topic_by_name(db, name)
     if existing:
         if existing.get("source") == "admin":
             return None, "admin_conflict"
@@ -635,8 +692,18 @@ async def upsert_langeek_topic(
             VALUES
                 (CAST(:level_id AS UUID), :name, :slug, :description, :display_order,
                  'langeek', TRUE)
+            ON CONFLICT (slug) DO UPDATE SET
+                level_id = EXCLUDED.level_id,
+                name = EXCLUDED.name,
+                description = EXCLUDED.description,
+                display_order = EXCLUDED.display_order,
+                is_active = TRUE,
+                updated_at = NOW()
+            WHERE topic.admin_locked = FALSE
+              AND topic.source <> 'admin'
             RETURNING id::text, level_id::text, name, slug, description,
-                      display_order, source, is_active
+                      display_order, source, is_active,
+                      COALESCE(admin_locked, FALSE) AS admin_locked
         """),
         {
             "level_id": level_id,
@@ -646,7 +713,15 @@ async def upsert_langeek_topic(
             "display_order": display_order,
         },
     )
-    return dict(r.mappings().first()), None
+    row = r.mappings().first()
+    if row is None:
+        existing = await get_topic_by_slug(db, slug)
+        if not existing:
+            raise RuntimeError(f"Không upsert được topic slug={slug}")
+        if existing.get("source") == "admin":
+            return None, "admin_conflict"
+        return existing, "admin_locked"
+    return dict(row), None
 
 
 async def get_word_in_topic(db: AsyncSession, topic_id: str, word: str) -> dict | None:

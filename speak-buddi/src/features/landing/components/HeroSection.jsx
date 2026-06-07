@@ -83,7 +83,7 @@ export default function HeroSection() {
           </Link>
 
           <Link
-            to="/pricing"
+            to="/#pricing"
             style={{
               fontFamily: UI.font,
               fontSize: UI.fontSize.labelMd,

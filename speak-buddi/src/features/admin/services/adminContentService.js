@@ -3,21 +3,12 @@
 // Pattern: bám quizService.js — import apiClient, export async functions.
 
 import apiClient from "../../../shared/api/client";
-
-const API_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  import.meta.env.VITE_API_URL ||
-  "http://localhost:8000";
+import { authenticatedFetch } from "../../../shared/api/authMiddleware";
 
 /** PATCH helper — BE trả 200/204 (S9.5 re-enable). */
 async function apiPatch(endpoint) {
-  const token = localStorage.getItem("token");
-  const res = await fetch(`${API_URL}${endpoint}`, {
-    method: "PATCH",
-    headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
-    },
-  });
+  const res = await authenticatedFetch(endpoint, { method: "PATCH" });
+  if (!res) return;
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.detail || err.message || "Something went wrong");
@@ -28,13 +19,8 @@ async function apiPatch(endpoint) {
 
 /** DELETE helper — BE trả 204 No Content (S9.2 soft delete). */
 async function apiDelete(endpoint) {
-  const token = localStorage.getItem("token");
-  const res = await fetch(`${API_URL}${endpoint}`, {
-    method: "DELETE",
-    headers: {
-      ...(token && { Authorization: `Bearer ${token}` }),
-    },
-  });
+  const res = await authenticatedFetch(endpoint, { method: "DELETE" });
+  if (!res) return;
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.detail || err.message || "Something went wrong");
@@ -49,13 +35,44 @@ export async function listLevels() {
 
 // ── Topics ───────────────────────────────────────────────────────────────────
 
-export async function listTopics({ search, levelId, includeInactive = false } = {}) {
+export async function listTopics({
+  search,
+  levelId,
+  includeInactive = false,
+  status,
+  source,
+  limit = 20,
+  offset = 0,
+} = {}) {
   const qs = new URLSearchParams();
   if (search) qs.set("search", search);
   if (levelId) qs.set("level_id", levelId);
-  if (includeInactive) qs.set("include_inactive", "true");
-  const query = qs.toString() ? `?${qs.toString()}` : "";
-  return apiClient(`/api/admin/topics${query}`);
+  if (status) qs.set("status", status);
+  else if (includeInactive) qs.set("include_inactive", "true");
+  if (source && source !== "all") qs.set("source", source);
+  qs.set("limit", String(limit));
+  qs.set("offset", String(offset));
+  return apiClient(`/api/admin/topics?${qs.toString()}`);
+}
+
+/** Lấy toàn bộ topic cho dropdown (form/filter). BE giới hạn limit ≤ 100/request. */
+export async function listTopicsAll({ includeInactive = true } = {}) {
+  const PAGE = 100;
+  const status = includeInactive ? "all" : "active";
+  const items = [];
+  let offset = 0;
+  let total = Infinity;
+
+  while (offset < total) {
+    const res = await listTopics({ includeInactive, status, limit: PAGE, offset });
+    const batch = res.items ?? [];
+    items.push(...batch);
+    total = res.total ?? items.length;
+    if (batch.length < PAGE) break;
+    offset += PAGE;
+  }
+
+  return items;
 }
 
 export async function getTopic(id) {
@@ -132,14 +149,24 @@ export async function enableWord(id) {
 
 // ── Tests ──────────────────────────────────────────────────────────────────────
 
-export async function listTests({ search, topicId, levelId, includeInactive = true } = {}) {
+export async function listTests({
+  search,
+  topicId,
+  levelId,
+  includeInactive = true,
+  status,
+  limit = 20,
+  offset = 0,
+} = {}) {
   const qs = new URLSearchParams();
   if (search) qs.set("search", search);
   if (topicId) qs.set("topic_id", topicId);
   if (levelId) qs.set("level_id", levelId);
-  if (!includeInactive) qs.set("include_inactive", "false");
-  const query = qs.toString() ? `?${qs.toString()}` : "";
-  return apiClient(`/api/admin/tests${query}`);
+  if (status) qs.set("status", status);
+  else if (!includeInactive) qs.set("include_inactive", "false");
+  qs.set("limit", String(limit));
+  qs.set("offset", String(offset));
+  return apiClient(`/api/admin/tests?${qs.toString()}`);
 }
 
 export async function getTestEditor(id) {

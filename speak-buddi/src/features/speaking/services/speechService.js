@@ -1,7 +1,8 @@
+import { authenticatedFetch } from "../../../shared/api/authMiddleware";
+
 const SpeechRecognition =
   window.SpeechRecognition || window.webkitSpeechRecognition;
 
-const API_URL = import.meta.env.VITE_API_URL;
 
 /** Nhận diện ký tự tiếng Việt có dấu trong transcript */
 export const VIETNAMESE_CHAR_RE =
@@ -21,6 +22,7 @@ export function detectSpeechLang(text = "") {
   }
   return "en-US";
 }
+
 
 /**
  * createSpeechRecognizer
@@ -132,12 +134,11 @@ export async function getAIResponse(
   topic    = null,
 ) {
   if (ttsOnly) {
-    const res = await fetch(`${API_URL}/tts`, {
+    const res = await authenticatedFetch("/tts", {
       method:  "POST",
-      headers: { "Content-Type": "application/json" },
       body:    JSON.stringify({ text: transcript }),
     });
-    if (!res.ok) throw new Error("TTS error");
+    if (!res || !res.ok) throw new Error("TTS error");
     const audioBlob = await res.blob();
     return { replyText: transcript, audioUrl: URL.createObjectURL(audioBlob) };
   }
@@ -145,13 +146,12 @@ export async function getAIResponse(
   const body = { text: transcript, context };
   if (topic) body.topic = topic; // truyền topic object đầy đủ lên backend
 
-  const res = await fetch(`${API_URL}/speak`, {
+  const res = await authenticatedFetch("/speak", {
     method:  "POST",
-    headers: { "Content-Type": "application/json" },
     body:    JSON.stringify(body),
   });
 
-  if (!res.ok) throw new Error("API error");
+  if (!res || !res.ok) throw new Error("API error");
 
   const replyText = decodeURIComponent(res.headers.get("X-Reply-Text") ?? "");
   const audioBlob = await res.blob();
@@ -179,13 +179,12 @@ export async function getTopicGreeting(topic) {
     topic:   topic,
   };
 
-  const res = await fetch(`${API_URL}/speak`, {
+  const res = await authenticatedFetch("/speak", {
     method:  "POST",
-    headers: { "Content-Type": "application/json" },
     body:    JSON.stringify(body),
   });
 
-  if (!res.ok) throw new Error("Greeting API error");
+  if (!res || !res.ok) throw new Error("Greeting API error");
 
   const replyText = decodeURIComponent(res.headers.get("X-Reply-Text") ?? "");
   const audioBlob = await res.blob();

@@ -3,8 +3,8 @@
 // Đọc access token từ localStorage khi mount; lắng nghe "storage" event (đa tab) và
 // custom event "auth-changed" (trong cùng tab) để re-render guard / navbar.
 // S1.8: thêm user object, isAdmin, isPaid từ server response.
-import { createContext, useContext, useEffect, useState } from "react";
-import { getToken, setTokens, clearTokens, getUser, setUser } from "./authService";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { getToken, setTokens, clearTokens, getUser, setUser, refreshSession, fetchCurrentUser } from "./authService";
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 const AUTH_CHANGED = "auth-changed";
@@ -81,6 +81,26 @@ export function AuthProvider({ children }) {
     });
   }
 
+  const refreshUser = useCallback(async () => {
+    try {
+      const { access_token, user: userData } = await refreshSession();
+      setToken(access_token);
+      setUserState(userData);
+      dispatchAuthChanged();
+      return userData;
+    } catch {
+      try {
+        const userData = await fetchCurrentUser();
+        setUser(userData);
+        setUserState(userData);
+        dispatchAuthChanged();
+        return userData;
+      } catch {
+        return null;
+      }
+    }
+  }, []);
+
   const value = {
     token,
     user,
@@ -90,6 +110,7 @@ export function AuthProvider({ children }) {
     login,
     logout,
     updateUser,
+    refreshUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

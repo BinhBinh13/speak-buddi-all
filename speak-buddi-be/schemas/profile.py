@@ -13,6 +13,24 @@ class UpdateLevelOut(BaseModel):
     onboarding_completed: bool
 
 
+class UpdateNameRequest(BaseModel):
+    name: str
+
+
+class UpdateNameOut(BaseModel):
+    name: str
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str | None = None
+    new_password: str
+
+
+class ChangePasswordOut(BaseModel):
+    message: str
+    has_password: bool
+
+
 class DeleteAccountRequest(BaseModel):
     confirm_text: str
     password: str | None = None

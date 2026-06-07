@@ -139,14 +139,21 @@ export default function LoginPage() {
   const [searchParams] = useSearchParams();
   const { login } = useAuth();
 
-  function getSafeNext() {
+  function getSafeNext(userRole) {
+    const isAdmin = userRole === "admin";
+    const fallback = isAdmin ? "/admin/dashboard" : "/roadmap";
     const raw = searchParams.get("next");
-    if (!raw) return "/dashboard";
-    try {
-      const decoded = decodeURIComponent(raw);
-      if (decoded.startsWith("/") && !decoded.includes("://")) return decoded;
-    } catch { /* fallback */ }
-    return "/dashboard";
+    if (raw) {
+      try {
+        const decoded = decodeURIComponent(raw);
+        if (!decoded.startsWith("/") || decoded.includes("://")) return fallback;
+        if (isAdmin) return decoded.startsWith("/admin") ? decoded : fallback;
+        if (decoded.startsWith("/admin")) return fallback;
+        if (decoded === "/dashboard") return "/roadmap";
+        return decoded;
+      } catch { /* fallback */ }
+    }
+    return fallback;
   }
 
   const handleEmailLogin = async () => {
@@ -156,7 +163,7 @@ export default function LoginPage() {
     try {
       const data = await loginWithEmail(email, password);
       login({ access_token: data.access_token, refresh_token: data.refresh_token, user: data.user });
-      navigate(getSafeNext(), { replace: true });
+      navigate(getSafeNext(data.user?.role), { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -170,7 +177,7 @@ export default function LoginPage() {
     try {
       const data = await loginWithGoogle();
       login({ access_token: data.access_token, refresh_token: data.refresh_token, user: data.user });
-      navigate(getSafeNext(), { replace: true });
+      navigate(getSafeNext(data.user?.role), { replace: true });
     } catch (err) {
       setError(err.message || "Đăng nhập Google thất bại. Vui lòng thử lại.");
     } finally {

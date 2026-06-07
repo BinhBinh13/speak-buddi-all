@@ -1,6 +1,6 @@
 // src/features/auth/pages/OAuthCallbackPage.jsx
 // Nhận token từ OAuth provider (query param ?token=), gọi login() từ AuthContext
-// để cập nhật state, sau đó điều hướng về ?next= (same-origin) hoặc /dashboard.
+// để cập nhật state, sau đó điều hướng về ?next= (same-origin) hoặc /roadmap.
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../../shared/auth/AuthContext";
@@ -18,15 +18,15 @@ export default function OAuthCallbackPage() {
       login({ access_token: token, refresh_token: null, user: null });
 
       // Validate ?next= — chỉ chấp nhận same-origin path
-      let redirectTo = "/dashboard";
+      let redirectTo = "/roadmap";
       if (rawNext) {
         try {
           const decoded = decodeURIComponent(rawNext);
           if (decoded.startsWith("/") && !decoded.includes("://")) {
-            redirectTo = decoded;
+            redirectTo = decoded === "/dashboard" ? "/roadmap" : decoded;
           }
         } catch {
-          // decodeURIComponent thất bại → fallback /dashboard
+          // decodeURIComponent thất bại → fallback /roadmap
         }
       }
 

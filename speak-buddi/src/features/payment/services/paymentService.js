@@ -45,7 +45,7 @@ export async function simulateMockCallback({ provider_ref, result, amount_vnd })
  * Dùng để hiển thị `status`/`failure_reason` chính xác thay vì chỉ tin query
  * param trên URL (có thể bị sửa tay).
  * @param {string} transactionId - UUID của payment_transaction
- * @returns {Promise<{id: string, status: string, failure_reason: ?string, plan_id: string, plan_name: string, amount_vnd: number}>}
+ * @returns {Promise<{id: string, status: string, failure_reason: ?string, plan_id: string, plan_name: string, amount_vnd: number, provider: string, payment_code: ?string, bank_account_number: ?string, bank_code: ?string, created_at: ?string, pending_timeout_seconds: number}>}
  */
 export async function getTransaction(transactionId) {
   return apiClient(`/api/payment/transaction/${encodeURIComponent(transactionId)}`);

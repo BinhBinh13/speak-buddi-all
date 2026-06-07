@@ -11,6 +11,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import QuizHeader from "./QuizHeader";
+import Toast from "../../../shared/components/Toast";
 
 // Nhãn loại câu hỏi theo tiếng Việt
 const TYPE_LABEL = {
@@ -33,6 +34,7 @@ const TYPE_LABEL = {
  * @param {function} props.onRetry          — gọi khi bấm "Làm lại"
  * @param {function} props.onGoToQuestion   — onGoToQuestion(index: number)
  * @param {function} props.onBack           — navigate(-1)
+ * @param {function} props.onDismissSubmitError — xóa submitError (toast)
  */
 export default function QuizReview({
   test,
@@ -46,8 +48,8 @@ export default function QuizReview({
   onRetry,
   onGoToQuestion,
   onBack,
+  onDismissSubmitError,
 }) {
-  // Toast: hiển thị khi submitError có giá trị — dismiss bằng nút ✕
 
   const totalQ = questions.length;
   const answeredCount = questions.filter(
@@ -271,31 +273,11 @@ export default function QuizReview({
         </div>
       </main>
 
-      {/* Toast error — submitError (AC-06-02) */}
-      {submitError && (
-        <div
-          role="alert"
-          style={{
-            position: "fixed",
-            bottom: 100,
-            left: "50%",
-            transform: "translateX(-50%)",
-            background: "#ba1a1a",
-            color: "#ffffff",
-            padding: "12px 20px",
-            borderRadius: 12,
-            fontSize: 14,
-            fontWeight: 500,
-            boxShadow: "0 4px 16px rgba(186,26,26,0.3)",
-            zIndex: 100,
-            maxWidth: "90vw",
-            textAlign: "center",
-            whiteSpace: "pre-wrap",
-          }}
-        >
-          {submitError}
-        </div>
-      )}
+      <Toast
+        message={submitError || ""}
+        type="error"
+        onClose={onDismissSubmitError}
+      />
 
       {/* Footer action buttons */}
       <div
