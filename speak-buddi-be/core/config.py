@@ -6,6 +6,7 @@ load_dotenv()
 # ── AI ────────────────────────────────────────────────────────────────────────
 ANTHROPIC_API_KEY:   str = os.getenv("ANTHROPIC_API_KEY", "")
 GEMINI_API_KEY:      str = os.getenv("GEMINI_API_KEY", "")
+AI_PROVIDER:         str = os.getenv("AI_PROVIDER", "anthropic")
 # Model tương ứng theo provider
 ANTHROPIC_MODEL:     str = os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001")
 GEMINI_MODEL:        str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite")

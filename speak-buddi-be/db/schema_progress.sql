@@ -98,6 +98,24 @@ CREATE TABLE IF NOT EXISTS user_topic (
 CREATE INDEX IF NOT EXISTS idx_ut_user
     ON user_topic (user_id);
 
+-- ─── S7.x: conversation_transcript ───────────────────────────────────────────
+-- Đồng bộ từ db/migrations/011_conversation_transcript.sql
+
+CREATE TABLE IF NOT EXISTS conversation_transcript (
+    id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id       UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    topic_id      UUID        NOT NULL REFERENCES topic(id) ON DELETE CASCADE,
+    batch_index   SMALLINT    NOT NULL,
+    messages      JSONB       NOT NULL DEFAULT '[]'::JSONB,
+    covered_words JSONB       NOT NULL DEFAULT '[]'::JSONB,
+    batch_done    BOOLEAN     NOT NULL DEFAULT FALSE,
+    updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (user_id, topic_id, batch_index)
+);
+
+CREATE INDEX IF NOT EXISTS idx_conv_transcript_user_topic
+    ON conversation_transcript (user_id, topic_id);
+
 -- ─── S6.2/S6.3: pronunciation_attempt + pronunciation_syllable_score ──────────
 -- Đồng bộ từ db/migrations/007_pronunciation.sql
 -- Lưu mỗi lần user luyện phát âm: target_text, điểm (overall/accuracy/fluency),

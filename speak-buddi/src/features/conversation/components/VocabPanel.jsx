@@ -1,9 +1,5 @@
 // src/features/conversation/components/VocabPanel.jsx
-// ─── Panel từ vựng bên phải màn hội thoại (S7.1) ────────────────────────────
-//
-// Layout bám mockup hoi_thoai_ai_desktop: aside w-80 bên phải
-// Mỗi item: từ tiếng Anh (bold) + icon 🔊 + ý nghĩa (on-surface-variant)
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── Panel từ vựng + tiến độ word detection (S7.1) ─────────────────────────
 
 const C = {
   primary:             "#3525cd",
@@ -14,15 +10,39 @@ const C = {
   surfaceBright:       "#fcf8ff",
   surfaceContainerLow: "#f5f2ff",
   outlineVariant:      "#c7c4d8",
+  warning:             "#f59e0b",
 };
 
 const FONT = "'Be Vietnam Pro', system-ui, sans-serif";
 
-export default function VocabPanel({ words = [] }) {
+function wordKey(item) {
+  const w = typeof item === "string" ? item : item.word ?? "";
+  return w.toLowerCase();
+}
+
+/**
+ * @param {{
+ *   words?: Array,
+ *   coveredWords?: Set<string>,
+ *   mentionedWords?: Set<string>,
+ *   completionThreshold?: number,
+ * }} props
+ */
+export default function VocabPanel({
+  words = [],
+  coveredWords = new Set(),
+  mentionedWords = new Set(),
+  completionThreshold = 0.8,
+}) {
+  const needed = words.length > 0 ? Math.ceil(words.length * completionThreshold) : 0;
+  const usedCount = coveredWords.size;
+  const pct = words.length > 0 ? Math.round((usedCount / words.length) * 100) : 0;
+
   return (
     <aside
       style={{
         width:         320,
+        height:        "100%",
         background:    C.surfaceContainerLow,
         borderLeft:    `1px solid ${C.outlineVariant}`,
         padding:       "24px 16px",
@@ -32,9 +52,10 @@ export default function VocabPanel({ words = [] }) {
         gap:           16,
         fontFamily:    FONT,
         flexShrink:    0,
+        boxSizing:     "border-box",
       }}
     >
-      {/* Tiêu đề panel */}
+      {/* Tiêu đề + progress word detection */}
       <div>
         <h3
           style={{
@@ -49,25 +70,94 @@ export default function VocabPanel({ words = [] }) {
         >
           📖 Từ vựng bài học
         </h3>
-        <p style={{ fontSize: 14, color: C.onSurfaceVariant, margin: 0 }}>
+        <p style={{ fontSize: 14, color: C.onSurfaceVariant, margin: "0 0 10px" }}>
           {words.length > 0
             ? `${words.length} từ trong phần này`
             : "Không có từ vựng"}
         </p>
+
+        {words.length > 0 && (
+          <div
+            style={{
+              background:   C.surfaceLowest,
+              border:       `1px solid ${C.outlineVariant}`,
+              borderRadius: 12,
+              padding:      "12px 14px",
+            }}
+          >
+            <div
+              style={{
+                display:        "flex",
+                justifyContent: "space-between",
+                alignItems:     "center",
+                marginBottom:   8,
+                fontSize:       13,
+              }}
+            >
+              <span style={{ fontWeight: 700, color: C.onSurface }}>
+                🎯 Bạn đã dùng
+              </span>
+              <span style={{ fontWeight: 700, color: usedCount >= needed ? C.secondary : C.primary }}>
+                {usedCount}/{words.length}
+                {needed < words.length && (
+                  <span style={{ fontWeight: 500, color: C.onSurfaceVariant, fontSize: 12 }}>
+                    {" "}(cần {needed} để qua phần)
+                  </span>
+                )}
+              </span>
+            </div>
+            <div
+              style={{
+                height:       8,
+                borderRadius: 4,
+                background:   C.outlineVariant,
+                overflow:     "hidden",
+              }}
+            >
+              <div
+                style={{
+                  height:       "100%",
+                  width:        `${Math.min(pct, 100)}%`,
+                  background:   usedCount >= needed ? C.secondary : C.primary,
+                  borderRadius: 4,
+                  transition:   "width 0.35s ease",
+                }}
+              />
+            </div>
+            <p style={{ margin: "8px 0 0", fontSize: 11, color: C.onSurfaceVariant, lineHeight: 1.4 }}>
+              ✅ xanh = bạn đã nói từ đó · 🔵 viền = AI đã dùng · ⬜ chưa xuất hiện
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Danh sách từ */}
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {words.map((item, i) => {
           const wordText = typeof item === "string" ? item : item.word ?? "";
+          const key = wordKey(item);
           const definition =
             typeof item === "string"
               ? ""
               : item.meaning_vi ?? item.meaning ?? item.definition ?? item.phonetic ?? "";
 
+          const isUsed = coveredWords.has(key);
+          const isMentioned = mentionedWords.has(key);
+
+          let borderColor = C.outlineVariant;
+          let bg = C.surfaceLowest;
+          if (isUsed) {
+            borderColor = C.secondary;
+            bg = "#ecfdf5";
+          } else if (isMentioned) {
+            borderColor = C.primary;
+            bg = "#eef2ff";
+          }
+
           function handleSpeak() {
             if (!wordText) return;
             if ("speechSynthesis" in window) {
+              speechSynthesis.cancel();
               const utt = new SpeechSynthesisUtterance(wordText);
               utt.lang = "en-US";
               speechSynthesis.speak(utt);
@@ -76,18 +166,15 @@ export default function VocabPanel({ words = [] }) {
 
           return (
             <div
-              key={i}
+              key={key || i}
               style={{
-                background:   C.surfaceLowest,
-                border:       `1px solid ${C.outlineVariant}`,
+                background:   bg,
+                border:       `2px solid ${borderColor}`,
                 borderRadius: 12,
                 padding:      "10px 14px",
                 boxShadow:    "0 1px 4px rgba(0,0,0,0.04)",
-                cursor:       "default",
-                transition:   "box-shadow 0.15s",
+                transition:   "border-color 0.2s, background 0.2s",
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.06)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 1px 4px rgba(0,0,0,0.04)"; }}
             >
               <div
                 style={{
@@ -95,28 +182,35 @@ export default function VocabPanel({ words = [] }) {
                   justifyContent: "space-between",
                   alignItems:     "flex-start",
                   marginBottom:   definition ? 4 : 0,
+                  gap:            8,
                 }}
               >
-                <span style={{ fontSize: 14, fontWeight: 700, color: C.onSurface }}>
-                  {wordText}
-                </span>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                  {isUsed && (
+                    <span title="Bạn đã dùng từ này" style={{ fontSize: 14 }}>✅</span>
+                  )}
+                  {!isUsed && isMentioned && (
+                    <span title="AI đã dùng trong hội thoại" style={{ fontSize: 14 }}>🔵</span>
+                  )}
+                  <span style={{ fontSize: 14, fontWeight: 700, color: C.onSurface }}>
+                    {wordText}
+                  </span>
+                </div>
                 <button
                   onClick={handleSpeak}
                   title="Phát âm"
+                  type="button"
                   style={{
-                    border:      "none",
-                    background:  "transparent",
-                    cursor:      "pointer",
-                    padding:     "2px 4px",
+                    border:       "none",
+                    background:   "transparent",
+                    cursor:       "pointer",
+                    padding:      "2px 4px",
                     borderRadius: 6,
-                    color:       C.onSurfaceVariant,
-                    fontSize:    16,
-                    lineHeight:  1,
-                    transition:  "color 0.15s",
-                    flexShrink:  0,
+                    color:        C.onSurfaceVariant,
+                    fontSize:     16,
+                    lineHeight:   1,
+                    flexShrink:   0,
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = C.primary; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.color = C.onSurfaceVariant; }}
                 >
                   🔊
                 </button>
@@ -139,73 +233,22 @@ export default function VocabPanel({ words = [] }) {
         })}
       </div>
 
-      {/* Live Transcript placeholder */}
-      <div
-        style={{
-          marginTop:     "auto",
-          background:    C.surfaceBright,
-          borderRadius:  16,
-          padding:       "16px",
-          border:        `1px solid ${C.outlineVariant}`,
-          display:       "flex",
-          flexDirection: "column",
-          gap:           8,
-          position:      "relative",
-          overflow:      "hidden",
-        }}
-      >
+      {/* Gợi ý tiếp tục */}
+      {words.length > 0 && usedCount < needed && (
         <div
           style={{
-            position:     "absolute",
-            right:        -16,
-            top:          -16,
-            width:        64,
-            height:       64,
-            borderRadius: "50%",
-            background:   "#6cf8bb4d",
-            filter:       "blur(16px)",
-            pointerEvents: "none",
-          }}
-        />
-        <h4
-          style={{
-            fontSize:    14,
-            fontWeight:  700,
-            color:       C.onSurface,
-            margin:      0,
-            display:     "flex",
-            alignItems:  "center",
-            gap:         6,
-            position:    "relative",
-            zIndex:      1,
+            background:   "#fffbeb",
+            border:       `1px solid ${C.warning}`,
+            borderRadius: 12,
+            padding:      "12px 14px",
+            fontSize:     13,
+            color:        "#78350f",
+            lineHeight:   1.5,
           }}
         >
-          📊 Live Transcript
-        </h4>
-        <p style={{ fontSize: 14, color: C.onSurfaceVariant, margin: 0, position: "relative", zIndex: 1 }}>
-          Xem bản dịch hội thoại theo thời gian thực để theo dõi tiến trình.
-        </p>
-        <button
-          style={{
-            padding:      "8px 0",
-            borderRadius: 8,
-            border:       `1px solid ${C.outlineVariant}`,
-            background:   C.surfaceLowest,
-            color:        C.onSurface,
-            fontSize:     14,
-            fontWeight:   600,
-            cursor:       "not-allowed",
-            opacity:      0.6,
-            fontFamily:   FONT,
-            position:     "relative",
-            zIndex:       1,
-          }}
-          disabled
-          title="Tính năng đang phát triển"
-        >
-          Bật Transcript
-        </button>
-      </div>
+          💡 Hãy trả lời AI bằng câu có chứa các từ còn ⬜ — khi đủ {needed} từ bạn sẽ hoàn thành phần này.
+        </div>
+      )}
     </aside>
   );
 }

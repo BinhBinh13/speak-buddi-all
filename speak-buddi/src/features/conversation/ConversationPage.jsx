@@ -22,7 +22,14 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { sendMessage } from "./services/conversationService";
 import { getQuotaStatus } from "./services/quotaService";
+import {
+  loadConversationState,
+  saveConversationState,
+  clearConversationState,
+  flushConversationState,
+} from "./services/conversationStorage";
 import { completeSession, getTopicWords, startSession } from "../roadmap/services/sessionService";
+import { createSpeechRecognizer } from "../speaking/services/speechService";
 import ChatBubble from "./components/ChatBubble";
 import VocabPanel from "./components/VocabPanel";
 
@@ -73,6 +80,16 @@ function buildTopicPayload(topicName, words) {
 const WORD_BOUNDARY = (w) => new RegExp(`(?<![a-z])${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![a-z])`, "i");
 
 function detectCoveredWords(messages, batchWords) {
+  const allText = messages.filter((m) => m.role === "user").map((m) => m.content).join(" ");
+  return new Set(
+    batchWords
+      .map((w) => (typeof w === "string" ? w : w.word ?? "").toLowerCase())
+      .filter((w) => w && WORD_BOUNDARY(w).test(allText))
+  );
+}
+
+/** Từ xuất hiện trong toàn bộ hội thoại (user + AI) — hiển thị tracking */
+function detectMentionedWords(messages, batchWords) {
   const allText = messages.map((m) => m.content).join(" ");
   return new Set(
     batchWords
@@ -143,17 +160,77 @@ export default function ConversationPage() {
   const [quotaBanner,   setQuotaBanner]   = useState(null);
   // Batch completion tracking
   const [coveredWords,  setCoveredWords]  = useState(new Set());
+  const [mentionedWords, setMentionedWords] = useState(new Set());
   const [batchDone,     setBatchDone]     = useState(false);
   const completionCalled = useRef(false);
 
-  const chatEndRef    = useRef(null);
-  const greetingDone  = useRef(false);
+  const chatEndRef           = useRef(null);
+  const activeAudioRef       = useRef(null);
+  const recognitionRef       = useRef(null);
+  const micTranscriptRef     = useRef("");
+  const messagesRef          = useRef([]);
+  const loadingRef           = useRef(false);
   const [loadingNext, setLoadingNext] = useState(false);
+  const [greetingRetry, setGreetingRetry] = useState(null);
+  const [isListening, setIsListening] = useState(false);
+  const [micError, setMicError] = useState(null);
+  const [restoring, setRestoring] = useState(true);
 
-  // ── Auto-scroll khi messages / loading thay đổi ───────────────────────────
+  function stopActiveAudio() {
+    if (activeAudioRef.current) {
+      activeAudioRef.current.pause();
+      activeAudioRef.current.currentTime = 0;
+      activeAudioRef.current = null;
+    }
+  }
+
+  function stopSpeechRecognition() {
+    const rec = recognitionRef.current;
+    if (rec) {
+      rec.manualStopRequested = true;
+      try {
+        rec.stopManually?.();
+      } catch {
+        try { rec.stop(); } catch { /* ignore */ }
+      }
+    }
+    recognitionRef.current = null;
+    setIsListening(false);
+  }
+
+  function stopAllMedia() {
+    stopActiveAudio();
+    stopSpeechRecognition();
+    if ("speechSynthesis" in window) speechSynthesis.cancel();
+  }
+
+  function playAiAudio(url) {
+    stopActiveAudio();
+    const audio = new Audio(url);
+    activeAudioRef.current = audio;
+    audio.onended = () => {
+      if (activeAudioRef.current === audio) activeAudioRef.current = null;
+    };
+    audio.play().catch(() => {});
+  }
+
+  // Dọn audio/mic khi rời màn
+  useEffect(() => () => stopAllMedia(), []);
+
+  // ── Auto-scroll khi có tin nhắn / đang loading ───────────────────────────
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, loading]);
+    messagesRef.current = messages;
+  }, [messages]);
+
+  useEffect(() => {
+    loadingRef.current = loading;
+  }, [loading]);
+
+  useEffect(() => {
+    if (messages.length > 0 || loading) {
+      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, loading, batchDone]);
 
   // ── Fetch quota khi mount (S7.2) ──────────────────────────────────────────
   useEffect(() => {
@@ -164,18 +241,31 @@ export default function ConversationPage() {
       });
   }, []);
 
-  // ── Theo dõi từ đã xuất hiện sau mỗi lượt — trigger completion ──────────
+  // ── Theo dõi từ + lưu hội thoại ───────────────────────────────────────────
   useEffect(() => {
-    if (batchDone || completionCalled.current || words.length === 0 || messages.length === 0) return;
+    if (words.length === 0 || messages.length === 0) return;
+
     const covered = detectCoveredWords(messages, words);
+    const mentioned = detectMentionedWords(messages, words);
     setCoveredWords(covered);
+    setMentionedWords(mentioned);
+
+    if (topicId) {
+      saveConversationState(topicId, batchIndex, {
+        messages,
+        coveredWords: covered,
+        batchDone,
+      });
+    }
+
+    if (batchDone || completionCalled.current) return;
     const needed = Math.ceil(words.length * COMPLETION_THRESHOLD);
     if (covered.size >= needed && topicId) {
       completionCalled.current = true;
       completeSession(topicId, { batchIndex, batchSize }).catch(() => {});
       setBatchDone(true);
     }
-  }, [messages]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [messages, batchDone]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Build history array để gửi lên API ────────────────────────────────────
   function buildHistory(msgs) {
@@ -186,11 +276,13 @@ export default function ConversationPage() {
   }
 
   // ── Gọi sendMessage, nhận kết quả và cập nhật state ─────────────────────────
-  async function processResult(payload, { isGreeting = false, currentMessages }) {
+  async function processResult(payload, { isGreeting = false, currentMessages, getIsActive = () => true }) {
+    if (!getIsActive()) return;
     setLoading(true);
     setErrorBanner(null);
     try {
       const result = await sendMessage(payload);
+      if (!getIsActive()) return;
 
       const aiMsg = {
         id:       Date.now(),
@@ -200,16 +292,17 @@ export default function ConversationPage() {
         ttsError: result.ttsError ?? false,
       };
 
-      setMessages((prev) => [...prev, aiMsg]);
+      setMessages((prev) => (isGreeting ? [aiMsg] : [...prev, aiMsg]));
 
       // Auto-play audio nếu có (AC F10)
       if (result.audioUrl) {
-        const audio = new Audio(result.audioUrl);
-        audio.play().catch(() => {});
+        playAiAudio(result.audioUrl);
       }
 
       setRetryPayload(null);
+      if (isGreeting) setGreetingRetry(null);
     } catch (err) {
+      if (!getIsActive()) return;
       if (err.status === 429) {
         // Quota hết (S7.2): hiện banner cảnh báo, khóa input — không set errorBanner
         const detail = err.quotaDetail ?? {};
@@ -233,38 +326,81 @@ export default function ConversationPage() {
       } else if (err.status === 502 || err.service === "anthropic") {
         // Anthropic lỗi: hiện banner + cho phép retry (AC-09-04)
         setErrorBanner("🔄 AI đang bận, vui lòng thử lại sau vài giây.");
-        if (!isGreeting) {
-          // Giữ lại payload để user retry; message user đã push vào state rồi
+        if (isGreeting) {
+          setGreetingRetry(payload);
+        } else {
           setRetryPayload({ payload, currentMessages });
         }
       } else {
         setErrorBanner(`Lỗi kết nối: ${err.message || "Không thể kết nối dịch vụ AI."}`);
+        if (isGreeting) setGreetingRetry(payload);
       }
     } finally {
-      setLoading(false);
+      if (getIsActive()) setLoading(false);
     }
   }
 
-  // ── Lượt chào đầu phiên (GREETING_MODE) ───────────────────────────────────
+  // ── Lượt chào đầu phiên hoặc khôi phục từ DB / sessionStorage ─────────────
   useEffect(() => {
-    if (greetingDone.current) return;
-    greetingDone.current = true;
+    if (!topicName) return;
 
-    const topic = buildTopicPayload(topicName, words);
-    const greetPayload = {
-      text:    "Hello",
-      context: "GREETING_MODE:",
-      topic,
-      history: [],
-    };
-    processResult(greetPayload, { isGreeting: true, currentMessages: [] });
+    let active = true;
+
+    async function initSession() {
+      setRestoring(true);
+      const saved = await loadConversationState(topicId, batchIndex);
+      if (!active) return;
+
+      if (saved?.messages?.length) {
+        setMessages(saved.messages);
+        setCoveredWords(new Set(saved.coveredWords ?? []));
+        setMentionedWords(detectMentionedWords(saved.messages, words));
+        setBatchDone(saved.batchDone ?? false);
+        if (saved.batchDone) completionCalled.current = true;
+        setErrorBanner(null);
+        setRetryPayload(null);
+        setGreetingRetry(null);
+        setRestoring(false);
+        return;
+      }
+
+      setMessages([]);
+      setErrorBanner(null);
+      setRetryPayload(null);
+      setGreetingRetry(null);
+      setCoveredWords(new Set());
+      setMentionedWords(new Set());
+      setBatchDone(false);
+      completionCalled.current = false;
+      setRestoring(false);
+
+      const topic = buildTopicPayload(topicName, words);
+      const greetPayload = {
+        text:    "Hello",
+        context: "GREETING_MODE:",
+        topic,
+        history: [],
+      };
+
+      processResult(greetPayload, {
+        isGreeting:      true,
+        currentMessages: [],
+        getIsActive:     () => active,
+      });
+    }
+
+    initSession();
+    return () => { active = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [topicId, topicName, batchIndex]);
 
   // ── Gửi message người dùng ─────────────────────────────────────────────────
-  function handleSend() {
-    const trimmed = input.trim();
-    if (!trimmed || loading) return;
+  function sendText(rawText) {
+    const trimmed = rawText.trim();
+    if (!trimmed || loadingRef.current) return;
+
+    stopSpeechRecognition();
+    setMicError(null);
 
     const userMsg = {
       id:      Date.now(),
@@ -272,9 +408,7 @@ export default function ConversationPage() {
       content: trimmed,
     };
 
-    // Tính next messages trước, cập nhật state, rồi gọi API bên ngoài updater.
-    // Tránh anti-pattern side-effect trong state updater (React StrictMode safe).
-    const next = [...messages, userMsg];
+    const next = [...messagesRef.current, userMsg];
     setMessages(next);
     setInput("");
     setErrorBanner(null);
@@ -284,18 +418,95 @@ export default function ConversationPage() {
     processResult(payload, { isGreeting: false, currentMessages: next });
   }
 
+  function handleSend() {
+    sendText(input);
+  }
+
+  function handleEndSession() {
+    stopAllMedia();
+    if (topicId && messages.length > 0) {
+      flushConversationState(topicId, batchIndex, {
+        messages,
+        coveredWords,
+        batchDone,
+      });
+    }
+    navigate("/roadmap");
+  }
+
+  function handleMicToggle() {
+    if (loading || quotaBanner) return;
+
+    if (isListening) {
+      const text = (micTranscriptRef.current || input).trim();
+      stopSpeechRecognition();
+      micTranscriptRef.current = "";
+      if (text) sendText(text);
+      return;
+    }
+
+    setMicError(null);
+    micTranscriptRef.current = input.trim() ? `${input.trim()} ` : "";
+
+    const rec = createSpeechRecognizer({
+      lang:           "en-US",
+      manualStopOnly: true,
+      onInterim: (text) => {
+        setInput(micTranscriptRef.current + text);
+      },
+      onFinal: (text) => {
+        micTranscriptRef.current += text;
+        setInput(micTranscriptRef.current);
+      },
+      onEnd: () => {
+        setIsListening(false);
+        recognitionRef.current = null;
+      },
+      onError: (err) => {
+        setIsListening(false);
+        recognitionRef.current = null;
+        if (err === "not-allowed") {
+          setMicError("Vui lòng cho phép quyền micro trong trình duyệt.");
+        } else if (err !== "aborted") {
+          setMicError("Không thể dùng micro. Hãy thử nhập text.");
+        }
+      },
+    });
+
+    if (!rec) {
+      setMicError("Trình duyệt không hỗ trợ nhận giọng nói — hãy dùng Chrome/Edge.");
+      return;
+    }
+
+    recognitionRef.current = rec;
+    try {
+      rec.start();
+      setIsListening(true);
+    } catch {
+      setMicError("Không thể bật micro. Thử lại hoặc nhập text.");
+    }
+  }
+
   // ── Retry sau lỗi Anthropic ────────────────────────────────────────────────
   function handleRetry() {
-    if (!retryPayload) return;
-    const { payload, currentMessages } = retryPayload;
-    setRetryPayload(null);
-    setErrorBanner(null);
-    processResult(payload, { isGreeting: false, currentMessages });
+    if (retryPayload) {
+      const { payload, currentMessages } = retryPayload;
+      setRetryPayload(null);
+      setErrorBanner(null);
+      processResult(payload, { isGreeting: false, currentMessages });
+      return;
+    }
+    if (greetingRetry) {
+      setGreetingRetry(null);
+      setErrorBanner(null);
+      processResult(greetingRetry, { isGreeting: true, currentMessages: [] });
+    }
   }
 
   // ── Navigate sang batch tiếp theo ─────────────────────────────────────────
   async function handleNextBatch() {
     if (!topicId || loadingNext) return;
+    stopAllMedia();
     setLoadingNext(true);
     try {
       const nextIdx  = batchIndex + 1;
@@ -310,10 +521,11 @@ export default function ConversationPage() {
           example_sentence: w.example_sentence,
         }));
       if (nextWords.length === 0) {
-        // Hết batch — về roadmap
+        clearConversationState(topicId, batchIndex);
         navigate("/roadmap");
         return;
       }
+      clearConversationState(topicId, batchIndex);
       await startSession(topicId, { batchIndex: nextIdx, batchSize: nextWords.length });
       navigate("/conversation", {
         state: { topicId, topicName, batchIndex: nextIdx, words: nextWords },
@@ -442,7 +654,7 @@ export default function ConversationPage() {
           )}
 
           <button
-            onClick={() => navigate("/roadmap")}
+            onClick={handleEndSession}
             title="Kết thúc phiên"
             style={{
               padding:      "8px 16px",
@@ -477,6 +689,7 @@ export default function ConversationPage() {
             display:       "flex",
             flexDirection: "column",
             overflow:      "hidden",
+            minHeight:     0,
             borderRight:   `1px solid ${C.outlineVariant}`,
           }}
         >
@@ -499,7 +712,7 @@ export default function ConversationPage() {
             >
               <span>{errorBanner}</span>
               <div style={{ display: "flex", gap: 8 }}>
-                {retryPayload && (
+                {(retryPayload || greetingRetry) && (
                   <button
                     onClick={handleRetry}
                     style={{
@@ -539,10 +752,44 @@ export default function ConversationPage() {
             </div>
           )}
 
-          {/* Danh sách tin nhắn */}
+          {/* Tiến độ từ — luôn hiện (kể cả mobile khi vocab panel ẩn) */}
+          {words.length > 0 && (
+            <div
+              className="sb-word-progress-mobile"
+              style={{
+                padding:    "8px 20px",
+                background: C.surfaceContainer,
+                borderBottom: `1px solid ${C.outlineVariant}`,
+                flexShrink: 0,
+                fontSize:   13,
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                <span style={{ fontWeight: 600, color: C.onSurface }}>🎯 Từ bạn đã dùng</span>
+                <span style={{ fontWeight: 700, color: C.primary }}>
+                  {coveredWords.size}/{words.length}
+                </span>
+              </div>
+              <div style={{ height: 6, borderRadius: 4, background: C.outlineVariant, overflow: "hidden" }}>
+                <div
+                  style={{
+                    height:       "100%",
+                    width:        `${words.length ? Math.round((coveredWords.size / words.length) * 100) : 0}%`,
+                    background:   coveredWords.size >= Math.ceil(words.length * COMPLETION_THRESHOLD)
+                      ? C.secondary
+                      : C.primary,
+                    transition:   "width 0.3s",
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Danh sách tin nhắn — flex:1 + minHeight:0 giữ input ở đáy */}
           <div
             style={{
-              flex:          1,
+              flex:          "1 1 0",
+              minHeight:     0,
               overflowY:     "auto",
               padding:       "24px",
               display:       "flex",
@@ -550,6 +797,38 @@ export default function ConversationPage() {
               gap:           24,
             }}
           >
+            {messages.length === 0 && !loading && !restoring && (
+              <div
+                style={{
+                  flex:           1,
+                  display:        "flex",
+                  alignItems:     "center",
+                  justifyContent: "center",
+                  color:          C.onSurfaceVariant,
+                  fontSize:       14,
+                  textAlign:      "center",
+                  padding:        "24px 16px",
+                }}
+              >
+                {errorBanner
+                  ? "Không tải được lời chào AI. Nhấn Thử lại ở banner phía trên."
+                  : "Đang chờ AI Tutor bắt đầu hội thoại..."}
+              </div>
+            )}
+            {restoring && messages.length === 0 && (
+              <div
+                style={{
+                  flex:           1,
+                  display:        "flex",
+                  alignItems:     "center",
+                  justifyContent: "center",
+                  color:          C.onSurfaceVariant,
+                  fontSize:       14,
+                }}
+              >
+                Đang tải hội thoại đã lưu...
+              </div>
+            )}
             {messages.map((msg) => (
               <ChatBubble
                 key={msg.id}
@@ -695,15 +974,26 @@ export default function ConversationPage() {
               {/* Nút mic lớn — primary desktop, secondary-container mobile */}
               <button
                 className="sb-mic-btn"
+                onClick={handleMicToggle}
                 disabled={loading || !!quotaBanner}
-                title={quotaBanner ? "Quota đã hết" : "Nhấn để nói chuyện (sắp ra mắt)"}
-                aria-label="Ghi âm"
+                title={
+                  quotaBanner
+                    ? "Quota đã hết"
+                    : isListening
+                    ? "Nhấn để dừng ghi"
+                    : "Nhấn để nói (tiếng Anh)"
+                }
+                aria-label={isListening ? "Dừng ghi âm" : "Ghi âm"}
                 style={{
                   width:          80,
                   height:         80,
                   borderRadius:   "50%",
-                  border:         "none",
-                  background:     loading || !!quotaBanner ? C.outlineVariant : C.primary,
+                  border:         isListening ? `3px solid ${C.secondary}` : "none",
+                  background:     loading || !!quotaBanner
+                    ? C.outlineVariant
+                    : isListening
+                    ? C.secondary
+                    : C.primary,
                   color:          loading || !!quotaBanner ? C.onSurfaceVariant : "#ffffff",
                   fontSize:       32,
                   cursor:         loading || !!quotaBanner ? "not-allowed" : "pointer",
@@ -712,8 +1002,10 @@ export default function ConversationPage() {
                   justifyContent: "center",
                   boxShadow:      loading || !!quotaBanner
                     ? "none"
+                    : isListening
+                    ? "0 8px 24px rgba(0,108,73,0.35)"
                     : "0 8px 24px rgba(79,70,229,0.3)",
-                  transition:     "transform 0.15s, box-shadow 0.15s",
+                  transition:     "transform 0.15s, box-shadow 0.15s, background 0.15s",
                   position:       "relative",
                   overflow:       "hidden",
                   flexShrink:     0,
@@ -725,8 +1017,8 @@ export default function ConversationPage() {
                   e.currentTarget.style.transform = "scale(1)";
                 }}
               >
-                🎤
-                {!loading && !quotaBanner && (
+                {isListening ? "⏹" : "🎤"}
+                {!loading && !quotaBanner && !isListening && (
                   <span
                     style={{
                       position:      "absolute",
@@ -818,12 +1110,16 @@ export default function ConversationPage() {
               </div>
 
               {/* Helper text */}
-              <p style={{ margin: 0, fontSize: 12, color: C.outline, textAlign: "center" }}>
-                {loading
+              <p style={{ margin: 0, fontSize: 12, color: micError ? C.error : C.outline, textAlign: "center" }}>
+                {micError
+                  ? micError
+                  : loading
                   ? "AI đang trả lời..."
+                  : isListening
+                  ? "Đang nghe... nhấn mic lần nữa để dừng và gửi"
                   : quotaBanner
                   ? "Quota đã hết"
-                  : "Nhấn giữ để nói hoặc nhập tin nhắn"}
+                  : "Nhấn mic để nói hoặc nhập tin nhắn"}
               </p>
             </div>
           </div>
@@ -844,13 +1140,21 @@ export default function ConversationPage() {
         </section>
 
         {/* ── Vocab panel — chỉ hiện ≥1024px ──────────────────────────────── */}
-        <div className="sb-vocab-panel">
-          <VocabPanel words={words} />
+        <div className="sb-vocab-panel" style={{ minHeight: 0, overflow: "hidden" }}>
+          <VocabPanel
+            words={words}
+            coveredWords={coveredWords}
+            mentionedWords={mentionedWords}
+            completionThreshold={COMPLETION_THRESHOLD}
+          />
         </div>
 
         <style>{`
-          .sb-vocab-panel { display: none; }
-          @media (min-width: 1024px) { .sb-vocab-panel { display: block; } }
+          .sb-vocab-panel { display: none; height: 100%; }
+          @media (min-width: 1024px) {
+            .sb-vocab-panel { display: block; }
+            .sb-word-progress-mobile { display: none; }
+          }
         `}</style>
       </div>
     </div>

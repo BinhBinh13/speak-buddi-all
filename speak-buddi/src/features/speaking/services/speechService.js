@@ -13,9 +13,10 @@ const API_URL = import.meta.env.VITE_API_URL;
  * @param {string}   opts.lang
  * @param {function} opts.onInterim   - (text) gọi mỗi khi có partial result
  * @param {function} opts.onFinal     - (text) gọi khi có final result
- * @param {function} opts.onEnd       - () gọi khi recognition thực sự dừng (sau silence)
+ * @param {function} opts.onEnd       - () gọi khi recognition thực sự dừng
  * @param {function} opts.onError
- * @param {number}   [opts.silenceMs=2200] - ms im lặng trước khi tự dừng
+ * @param {number|null} [opts.silenceMs=2200] - ms im lặng trước khi tự dừng; null = không tự dừng
+ * @param {boolean} [opts.manualStopOnly=false] - true: chỉ dừng khi gọi stopManually()
  */
 export function createSpeechRecognizer({
   lang = "en-US",
@@ -24,6 +25,7 @@ export function createSpeechRecognizer({
   onEnd,
   onError,
   silenceMs = 2200,
+  manualStopOnly = false,
 }) {
   if (!SpeechRecognition) {
     onError?.("Browser does not support Speech Recognition.");
@@ -32,12 +34,15 @@ export function createSpeechRecognizer({
 
   const recognition = new SpeechRecognition();
   recognition.lang            = lang;
-  recognition.continuous      = true;   // ← không tự ngắt giữa câu
+  recognition.continuous      = true;
   recognition.interimResults  = true;
+  recognition.manualStopRequested = false;
 
   let silenceTimer  = null;
+  const useSilenceStop = !manualStopOnly && silenceMs != null && silenceMs > 0;
 
   function resetSilenceTimer() {
+    if (!useSilenceStop) return;
     clearTimeout(silenceTimer);
     silenceTimer = setTimeout(() => {
       recognition.stop();
@@ -56,25 +61,33 @@ export function createSpeechRecognizer({
       if (e.results[i].isFinal) final   += t;
       else                       interim += t;
     }
-    if (interim || final) resetSilenceTimer(); // reset timer khi có speech
+    if (interim || final) resetSilenceTimer();
     if (interim) onInterim?.(interim);
     if (final)   onFinal?.(final);
   };
 
   recognition.onend = () => {
     clearTimeout(silenceTimer);
+    // Trình duyệt có thể tự ngắt session — restart nếu user chưa bấm dừng
+    if (manualStopOnly && !recognition.manualStopRequested) {
+      try {
+        recognition.start();
+        return;
+      } catch {
+        // không restart được — coi như kết thúc
+      }
+    }
     onEnd?.();
   };
 
   recognition.onerror = (e) => {
     clearTimeout(silenceTimer);
-    // "no-speech" không phải lỗi thật — bỏ qua, để silence timer xử lý
     if (e.error === "no-speech") return;
     onError?.(e.error);
   };
 
-  // Expose stop() để SpeakingPage có thể dừng thủ công (nút mic)
   recognition.stopManually = () => {
+    recognition.manualStopRequested = true;
     clearTimeout(silenceTimer);
     recognition.stop();
   };
