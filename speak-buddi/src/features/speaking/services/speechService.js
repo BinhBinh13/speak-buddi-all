@@ -3,6 +3,25 @@ const SpeechRecognition =
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+/** Nhận diện ký tự tiếng Việt có dấu trong transcript */
+export const VIETNAMESE_CHAR_RE =
+  /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ]/;
+
+/**
+ * Chọn ngôn ngữ nhận giọng nói dựa trên nội dung transcript (Anh / Việt).
+ * @param {string} text
+ * @returns {'en-US' | 'vi-VN'}
+ */
+export function detectSpeechLang(text = "") {
+  if (!text.trim()) return "en-US";
+  const viChars  = (text.match(VIETNAMESE_CHAR_RE) || []).length;
+  const latinChars = (text.match(/[a-zA-Z]/g) || []).length;
+  if (viChars >= 2 || (viChars > 0 && viChars >= latinChars * 0.15)) {
+    return "vi-VN";
+  }
+  return "en-US";
+}
+
 /**
  * createSpeechRecognizer
  *
@@ -17,9 +36,11 @@ const API_URL = import.meta.env.VITE_API_URL;
  * @param {function} opts.onError
  * @param {number|null} [opts.silenceMs=2200] - ms im lặng trước khi tự dừng; null = không tự dừng
  * @param {boolean} [opts.manualStopOnly=false] - true: chỉ dừng khi gọi stopManually()
+ * @param {function} [opts.getLang] - () => lang động; gọi lại trước mỗi lần start/restart
  */
 export function createSpeechRecognizer({
   lang = "en-US",
+  getLang,
   onInterim,
   onFinal,
   onEnd,
@@ -33,7 +54,7 @@ export function createSpeechRecognizer({
   }
 
   const recognition = new SpeechRecognition();
-  recognition.lang            = lang;
+  recognition.lang            = getLang?.() ?? lang;
   recognition.continuous      = true;
   recognition.interimResults  = true;
   recognition.manualStopRequested = false;
@@ -50,6 +71,7 @@ export function createSpeechRecognizer({
   }
 
   recognition.onstart = () => {
+    if (getLang) recognition.lang = getLang();
     resetSilenceTimer();
   };
 
@@ -71,6 +93,7 @@ export function createSpeechRecognizer({
     // Trình duyệt có thể tự ngắt session — restart nếu user chưa bấm dừng
     if (manualStopOnly && !recognition.manualStopRequested) {
       try {
+        if (getLang) recognition.lang = getLang();
         recognition.start();
         return;
       } catch {

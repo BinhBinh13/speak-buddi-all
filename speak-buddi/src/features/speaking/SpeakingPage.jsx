@@ -1,223 +1,428 @@
-import { useState, useRef, useEffect } from "react";
-import { useLocation }      from "react-router-dom";
-import AppLayout            from "../../shared/components/AppLayout";
-import Waveform             from "./components/Waveform";
-import MicButton            from "./components/MicButton";
-import SpeakingHeader       from "./components/SpeakingHeader";
-import {
-  createSpeechRecognizer,
-  getAIResponse,
-  getTopicGreeting,
-  playAudio,
-} from "./services/speechService";
+import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
-const STATUS = {
-  IDLE:      "tap to speak",
-  LISTENING: "listening…",
-  THINKING:  "AI is responding…",
-  SPEAKING:  "AI is speaking…",
-  ERROR:     "something went wrong",
+import AppLayout from "../../shared/components/AppLayout";
+import ChatBubble from "../conversation/components/ChatBubble";
+import { sendMessage } from "../conversation/services/conversationService";
+import { getQuotaStatus } from "../conversation/services/quotaService";
+import { createSpeechRecognizer, detectSpeechLang } from "./services/speechService";
+import SpeakingTopicPicker from "./components/SpeakingTopicPicker";
+import SpeakingInputBar from "./components/SpeakingInputBar";
+
+const C = {
+  primary:          "#3525cd",
+  onPrimary:        "#ffffff",
+  surface:          "#fcf8ff",
+  surfaceLowest:    "#ffffff",
+  onSurface:        "#1b1b24",
+  onSurfaceVariant: "#464555",
+  outlineVariant:   "#c7c4d8",
+  secondary:        "#006c49",
+  error:            "#ba1a1a",
+  errorContainer:   "#ffdad6",
+  warning:          "#f59e0b",
+  warningContainer: "#fef3c7",
+  onWarning:        "#78350f",
 };
 
-export default function SpeakingPage() {
-  const { state }  = useLocation();
-  const topic      = state?.topic     ?? null; // từ roadmap node
-  const freeTopic  = state?.freeTopic ?? null; // từ free speak banner
+const FONT = "'Be Vietnam Pro', system-ui, sans-serif";
 
-  const [recording,      setRecording]      = useState(false);
-  const [status,         setStatus]         = useState(STATUS.IDLE);
-  const [interimText,    setInterimText]    = useState("");
-  const [aiReply,        setAiReply]        = useState("");
-  const [typing,         setTyping]         = useState(false);
-  const [replyVisible,   setReplyVisible]   = useState(false);
-  const [userTranscript, setUserTranscript] = useState("");
-
-  const recognizerRef  = useRef(null);
-  const finalRef       = useRef("");
-  const audioRef       = useRef(null);
-  const typeIvRef      = useRef(null);
-  const hasGreetedRef  = useRef(false);
-
-  // ── Typing animation ──────────────────────────────────────────────────────
-  function typeReply(text) {
-    setAiReply("");
-    setTyping(true);
-    let i = 0;
-    typeIvRef.current = setInterval(() => {
-      setAiReply(text.slice(0, ++i));
-      if (i >= text.length) {
-        clearInterval(typeIvRef.current);
-        setTyping(false);
-      }
-    }, 22);
-  }
-
-  // ── Greeting khi vào trang ────────────────────────────────────────────────
-  useEffect(() => {
-    if (hasGreetedRef.current) return;
-    hasGreetedRef.current = true;
-
-    if (topic) {
-      // Topic mode: AI generate lời chào + giới thiệu bài + từ mới qua Claude
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setStatus(STATUS.THINKING);
-      getTopicGreeting(topic)
-        .then(({ replyText, audioUrl }) => {
-          setReplyVisible(true);
-          setStatus(STATUS.SPEAKING);
-          typeReply(replyText);
-          audioRef.current = playAudio(audioUrl, () => setStatus(STATUS.IDLE));
-        })
-        .catch(() => setStatus(STATUS.IDLE));
-      return;
-    }
-
-    if (freeTopic) {
-      // Free topic mode: hardcode greeting (không cần Claude cho câu mở đầu đơn giản)
-      const greeting = freeTopic.prompt
-        ? `Sure! Let's talk about "${freeTopic.prompt}". What would you like to say first?`
-        : "What do you want to talk about today?";
-
-      setReplyVisible(true);
-      setStatus(STATUS.SPEAKING);
-      typeReply(greeting);
-
-      // Dùng TTS-only để phát audio
-      getAIResponse(greeting, null, /* ttsOnly */ true)
-        .then(({ audioUrl }) => {
-          audioRef.current = playAudio(audioUrl, () => setStatus(STATUS.IDLE));
-        })
-        .catch(() => setStatus(STATUS.IDLE));
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // ── Xử lý mic ─────────────────────────────────────────────────────────────
-  function handleMic() {
-    // Đang recording → dừng thủ công (user nhấn nút lần 2)
-    if (recording) {
-      recognizerRef.current?.stopManually?.();
-      return;
-    }
-
-    // Dừng audio AI đang phát (nếu có) khi user muốn nói
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-    }
-    clearInterval(typeIvRef.current);
-
-    finalRef.current = "";
-    setInterimText("");
-    setUserTranscript("");
-    setAiReply("");
-    setReplyVisible(false);
-    setStatus(STATUS.LISTENING);
-    setRecording(true);
-
-    const recognizer = createSpeechRecognizer({
-      lang:      "en-US",
-      silenceMs: 2200, // 2.2s im lặng → tự dừng và gửi AI
-
-      onInterim: (t) => setInterimText(t),
-
-      onFinal: (t) => {
-        finalRef.current += " " + t; // cộng dồn các câu liên tiếp
-        setInterimText("");
-        setUserTranscript(finalRef.current.trim());
-      },
-
-      onEnd: async () => {
-        setRecording(false);
-        setInterimText("");
-        const text = finalRef.current.trim();
-        if (!text) { setStatus(STATUS.IDLE); return; }
-
-        setUserTranscript(text);
-        setStatus(STATUS.THINKING);
-        try {
-          const { replyText, audioUrl } = await getAIResponse(
-            text,
-            freeTopic?.prompt ?? null,
-            false,
-            topic ?? null,
-          );
-          setStatus(STATUS.SPEAKING);
-          setReplyVisible(true);
-          typeReply(replyText);
-          audioRef.current = playAudio(audioUrl, () => setStatus(STATUS.IDLE));
-        } catch {
-          setStatus(STATUS.ERROR);
-        }
-      },
-
-      onError: () => { setRecording(false); setStatus(STATUS.ERROR); },
-    });
-
-    recognizerRef.current = recognizer;
-    recognizer?.start();
-  }
-
-  // ── Render ────────────────────────────────────────────────────────────────
-  const showUserBubble = userTranscript || interimText;
-
+function LoadingDots() {
   return (
-    <AppLayout>
-      <div style={styles.page}>
-        <SpeakingHeader topic={topic} freeTopic={freeTopic} />
-
-        <div style={styles.body}>
-          <div style={styles.transcriptArea}>
-            {showUserBubble && (
-              <div style={styles.txRow}>
-                <div style={styles.txWrapUser}>
-                  <span style={styles.txLabel}>You</span>
-                  <div style={{ ...styles.txBubble, ...styles.txBubbleUser }}>
-                    {userTranscript || interimText}
-                    {recording && !userTranscript && <span style={styles.cursor} />}
-                  </div>
-                </div>
-              </div>
-            )}
-            {replyVisible && (
-              <div style={styles.txRow}>
-                <div style={styles.txWrapAI}>
-                  <span style={styles.txLabel}>AI</span>
-                  <div style={{ ...styles.txBubble, ...styles.txBubbleAI }}>
-                    {aiReply}
-                    {typing && <span style={styles.cursor} />}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <Waveform active={recording || status === STATUS.SPEAKING} />
-
-          <div style={styles.micWrap}>
-            <MicButton recording={recording} onClick={handleMic} />
-            <span style={styles.statusText}>{status}</span>
-          </div>
-        </div>
-      </div>
-
-      <style>{`@keyframes blink-cur{0%,100%{opacity:1}50%{opacity:0}}`}</style>
-    </AppLayout>
+    <div style={{ alignSelf: "flex-start", display: "flex", gap: 6, padding: "12px 16px", background: C.surfaceLowest, border: `1px solid ${C.outlineVariant}`, borderRadius: "1rem", borderTopLeftRadius: 4, marginLeft: 52 }}>
+      {[0, 1, 2].map((i) => (
+        <span key={i} style={{ display: "block", width: 8, height: 8, borderRadius: "50%", background: C.primary, animation: `dotPulse 1.2s ease-in-out ${i * 0.2}s infinite` }} />
+      ))}
+      <style>{`@keyframes dotPulse{0%,80%,100%{opacity:.2;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}`}</style>
+    </div>
   );
 }
 
-const styles = {
-  page:           { display: "flex", flexDirection: "column", minHeight: "calc(100vh - 60px)" },
-  body:           { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2rem 1.5rem", gap: "1.75rem" },
-  transcriptArea: { width: "100%", maxWidth: 560, display: "flex", flexDirection: "column", gap: 10 },
-  txRow:          { display: "flex", width: "100%" },
-  txWrapUser:     { display: "flex", flexDirection: "column", alignItems: "flex-end", marginLeft: "auto", maxWidth: "82%" },
-  txWrapAI:       { display: "flex", flexDirection: "column", alignItems: "flex-start", maxWidth: "82%" },
-  txLabel:        { fontSize: 11, color: "#9ca3af", letterSpacing: "0.03em", marginBottom: 4 },
-  txBubble:       { padding: "9px 13px", borderRadius: 12, fontSize: 14, lineHeight: 1.7 },
-  txBubbleUser:   { background: "#ef4444", color: "#fff", borderRadius: "12px 4px 12px 12px" },
-  txBubbleAI:     { background: "#f9fafb", color: "#111827", border: "0.5px solid #e5e7eb", borderRadius: "4px 12px 12px 12px" },
-  micWrap:        { display: "flex", flexDirection: "column", alignItems: "center", gap: 10 },
-  statusText:     { fontSize: 12, color: "#9ca3af", letterSpacing: "0.03em" },
-  cursor:         { display: "inline-block", width: 2, height: "1em", background: "currentColor", verticalAlign: "text-bottom", marginLeft: 2, opacity: 0.6, animation: "blink-cur 0.8s infinite" },
-};
+function buildRoadmapTopicPayload(topic) {
+  if (!topic) return null;
+  const words = topic.words ?? [];
+  return {
+    label:   topic.label ?? topic.name ?? "Topic",
+    words:   words.map((w) => (typeof w === "string" ? w : w.word ?? "")),
+    grammarTopics: topic.grammarTopics ?? [],
+  };
+}
+
+export default function SpeakingPage() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const initState  = location.state ?? {};
+
+  const [sessionPrompt, setSessionPrompt] = useState(initState.freeTopic?.prompt ?? null);
+  const [roadmapTopic,  setRoadmapTopic]  = useState(initState.topic ?? null);
+  const [started,       setStarted]       = useState(Boolean(initState.freeTopic || initState.topic));
+
+  const [messages,     setMessages]     = useState([]);
+  const [input,        setInput]        = useState("");
+  const [loading,      setLoading]      = useState(false);
+  const [errorBanner,  setErrorBanner]  = useState(null);
+  const [retryPayload, setRetryPayload] = useState(null);
+  const [quota,        setQuota]        = useState(null);
+  const [quotaBanner,  setQuotaBanner]  = useState(null);
+  const [isListening,  setIsListening]  = useState(false);
+  const [micError,     setMicError]     = useState(null);
+  const greetingCalledRef = useRef(false);
+
+  const chatEndRef       = useRef(null);
+  const activeAudioRef   = useRef(null);
+  const recognitionRef   = useRef(null);
+  const micTranscriptRef = useRef("");
+  const micInterimRef    = useRef("");
+  const messagesRef      = useRef([]);
+  const loadingRef       = useRef(false);
+
+  const sessionTitle = roadmapTopic?.label ?? roadmapTopic?.name ?? sessionPrompt ?? "Free Speaking";
+  const inputBlocked = Boolean(quotaBanner);
+
+  function buildHistory(msgs) {
+    return msgs.map((m) => ({
+      role:    m.role === "user" ? "user" : "assistant",
+      content: m.content,
+    }));
+  }
+
+  function stopActiveAudio() {
+    if (activeAudioRef.current) {
+      activeAudioRef.current.pause();
+      activeAudioRef.current = null;
+    }
+  }
+
+  function stopSpeechRecognition() {
+    const rec = recognitionRef.current;
+    if (rec) {
+      rec.manualStopRequested = true;
+      try { rec.stopManually?.(); } catch { try { rec.stop(); } catch { /* ignore */ } }
+    }
+    recognitionRef.current = null;
+    setIsListening(false);
+  }
+
+  function stopAllMedia() {
+    stopActiveAudio();
+    stopSpeechRecognition();
+    if ("speechSynthesis" in window) speechSynthesis.cancel();
+  }
+
+  function playAiAudio(url) {
+    stopActiveAudio();
+    const audio = new Audio(url);
+    activeAudioRef.current = audio;
+    audio.onended = () => {
+      if (activeAudioRef.current === audio) activeAudioRef.current = null;
+    };
+    audio.play().catch(() => {});
+  }
+
+  useEffect(() => () => stopAllMedia(), []);
+
+  useEffect(() => { messagesRef.current = messages; }, [messages]);
+  useEffect(() => { loadingRef.current = loading; }, [loading]);
+
+  useEffect(() => {
+    if (messages.length > 0 || loading) {
+      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, loading]);
+
+  useEffect(() => {
+    getQuotaStatus().then(setQuota).catch(() => {});
+  }, []);
+
+  async function processResult(payload, { isGreeting = false, currentMessages } = {}) {
+    setLoading(true);
+    setErrorBanner(null);
+    try {
+      const result = await sendMessage(payload);
+      const aiMsg = {
+        id:       Date.now(),
+        role:     "assistant",
+        content:  result.replyText,
+        audioUrl: result.audioUrl ?? null,
+        ttsError: result.ttsError ?? false,
+      };
+      setMessages((prev) => (isGreeting ? [aiMsg] : [...prev, aiMsg]));
+      if (result.audioUrl) playAiAudio(result.audioUrl);
+      setRetryPayload(null);
+    } catch (err) {
+      if (err.status === 429) {
+        const detail = err.quotaDetail ?? {};
+        setQuotaBanner({
+          message:  detail.message || "⏱ Bạn đã dùng hết quota hội thoại AI.",
+          reset_at: detail.reset_at || null,
+        });
+        setQuota((prev) => prev ? { ...prev, remaining_seconds: 0, is_exceeded: true } : prev);
+      } else if (err.status === 502 || err.service === "anthropic") {
+        setErrorBanner("🔄 AI đang bận, vui lòng thử lại sau vài giây.");
+        setRetryPayload({ payload, currentMessages, isGreeting });
+      } else {
+        setErrorBanner(`Lỗi kết nối: ${err.message || "Không thể kết nối dịch vụ AI."}`);
+        setRetryPayload({ payload, currentMessages, isGreeting });
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Greeting khi bắt đầu session
+  useEffect(() => {
+    if (!started || greetingCalledRef.current) return;
+
+    greetingCalledRef.current = true;
+    setMessages([]);
+    setErrorBanner(null);
+
+    const topicPayload = buildRoadmapTopicPayload(roadmapTopic);
+    const greetPayload = roadmapTopic
+      ? {
+          text:    "Hello",
+          context: "GREETING_MODE:",
+          topic:   topicPayload,
+          history: [],
+        }
+      : {
+          text:    "Hello",
+          context: sessionPrompt,
+          history: [],
+        };
+
+    processResult(greetPayload, { isGreeting: true, currentMessages: [] });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [started, sessionPrompt, roadmapTopic]);
+
+  function handleStartSession(prompt) {
+    stopAllMedia();
+    setSessionPrompt(prompt);
+    setRoadmapTopic(null);
+    setStarted(true);
+    greetingCalledRef.current = false;
+    setMessages([]);
+    setInput("");
+    setErrorBanner(null);
+    setQuotaBanner(null);
+    navigate("/speaking", { replace: true, state: { freeTopic: { prompt } } });
+  }
+
+  function handleEndSession() {
+    stopAllMedia();
+    setStarted(false);
+    setSessionPrompt(null);
+    setRoadmapTopic(null);
+    greetingCalledRef.current = false;
+    setMessages([]);
+    setInput("");
+    setErrorBanner(null);
+    setQuotaBanner(null);
+    navigate("/speaking", { replace: true, state: {} });
+  }
+
+  function sendText(rawText) {
+    const trimmed = rawText.trim();
+    if (!trimmed || loadingRef.current || inputBlocked) return;
+
+    stopSpeechRecognition();
+    setMicError(null);
+
+    const userMsg = { id: Date.now(), role: "user", content: trimmed };
+    const next = [...messagesRef.current, userMsg];
+    setMessages(next);
+    setInput("");
+    micTranscriptRef.current = "";
+    micInterimRef.current = "";
+
+    const topicPayload = buildRoadmapTopicPayload(roadmapTopic);
+    const payload = {
+      text:    trimmed,
+      context: roadmapTopic ? null : sessionPrompt,
+      topic:   topicPayload,
+      history: buildHistory(next),
+    };
+    processResult(payload, { currentMessages: next });
+  }
+
+  function handleSend() {
+    sendText(input);
+  }
+
+  function handleMicToggle() {
+    if (loading || inputBlocked) return;
+
+    if (isListening) {
+      const text = input.trim();
+      stopSpeechRecognition();
+      micTranscriptRef.current = "";
+      micInterimRef.current = "";
+      if (text) sendText(text);
+      return;
+    }
+
+    setMicError(null);
+    micTranscriptRef.current = input.trim() ? `${input.trim()} ` : "";
+    micInterimRef.current = "";
+
+    const rec = createSpeechRecognizer({
+      lang:           "en-US",
+      getLang:        () => detectSpeechLang(micTranscriptRef.current + micInterimRef.current),
+      manualStopOnly: true,
+      onInterim: (text) => {
+        micInterimRef.current = text;
+        setInput(micTranscriptRef.current + text);
+      },
+      onFinal: (text) => {
+        micTranscriptRef.current += text;
+        micInterimRef.current = "";
+        setInput(micTranscriptRef.current);
+      },
+      onEnd: () => {
+        setIsListening(false);
+        recognitionRef.current = null;
+      },
+      onError: (err) => {
+        setIsListening(false);
+        recognitionRef.current = null;
+        if (err === "not-allowed") {
+          setMicError("Vui lòng cho phép quyền micro trong trình duyệt.");
+        } else if (err !== "aborted") {
+          setMicError("Không thể dùng micro. Hãy thử nhập text.");
+        }
+      },
+    });
+
+    if (!rec) {
+      setMicError("Trình duyệt không hỗ trợ nhận giọng nói — hãy dùng Chrome/Edge.");
+      return;
+    }
+
+    recognitionRef.current = rec;
+    try {
+      rec.start();
+      setIsListening(true);
+    } catch {
+      setMicError("Không thể bật micro. Thử lại hoặc nhập text.");
+    }
+  }
+
+  function handleRetry() {
+    if (!retryPayload) return;
+    const { payload, currentMessages, isGreeting } = retryPayload;
+    setRetryPayload(null);
+    setErrorBanner(null);
+    processResult(payload, { isGreeting, currentMessages });
+  }
+
+  function handleKeyDown(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  }
+
+  function handleInputChange(e) {
+    const value = e.target.value;
+    setInput(value);
+    micTranscriptRef.current = value;
+    micInterimRef.current = "";
+  }
+
+  // ── Picker: chưa chọn chủ đề ───────────────────────────────────────────────
+  if (!started) {
+    return (
+      <AppLayout>
+        <SpeakingTopicPicker onStart={handleStartSession} />
+      </AppLayout>
+    );
+  }
+
+  // ── Chat session — layout giống /conversation ─────────────────────────────
+  return (
+    <AppLayout>
+      <div style={{ display: "flex", flexDirection: "column", minHeight: "calc(100vh - 120px)", height: "calc(100vh - 120px)", overflow: "hidden", fontFamily: FONT, background: C.surface, borderRadius: 12, border: `1px solid ${C.outlineVariant}` }}>
+        <header style={{ height: 64, minHeight: 64, display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 24px", borderBottom: `1px solid ${C.outlineVariant}`, background: `${C.surface}cc`, backdropFilter: "blur(8px)", flexShrink: 0 }}>
+          <div style={{ minWidth: 0 }}>
+            <h1 style={{ fontSize: 22, fontWeight: 600, color: C.onSurface, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {sessionTitle}
+            </h1>
+            <p style={{ fontSize: 13, color: C.onSurfaceVariant, margin: "2px 0 0", display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: C.secondary }} />
+              {roadmapTopic ? "Luyện speaking theo chủ đề" : "Free Speaking · AI Tutor đang hoạt động"}
+            </p>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
+            {quota && !quota.is_paid && (
+              <span style={{ fontSize: 13, color: C.onSurfaceVariant, whiteSpace: "nowrap" }}>
+                ⏱ Còn {Math.ceil((quota.remaining_seconds || 0) / 60)} phút
+              </span>
+            )}
+            {quota?.is_paid && (
+              <span style={{ padding: "4px 12px", borderRadius: 20, background: "linear-gradient(135deg, #f59e0b, #d97706)", color: "#fff", fontSize: 12, fontWeight: 700 }}>
+                ✨ Pro
+              </span>
+            )}
+            <button
+              onClick={handleEndSession}
+              style={{ padding: "8px 16px", borderRadius: 8, border: `1px solid ${C.outlineVariant}`, background: C.surfaceLowest, color: C.onSurfaceVariant, fontSize: 14, fontWeight: 600, cursor: "pointer", minHeight: 44, fontFamily: FONT }}
+            >
+              ✕ Kết thúc
+            </button>
+          </div>
+        </header>
+
+        {errorBanner && (
+          <div role="alert" style={{ padding: "10px 20px", background: C.errorContainer, color: C.error, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexShrink: 0 }}>
+            <span>{errorBanner}</span>
+            <div style={{ display: "flex", gap: 8 }}>
+              {retryPayload && (
+                <button onClick={handleRetry} style={{ padding: "6px 14px", borderRadius: 8, border: "none", background: C.error, color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: FONT }}>
+                  Thử lại
+                </button>
+              )}
+              <button onClick={() => setErrorBanner(null)} style={{ padding: "6px 12px", borderRadius: 8, border: `1px solid ${C.error}`, background: "transparent", color: C.error, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: FONT }}>
+                Đóng
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: 24, display: "flex", flexDirection: "column", gap: 24 }}>
+          {messages.length === 0 && !loading && (
+            <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: C.onSurfaceVariant, fontSize: 14, textAlign: "center" }}>
+              Đang chờ AI Tutor bắt đầu hội thoại...
+            </div>
+          )}
+          {messages.map((msg) => (
+            <ChatBubble key={msg.id} role={msg.role} content={msg.content} audioUrl={msg.audioUrl} ttsError={msg.ttsError} />
+          ))}
+          {loading && <LoadingDots />}
+          <div ref={chatEndRef} />
+        </div>
+
+        {quotaBanner && (
+          <div role="alert" style={{ padding: "12px 20px", background: C.warningContainer, borderTop: `2px solid ${C.warning}`, fontSize: 14, flexShrink: 0 }}>
+            <p style={{ margin: "0 0 8px", fontWeight: 600, color: C.onWarning }}>{quotaBanner.message}</p>
+            <button onClick={() => navigate("/pricing")} style={{ padding: "6px 16px", borderRadius: 8, border: "none", background: C.warning, color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: FONT }}>
+              Nâng cấp Pro
+            </button>
+          </div>
+        )}
+
+        <SpeakingInputBar
+          input={input}
+          onInputChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          onSend={handleSend}
+          onMicToggle={handleMicToggle}
+          isListening={isListening}
+          loading={loading}
+          disabled={inputBlocked}
+          micError={micError}
+        />
+      </div>
+    </AppLayout>
+  );
+}

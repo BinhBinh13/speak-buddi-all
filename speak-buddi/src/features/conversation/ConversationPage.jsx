@@ -29,7 +29,7 @@ import {
   flushConversationState,
 } from "./services/conversationStorage";
 import { completeSession, getTopicWords, startSession } from "../roadmap/services/sessionService";
-import { createSpeechRecognizer } from "../speaking/services/speechService";
+import { createSpeechRecognizer, detectSpeechLang } from "../speaking/services/speechService";
 import ChatBubble from "./components/ChatBubble";
 import VocabPanel from "./components/VocabPanel";
 
@@ -168,6 +168,7 @@ export default function ConversationPage() {
   const activeAudioRef       = useRef(null);
   const recognitionRef       = useRef(null);
   const micTranscriptRef     = useRef("");
+  const micInterimRef        = useRef("");
   const messagesRef          = useRef([]);
   const loadingRef           = useRef(false);
   const [loadingNext, setLoadingNext] = useState(false);
@@ -411,6 +412,8 @@ export default function ConversationPage() {
     const next = [...messagesRef.current, userMsg];
     setMessages(next);
     setInput("");
+    micTranscriptRef.current = "";
+    micInterimRef.current = "";
     setErrorBanner(null);
 
     const topic   = buildTopicPayload(topicName, words);
@@ -438,24 +441,29 @@ export default function ConversationPage() {
     if (loading || quotaBanner) return;
 
     if (isListening) {
-      const text = (micTranscriptRef.current || input).trim();
+      const text = input.trim();
       stopSpeechRecognition();
       micTranscriptRef.current = "";
+      micInterimRef.current = "";
       if (text) sendText(text);
       return;
     }
 
     setMicError(null);
     micTranscriptRef.current = input.trim() ? `${input.trim()} ` : "";
+    micInterimRef.current = "";
 
     const rec = createSpeechRecognizer({
       lang:           "en-US",
+      getLang: () => detectSpeechLang(micTranscriptRef.current + micInterimRef.current),
       manualStopOnly: true,
       onInterim: (text) => {
+        micInterimRef.current = text;
         setInput(micTranscriptRef.current + text);
       },
       onFinal: (text) => {
         micTranscriptRef.current += text;
+        micInterimRef.current = "";
         setInput(micTranscriptRef.current);
       },
       onEnd: () => {
@@ -981,7 +989,7 @@ export default function ConversationPage() {
                     ? "Quota đã hết"
                     : isListening
                     ? "Nhấn để dừng ghi"
-                    : "Nhấn để nói (tiếng Anh)"
+                    : "Nhấn để nói (tiếng Anh hoặc tiếng Việt)"
                 }
                 aria-label={isListening ? "Dừng ghi âm" : "Ghi âm"}
                 style={{
@@ -1052,7 +1060,12 @@ export default function ConversationPage() {
               >
                 <textarea
                   value={input}
-                  onChange={(e) => setInput(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setInput(value);
+                    micTranscriptRef.current = value;
+                    micInterimRef.current = "";
+                  }}
                   onKeyDown={handleKeyDown}
                   placeholder={
                     quotaBanner

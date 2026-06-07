@@ -9,14 +9,13 @@
 //   onClose  — callback đóng modal
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   getTopicSessionSummary,
   startSession,
   getTopicWords,
   addUserTopic,
-  removeUserTopic,
   getUserTopics,
 } from "../services/sessionService";
 
@@ -63,7 +62,6 @@ export default function TopicModal({ node, onClose }) {
   const [isAdded, setIsAdded] = useState(false);
   const [words, setWords] = useState([]);
   const [loadingInit, setLoadingInit] = useState(true);
-  const [loadingAdd, setLoadingAdd] = useState(false);
   const [loadingAI, setLoadingAI] = useState(false);
   const [error, setError] = useState(null);
 
@@ -105,27 +103,16 @@ export default function TopicModal({ node, onClose }) {
     return () => document.removeEventListener("keydown", handleKey);
   }, [onClose]);
 
-  // ── Toggle Add/Remove ─────────────────────────────────────────────────────────
-  const handleToggleAdd = useCallback(async () => {
-    if (loadingAdd) return;
-    const prev = isAdded;
-    setIsAdded(!prev);          // optimistic update
-    setLoadingAdd(true);
-    try {
-      if (prev) {
-        await removeUserTopic(node.id);
-      } else {
+  // ── Học từ vựng (tự thêm topic nếu chưa có) ───────────────────────────────────
+  async function handleLearnVocab() {
+    if (!isAdded) {
+      try {
         await addUserTopic(node.id);
+        setIsAdded(true);
+      } catch {
+        // vẫn cho vào học nếu add thất bại
       }
-    } catch {
-      setIsAdded(prev);         // rollback nếu lỗi
-    } finally {
-      setLoadingAdd(false);
     }
-  }, [isAdded, loadingAdd, node.id]);
-
-  // ── Navigate Học từ vựng ──────────────────────────────────────────────────────
-  function handleLearnVocab() {
     navigate(`/learn/${node.slug}`, { state: { topicId: node.id, topicName: node.name } });
   }
 
@@ -414,73 +401,34 @@ export default function TopicModal({ node, onClose }) {
 
           {/* ── Action row ── */}
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-            {/* Lưu topic */}
-            <button
-              onClick={handleToggleAdd}
-              disabled={loadingAdd || loadingInit}
-              style={{
-                flex: 1,
-                minWidth: 120,
-                padding: "14px 16px",
-                borderRadius: 14,
-                border: isAdded ? "none" : "1px solid #e4e1ee",
-                background: isAdded ? SECONDARY : "#ffffff",
-                color: isAdded ? "#ffffff" : "#1b1b24",
-                fontSize: 14,
-                fontWeight: 600,
-                cursor: loadingAdd || loadingInit ? "not-allowed" : "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 8,
-                minHeight: 48,
-                opacity: loadingAdd || loadingInit ? 0.75 : 1,
-                boxShadow: isAdded ? "0 4px 16px rgba(0,108,73,0.25)" : "0 2px 8px rgba(0,0,0,0.06)",
-                transition: "background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s",
-              }}
-              onMouseEnter={(e) => {
-                if (!loadingAdd && !loadingInit) {
-                  e.currentTarget.style.background = isAdded ? "#005a3c" : "#f5f2ff";
-                  if (!isAdded) e.currentTarget.style.borderColor = "#c3c0ff";
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = isAdded ? SECONDARY : "#ffffff";
-                if (!isAdded) e.currentTarget.style.borderColor = "#e4e1ee";
-              }}
-            >
-              {isAdded ? "Đã lưu" : "Lưu topic"}
-            </button>
-
             {/* Học từ vựng */}
             <button
               onClick={handleLearnVocab}
+              disabled={loadingInit}
               style={{
                 flex: 1,
                 minWidth: 120,
                 padding: "14px 16px",
                 borderRadius: 14,
-                border: `1px solid ${PRIMARY}`,
-                background: "#ffffff",
-                color: PRIMARY,
+                border: "none",
+                background: loadingInit ? "#c7c4d8" : SECONDARY,
+                color: "#ffffff",
                 fontSize: 14,
                 fontWeight: 600,
-                cursor: "pointer",
+                cursor: loadingInit ? "not-allowed" : "pointer",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 gap: 8,
                 minHeight: 48,
-                boxShadow: "0 2px 8px rgba(53,37,205,0.10)",
-                transition: "background 0.15s, box-shadow 0.15s",
+                boxShadow: loadingInit ? "none" : "0 4px 16px rgba(0,108,73,0.25)",
+                transition: "background 0.2s, box-shadow 0.2s",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = "#f0ecf9";
-                e.currentTarget.style.boxShadow = "0 4px 16px rgba(53,37,205,0.18)";
+                if (!loadingInit) e.currentTarget.style.background = "#005a3c";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = "#ffffff";
-                e.currentTarget.style.boxShadow = "0 2px 8px rgba(53,37,205,0.10)";
+                if (!loadingInit) e.currentTarget.style.background = SECONDARY;
               }}
             >
               Học từ vựng

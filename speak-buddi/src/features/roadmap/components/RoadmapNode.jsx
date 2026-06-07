@@ -6,9 +6,7 @@
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const SECONDARY        = "#006c49";
 const SURFACE          = "#fcf8ff";
-const ON_SURFACE       = "#1b1b24";
 const SURFACE_VARIANT  = "#e4e1ee";
-const OUTLINE_VARIANT  = "#c7c4d8";
 const FONT             = "'Be Vietnam Pro', system-ui, sans-serif";
 
 // ── Palette màu sáng — dùng cho node is_interest=true hoặc completed ──────────
@@ -115,6 +113,7 @@ function NodeIcon({ status }) {
 export default function RoadmapNode({ node, index, onClick }) {
   const nodeStyle = getNodeStyle(node.status, node.is_interest, index);
   const isCompleted   = node.status === "completed";
+  const isInProgress  = node.status === "in_progress";
   const isLocked      = node.status === "locked";
   const isInterest    = node.is_interest;
 
@@ -211,7 +210,31 @@ export default function RoadmapNode({ node, index, onClick }) {
         )}
 
         {/* Badge sao — đánh dấu topic user đã chọn (chỉ hiện khi node màu nhạt để phân biệt) */}
-        {isInterest && !isCompleted && !isLocked && (
+        {isInProgress && !isCompleted && !isLocked && (
+          <div
+            style={{
+              position: "absolute",
+              bottom: 0,
+              right: 0,
+              width: 24,
+              height: 24,
+              borderRadius: "50%",
+              background: "#f59e0b",
+              border: `3px solid ${SURFACE}`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            title="Đang học chủ đề này"
+            aria-hidden="true"
+          >
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          </div>
+        )}
+
+        {isInterest && !isCompleted && !isInProgress && !isLocked && (
           <div
             style={{
               position: "absolute",

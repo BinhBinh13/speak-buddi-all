@@ -22,6 +22,11 @@ import RoadmapPath       from "./components/RoadmapPath";
 import RoadmapEmptyState from "./components/RoadmapEmptyState";
 import RoadmapSkeleton   from "./components/RoadmapSkeleton";
 import TopicModal        from "./components/TopicModal";
+import LevelCompleteAlert from "./components/LevelCompleteAlert";
+import {
+  dismissLevelCompleteAlert,
+  isLevelCompleteDismissed,
+} from "./utils/levelCompleteAlert";
 import { getRoadmap }    from "./services/roadmapService";
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
@@ -34,6 +39,7 @@ export default function RoadmapPage() {
   const [error,        setError]        = useState(null);
   const [retryCount,   setRetryCount]   = useState(0);
   const [selectedNode, setSelectedNode] = useState(null);   // S2.5: node đang mở modal
+  const [dismissedLevel, setDismissedLevel] = useState(null);
 
   // Chống double-fetch trong React StrictMode
   const cancelledRef = useRef(false);
@@ -66,6 +72,21 @@ export default function RoadmapPage() {
       cancelledRef.current = true;
     };
   }, [retryCount]);
+
+  const showLevelAlert = Boolean(
+    data?.level
+    && data?.nodes?.length > 0
+    && data.nodes.every((n) => n.status === "completed")
+    && !isLevelCompleteDismissed(data.level)
+    && dismissedLevel !== data.level
+  );
+
+  function handleDismissLevelAlert() {
+    if (data?.level) {
+      dismissLevelCompleteAlert(data.level);
+      setDismissedLevel(data.level);
+    }
+  }
 
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
@@ -136,6 +157,14 @@ export default function RoadmapPage() {
               total={data.total_topics}
               selected={data.selected_topics}
             />
+
+            {showLevelAlert && (
+              <LevelCompleteAlert
+                level={data.level}
+                levelName={data.level_name}
+                onDismiss={handleDismissLevelAlert}
+              />
+            )}
 
             {/* Empty state khi không có node (AC-04-04) */}
             {(!data.nodes || data.nodes.length === 0) ? (
