@@ -14,6 +14,10 @@ GEMINI_API_KEY:      str = os.getenv("GEMINI_API_KEY", "")
 ANTHROPIC_MODEL:     str = os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001")
 GEMINI_MODEL:        str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite")
 
+# ── Xiaomi MiMo (dịch 1 từ) ───────────────────────────────────────────────────
+MIMO_API_KEY:        str = os.getenv("MIMO_API_KEY", "")
+MIMO_MODEL:          str = os.getenv("MIMO_MODEL", "mimo-v2.5-pro")
+
 ELEVENLABS_API_KEY:  str = os.getenv("ELEVENLABS_API_KEY", "")
 ELEVENLABS_VOICE_ID: str = os.getenv("ELEVENLABS_VOICE_ID", "pNInz6obpgDQGcFmaJgB")
 MAX_HISTORY_TURNS:   int = 10
