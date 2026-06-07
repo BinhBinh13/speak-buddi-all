@@ -19,13 +19,13 @@
   "summary": {
     "totalEpics": 12,
     "totalStories": 47,
-    "completedStories": 31,
-    "progressPercent": 66,
+    "completedStories": 32,
+    "progressPercent": 68,
     "byStatus": {
       "todo": 9,
-      "in_progress": 5,
-      "review": 2,
-      "done": 31,
+      "in_progress": 6,
+      "review": 0,
+      "done": 32,
       "blocked": 0
     }
   },
@@ -186,7 +186,7 @@
       ],
       "owner": "Dev A",
       "status": "in_progress",
-      "progressPercent": 60,
+      "progressPercent": 80,
       "stories": [
         {
           "id": "S2.1",
@@ -238,28 +238,28 @@
           "title": "Man hinh xem roadmap + empty state",
           "ac": "AC-04-01/04",
           "priority": "P1",
-          "status": "review",
+          "status": "done",
           "assignee": "",
           "notes": "",
           "artifacts": {
             "plan": "plan/S2.4-plan.md",
             "implement": "implement/S2.4-implement.md",
-            "review": ""
+            "review": "review/S2.4-review.md"
           },
-          "updatedAt": "2026-06-06"
+          "updatedAt": "2026-06-07"
         },
         {
           "id": "S2.5",
           "title": "Topic modal: chia session theo words_per_session + tracking progress + nut Tiep tuc + truyen data sang AI",
           "ac": "AC-03-02, AC-04-01",
           "priority": "P1",
-          "status": "review",
+          "status": "in_progress",
           "assignee": "",
-          "notes": "",
+          "notes": "CHANGES_REQUESTED: (1) Nut 'Hoc tu vung' chua duoc render trong action row — handler handleLearnVocab ton tai nhung khong gan vao button nao, user khong navigate duoc /learn/:topicSlug tu modal; (2) Lint loi no-unused-vars cho handleLearnVocab can sua; (3) Nen hien thi dong tien do 'X/N tu da thuoc' trong modal.",
           "artifacts": {
             "plan": "plan/S2.5-plan.md",
             "implement": "implement/S2.5-implement.md",
-            "review": ""
+            "review": "review/S2.5-review.md"
           },
           "updatedAt": "2026-06-07"
         }
