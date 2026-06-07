@@ -1,3 +1,4 @@
+\encoding UTF8
 -- ─── SpeakBuddi — Schema Learning content (PostgreSQL) ───────────────────────
 -- Phạm vi S3.1: nhóm Learning content
 --   level / topic / tag / topic_word / topic_word_tag

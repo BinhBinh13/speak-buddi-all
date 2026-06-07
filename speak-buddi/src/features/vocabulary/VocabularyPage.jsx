@@ -18,6 +18,7 @@ import TopicCard from "./components/TopicCard";
 import Flashcard from "./components/Flashcard";
 import { getWords, saveWordProgress, getTopicProgress } from "./services/vocabularyService";
 import { getUserTopics } from "../roadmap/services/sessionService";
+import { getTestsByTopic } from "../quiz/services/quizService";
 import { BsArrowLeft, BsArrowRight, BsQuestionCircle } from "react-icons/bs";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -102,6 +103,7 @@ export default function VocabularyPage() {
   // ── UI state ────────────────────────────────────────────────────────────
   const [loadingTopics, setLoadingTopics] = useState(true);
   const [loadingWords, setLoadingWords] = useState(false);
+  const [loadingQuiz, setLoadingQuiz] = useState(false);
   const [error, setError] = useState(null);
 
   // Prevent double-fetch in StrictMode
@@ -279,6 +281,25 @@ export default function VocabularyPage() {
 
   // ── Derive level code from selectedTopic (UserTopicOut has level_code) ──
   const levelCode = selectedTopic?.level_code ?? selectedTopic?.level ?? null;
+
+  // ── Quiz navigation (S4.2) ───────────────────────────────────────────────
+  async function handleGoToQuiz() {
+    if (!selectedTopic || loadingWords || words.length === 0 || loadingQuiz) return;
+    setLoadingQuiz(true);
+    try {
+      const topicId = selectedTopic.id ?? selectedTopic.topic_id;
+      const tests = await getTestsByTopic(topicId);
+      if (!tests || tests.length === 0) {
+        alert("Chủ đề này chưa có bài kiểm tra. Vui lòng thử lại sau.");
+        return;
+      }
+      navigate(`/quiz/${tests[0].id}`);
+    } catch {
+      alert("Không thể tải bài kiểm tra. Vui lòng thử lại.");
+    } finally {
+      setLoadingQuiz(false);
+    }
+  }
 
   // ── Current word ────────────────────────────────────────────────────────
   const currentWord = words[currentIndex] ?? null;
@@ -612,30 +633,58 @@ export default function VocabularyPage() {
                 </div>
               </div>
 
-              {/* Bottom CTA: Làm bài kiểm tra (placeholder → S4.x) */}
+              {/* Bottom CTA: Làm bài kiểm tra (S4.2) */}
               <div style={{ marginTop: 24, maxWidth: 672, width: "100%" }}>
                 <div className="d-flex justify-content-center">
                   <button
-                    disabled
-                    title="Tính năng sắp ra mắt (S4.x)"
+                    onClick={handleGoToQuiz}
+                    disabled={loadingWords || words.length === 0 || loadingQuiz}
+                    title={
+                      loadingWords || words.length === 0
+                        ? "Cần có từ vựng để làm bài kiểm tra"
+                        : "Làm bài kiểm tra cho chủ đề này"
+                    }
                     style={{
                       padding: "12px 32px",
                       borderRadius: 999,
-                      border: "1px solid #c7c4d8",
-                      background: "#ffffff",
-                      color: "#777587",
+                      border: "none",
+                      background:
+                        loadingWords || words.length === 0 || loadingQuiz
+                          ? "#e4e1ee"
+                          : "#3525cd",
+                      color:
+                        loadingWords || words.length === 0 || loadingQuiz
+                          ? "#777587"
+                          : "#ffffff",
                       fontSize: 14,
-                      fontWeight: 500,
-                      cursor: "not-allowed",
+                      fontWeight: 600,
+                      cursor:
+                        loadingWords || words.length === 0 || loadingQuiz
+                          ? "not-allowed"
+                          : "pointer",
                       display: "flex",
                       alignItems: "center",
                       gap: 8,
-                      opacity: 0.8,
-                      minHeight: 44,
+                      minHeight: 48,
+                      boxShadow:
+                        loadingWords || words.length === 0 || loadingQuiz
+                          ? "none"
+                          : "0 4px 12px rgba(53,37,205,0.25)",
+                      transition: "background 0.2s, box-shadow 0.2s",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!loadingWords && words.length > 0 && !loadingQuiz) {
+                        e.currentTarget.style.background = "#2a1fb0";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!loadingWords && words.length > 0 && !loadingQuiz) {
+                        e.currentTarget.style.background = "#3525cd";
+                      }
                     }}
                   >
                     <BsQuestionCircle size={18} />
-                    Làm bài kiểm tra
+                    {loadingQuiz ? "Đang tải..." : "Làm bài kiểm tra"}
                   </button>
                 </div>
               </div>
