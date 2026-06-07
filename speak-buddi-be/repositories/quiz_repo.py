@@ -286,6 +286,90 @@ async def update_test(db: AsyncSession, test_id: str, data: dict) -> dict | None
     return dict(row) if row else None
 
 
+async def list_tests_admin(
+    db: AsyncSession,
+    search: str | None = None,
+    topic_id: str | None = None,
+    level_id: str | None = None,
+    include_inactive: bool = True,
+) -> list[dict]:
+    """
+    Danh sách bài kiểm tra cho Admin (kèm question_count + attempt_count tổng).
+    Mặc định include_inactive=True để Admin thấy cả test draft/inactive.
+    """
+    conditions = []
+    params: dict = {}
+
+    if not include_inactive:
+        conditions.append("vt.is_active = TRUE")
+    if search:
+        conditions.append("(vt.title ILIKE :search OR vt.description ILIKE :search)")
+        params["search"] = f"%{search}%"
+    if topic_id:
+        conditions.append("vt.topic_id = CAST(:topic_id AS UUID)")
+        params["topic_id"] = topic_id
+    if level_id:
+        conditions.append("vt.level_id = CAST(:level_id AS UUID)")
+        params["level_id"] = level_id
+
+    where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+    sql = f"""
+        SELECT vt.id::text,
+               vt.topic_id::text,
+               t.name AS topic_name,
+               vt.level_id::text,
+               l.code AS level_code,
+               vt.title,
+               vt.description,
+               vt.is_active,
+               vt.created_by::text,
+               vt.created_at,
+               COUNT(DISTINCT qq.id)::int AS question_count,
+               COUNT(DISTINCT qa.id) FILTER (WHERE qa.status = 'submitted')::int AS attempt_count
+        FROM   vocabulary_test vt
+        LEFT JOIN topic t          ON t.id = vt.topic_id
+        LEFT JOIN level l          ON l.id = vt.level_id
+        LEFT JOIN quiz_question qq ON qq.vocabulary_test_id = vt.id
+        LEFT JOIN quiz_attempt qa  ON qa.vocabulary_test_id = vt.id
+        {where_clause}
+        GROUP  BY vt.id, t.name, l.code
+        ORDER  BY vt.created_at DESC
+    """
+    r = await db.execute(text(sql), params)
+    return [dict(row) for row in r.mappings().all()]
+
+
+async def update_test(db: AsyncSession, test_id: str, data: dict) -> dict | None:
+    """Cập nhật metadata bài kiểm tra (Admin S9.1). Trả None nếu không tìm thấy."""
+    r = await db.execute(
+        text("""
+            UPDATE vocabulary_test
+            SET    topic_id    = CAST(:topic_id AS UUID),
+                   level_id    = CAST(:level_id AS UUID),
+                   title       = :title,
+                   description = :description
+            WHERE  id = CAST(:test_id AS UUID)
+            RETURNING id::text,
+                      topic_id::text,
+                      level_id::text,
+                      title,
+                      description,
+                      is_active,
+                      created_by::text,
+                      created_at
+        """),
+        {
+            "test_id":     test_id,
+            "topic_id":    data.get("topic_id"),
+            "level_id":    data.get("level_id"),
+            "title":       data["title"],
+            "description": data.get("description"),
+        },
+    )
+    row = r.mappings().first()
+    return dict(row) if row else None
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # quiz_question + quiz_answer
 # ═══════════════════════════════════════════════════════════════════════════════

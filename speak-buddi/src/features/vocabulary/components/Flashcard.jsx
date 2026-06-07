@@ -8,7 +8,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState } from "react";
-import { BsVolumeUpFill, BsEye, BsEyeSlash } from "react-icons/bs";
+import { BsVolumeUpFill, BsEye, BsEyeSlash, BsMicFill } from "react-icons/bs";
 
 /**
  * Tag badge (loại từ đầu tiên, nếu có).
@@ -88,7 +88,7 @@ function ProgressBadge({ status }) {
   );
 }
 
-export default function Flashcard({ word, onAudioPlay, progressStatus = null }) {
+export default function Flashcard({ word, onAudioPlay, onPronunciation, progressStatus = null }) {
   const [showEngMeaning, setShowEngMeaning] = useState(false);
 
   // Reset khi chuyển từ
@@ -156,32 +156,55 @@ export default function Flashcard({ word, onAudioPlay, progressStatus = null }) 
           <NewWordBadge word={word} progressStatus={progressStatus} />
           <ProgressBadge status={progressStatus} />
         </div>
-        <button
-          aria-label="Phát âm"
-          onClick={() => onAudioPlay && onAudioPlay(word)}
-          style={{
-            width: 48,
-            height: 48,
-            borderRadius: "50%",
-            background: "rgba(53,37,205,0.10)",
-            border: "none",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#3525cd",
-            flexShrink: 0,
-            transition: "background 0.15s",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "rgba(53,37,205,0.18)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "rgba(53,37,205,0.10)";
-          }}
-        >
-          <BsVolumeUpFill size={22} />
-        </button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button
+            aria-label="Nghe phát âm"
+            onClick={() => onAudioPlay && onAudioPlay(word)}
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: "50%",
+              background: "rgba(53,37,205,0.10)",
+              border: "none",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#3525cd",
+              flexShrink: 0,
+              transition: "background 0.15s",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(53,37,205,0.18)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(53,37,205,0.10)"; }}
+          >
+            <BsVolumeUpFill size={22} />
+          </button>
+          {onPronunciation && (
+            <button
+              aria-label="Luyện phát âm"
+              onClick={() => onPronunciation(word)}
+              title="Luyện phát âm"
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: "50%",
+                background: "rgba(0,108,73,0.10)",
+                border: "none",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#006c49",
+                flexShrink: 0,
+                transition: "background 0.15s",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(0,108,73,0.20)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(0,108,73,0.10)"; }}
+            >
+              <BsMicFill size={20} />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* ── Word + IPA ── */}

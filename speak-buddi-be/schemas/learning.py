@@ -178,3 +178,47 @@ class TopicProgressOut(BaseModel):
     learning_count: int
     percent_known: float
     words: list[WordProgressOut]
+
+
+# ── S2.5 — Topic modal + session tracking + user topic list ──────────────────
+
+class SessionProgressUpsert(BaseModel):
+    """Request body cho PUT /api/topics/{topic_id}/sessions/progress."""
+
+    batch_index: int
+    batch_size: int
+    status: Literal["in_progress", "completed"]
+
+
+class SessionProgressOut(BaseModel):
+    """Trả về sau khi upsert session progress."""
+
+    id: str
+    batch_index: int
+    batch_size: int
+    status: str
+    started_at: datetime
+    completed_at: Optional[datetime]
+
+
+class TopicSessionSummaryOut(BaseModel):
+    """Trả về info cần thiết để FE navigate sang AI conversation."""
+
+    topic_id: str
+    total_words: int
+    batch_size: int          # = words_per_session của user
+    total_batches: int
+    resume_batch_index: Optional[int]   # batch in_progress nhỏ nhất; None nếu không có
+
+
+class UserTopicOut(BaseModel):
+    """1 topic user đã add vào danh sách học."""
+
+    topic_id: str
+    topic_name: str
+    topic_slug: str
+    level_code: str
+    level_name: str
+    total_words: int
+    known_count: int         # từ user_word_progress (known) — cho progress bar
+    added_at: datetime

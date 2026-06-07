@@ -106,8 +106,13 @@ function NodeIcon({ status }) {
  */
 /**
  * RoadmapNode — chỉ render vòng tròn node (label được render bên ngoài bởi RoadmapPath)
+ *
+ * Props:
+ *   node     — roadmap node data
+ *   index    — vị trí trong list (chọn màu)
+ *   onClick  — callback khi click node không bị locked
  */
-export default function RoadmapNode({ node, index }) {
+export default function RoadmapNode({ node, index, onClick }) {
   const nodeStyle = getNodeStyle(node.status, node.is_interest, index);
   const isCompleted   = node.status === "completed";
   const isLocked      = node.status === "locked";
@@ -126,6 +131,12 @@ export default function RoadmapNode({ node, index }) {
     >
       {/* Node tròn */}
       <div
+        role={isLocked ? undefined : "button"}
+        tabIndex={isLocked ? undefined : 0}
+        onClick={isLocked ? undefined : onClick}
+        onKeyDown={isLocked ? undefined : (e) => {
+          if (e.key === "Enter" || e.key === " ") onClick?.();
+        }}
         style={{
           width: 96,
           height: 96,

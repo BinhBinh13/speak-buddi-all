@@ -21,6 +21,7 @@ import RoadmapHeader     from "./components/RoadmapHeader";
 import RoadmapPath       from "./components/RoadmapPath";
 import RoadmapEmptyState from "./components/RoadmapEmptyState";
 import RoadmapSkeleton   from "./components/RoadmapSkeleton";
+import TopicModal        from "./components/TopicModal";
 import { getRoadmap }    from "./services/roadmapService";
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
@@ -28,10 +29,11 @@ const FONT = "'Be Vietnam Pro', system-ui, sans-serif";
 
 export default function RoadmapPage() {
   // ── State ────────────────────────────────────────────────────────────────────
-  const [data,    setData]    = useState(null);   // RoadmapOut
-  const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState(null);
-  const [retryCount, setRetryCount] = useState(0);
+  const [data,         setData]         = useState(null);   // RoadmapOut
+  const [loading,      setLoading]      = useState(true);
+  const [error,        setError]        = useState(null);
+  const [retryCount,   setRetryCount]   = useState(0);
+  const [selectedNode, setSelectedNode] = useState(null);   // S2.5: node đang mở modal
 
   // Chống double-fetch trong React StrictMode
   const cancelledRef = useRef(false);
@@ -140,11 +142,16 @@ export default function RoadmapPage() {
               <RoadmapEmptyState level={data.level} />
             ) : (
               /* Snake path */
-              <RoadmapPath nodes={data.nodes} />
+              <RoadmapPath nodes={data.nodes} onNodeClick={setSelectedNode} />
             )}
           </>
         )}
       </div>
+
+      {/* S2.5: TopicModal — mở khi click node không locked */}
+      {selectedNode && (
+        <TopicModal node={selectedNode} onClose={() => setSelectedNode(null)} />
+      )}
     </AppLayout>
   );
 }
