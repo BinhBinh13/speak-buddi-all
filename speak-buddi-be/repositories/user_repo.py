@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import text
@@ -172,13 +173,30 @@ async def get_topics_by_level(db: AsyncSession, level_code: str) -> list[dict]:
     """
     r = await db.execute(
         text("""
-            SELECT t.id::text, t.name, t.slug
+            SELECT t.id::text, t.name, t.slug, l.code AS level_code
             FROM   topic t
             JOIN   level l ON t.level_id = l.id
             WHERE  l.code = UPPER(:code) AND t.is_active = TRUE
             ORDER  BY t.display_order, t.name
         """),
         {"code": level_code},
+    )
+    rows = r.mappings().all()
+    return [dict(row) for row in rows]
+
+
+async def get_all_active_topics(db: AsyncSession) -> list[dict]:
+    """Trả tất cả topic active từ mọi level, sắp theo level.display_order rồi topic.display_order.
+    Dùng cho AI roadmap prompt — AI nhận toàn bộ catalog để chọn topic phù hợp mục tiêu.
+    """
+    r = await db.execute(
+        text("""
+            SELECT t.id::text, t.name, t.slug, l.code AS level_code
+            FROM   topic t
+            JOIN   level l ON t.level_id = l.id
+            WHERE  t.is_active = TRUE
+            ORDER  BY COALESCE(l.display_order, 99), t.display_order, t.name
+        """),
     )
     rows = r.mappings().all()
     return [dict(row) for row in rows]
@@ -191,19 +209,64 @@ async def update_level(
     user_id: str,
     level: str,
 ) -> dict | None:
-    """Cập nhật chỉ target_level trong user_profile.
-    Không đụng interests/daily_minutes/words_per_session (BR09).
-    Trả dict với target_level mới hoặc None nếu không tìm thấy profile.
+    """Cập nhật target_level và xóa roadmap_sequence cũ (sẽ được re-gen ở router).
+    Trả dict với target_level + learning_goal hoặc None nếu không tìm thấy profile.
     """
     r = await db.execute(
         text("""
             UPDATE user_profile
-            SET    target_level = :level,
-                   updated_at   = NOW()
+            SET    target_level     = :level,
+                   roadmap_sequence = NULL,
+                   updated_at       = NOW()
             WHERE  user_id = CAST(:uid AS UUID)
-            RETURNING target_level
+            RETURNING target_level, learning_goal
         """),
         {"level": level, "uid": user_id},
+    )
+    await db.commit()
+    row = r.mappings().first()
+    return dict(row) if row else None
+
+
+async def update_goal(
+    db: AsyncSession,
+    user_id: str,
+    learning_goal: str,
+) -> dict | None:
+    r = await db.execute(
+        text("""
+            UPDATE user_profile
+            SET    learning_goal    = :goal,
+                   roadmap_sequence = NULL,
+                   updated_at       = NOW()
+            WHERE  user_id = CAST(:uid AS UUID)
+            RETURNING learning_goal, target_level
+        """),
+        {"goal": learning_goal, "uid": user_id},
+    )
+    await db.commit()
+    row = r.mappings().first()
+    return dict(row) if row else None
+
+
+async def update_learning(
+    db: AsyncSession,
+    user_id: str,
+    level: str,
+    learning_goal: str,
+) -> dict | None:
+    """Cập nhật cả target_level + learning_goal + xóa roadmap_sequence (re-gen 1 lần ở router)."""
+    r = await db.execute(
+        text("""
+            UPDATE user_profile
+            SET    target_level     = :level,
+                   learning_goal    = :goal,
+                   roadmap_sequence = NULL,
+                   updated_at       = NOW()
+            WHERE  user_id = CAST(:uid AS UUID)
+            RETURNING target_level, learning_goal
+        """),
+        {"level": level, "goal": learning_goal, "uid": user_id},
     )
     await db.commit()
     row = r.mappings().first()
@@ -231,33 +294,63 @@ async def update_onboarding(
     db: AsyncSession,
     user_id: str,
     level: str,
-    topics: list[str],
+    learning_goal: str,
     daily_minutes: int,
     words_per_session: int,
 ) -> dict:
-    """Cập nhật onboarding user_profile; trả lại dict với các field đã lưu."""
+    """Cập nhật onboarding user_profile (S2.1 v2 — scenario-based roadmap).
+
+    Bỏ `topics`/`interests` (không còn drive roadmap).
+    Set interests = NULL để tránh dữ liệu lệch.
+    Trả lại dict với target_level, learning_goal, daily_minutes, words_per_session.
+    """
     r = await db.execute(
         text("""
             UPDATE user_profile
             SET    target_level      = :level,
-                   interests         = :topics,
+                   learning_goal     = :learning_goal,
+                   interests         = NULL,
                    daily_minutes     = :daily_minutes,
                    words_per_session = :words_per_session,
                    updated_at        = NOW()
             WHERE  user_id = CAST(:uid AS UUID)
-            RETURNING target_level, interests, daily_minutes, words_per_session
+            RETURNING target_level, learning_goal, daily_minutes, words_per_session
         """),
         {
-            "level":             level,
-            "topics":            topics,
-            "daily_minutes":     daily_minutes,
+            "level":          level,
+            "learning_goal":  learning_goal,
+            "daily_minutes":  daily_minutes,
             "words_per_session": words_per_session,
-            "uid":               user_id,
+            "uid":            user_id,
         },
     )
     await db.commit()
     row = r.mappings().first()
     return dict(row) if row else {}
+
+
+async def update_roadmap_sequence(
+    db: AsyncSession,
+    user_id: str,
+    sequence: list[dict],
+) -> bool:
+    """Lưu roadmap_sequence (ordered scenario array) vào user_profile.
+
+    sequence: list of {topic_id, scenario_name, scenario_description} từ AI.
+    Trả True nếu cập nhật thành công; False nếu không tìm thấy user.
+    """
+    r = await db.execute(
+        text("""
+            UPDATE user_profile
+            SET    roadmap_sequence = CAST(:seq AS JSONB),
+                   updated_at       = NOW()
+            WHERE  user_id = CAST(:uid AS UUID)
+            RETURNING user_id
+        """),
+        {"seq": json.dumps(sequence), "uid": user_id},
+    )
+    await db.commit()
+    return r.first() is not None
 
 
 # ─── Account deletion (S12.2) ─────────────────────────────────────────────────

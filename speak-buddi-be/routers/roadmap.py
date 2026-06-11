@@ -66,6 +66,7 @@ async def get_roadmap(
     return RoadmapOut(
         level=level or "",
         level_name=result["level_name"] or "",
+        goal_label=result.get("goal_label") or "",
         total_topics=result["total_topics"],
         selected_topics=result["selected_topics"],
         nodes=nodes,

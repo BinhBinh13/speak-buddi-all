@@ -154,6 +154,7 @@ export default function RoadmapPage() {
             <RoadmapHeader
               level={data.level}
               level_name={data.level_name}
+              goal_label={data.goal_label}
               total={data.total_topics}
               selected={data.selected_topics}
             />

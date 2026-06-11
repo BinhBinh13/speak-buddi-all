@@ -17,11 +17,13 @@ const FONT             = "'Be Vietnam Pro', system-ui, sans-serif";
  * Props:
  *   level        string   — vd "B1"
  *   level_name   string   — vd "Intermediate (B1)"
+ *   goal_label   string   — vd "Du lịch" (nhãn learning_goal của user)
  *   total        number   — total_topics
  *   selected     number   — selected_topics (user đã chọn khi onboarding)
  */
-export default function RoadmapHeader({ level, level_name, total, selected }) {
+export default function RoadmapHeader({ level, level_name, goal_label, total, selected }) {
   const progressPct = total > 0 ? Math.round((selected / total) * 100) : 0;
+  const title = goal_label || level_name || (level ? `Level ${level}` : "");
 
   return (
     <div
@@ -30,7 +32,7 @@ export default function RoadmapHeader({ level, level_name, total, selected }) {
         fontFamily: FONT,
       }}
     >
-      {/* Tiêu đề chính — bám mockup "Lộ trình của bạn — {level_name}" */}
+      {/* Tiêu đề chính — hiện mục tiêu học (goal_label) */}
       <h1
         style={{
           fontSize: "clamp(24px, 4vw, 32px)",
@@ -42,7 +44,7 @@ export default function RoadmapHeader({ level, level_name, total, selected }) {
         }}
       >
         Lộ trình của bạn —{" "}
-        <span style={{ color: PRIMARY }}>{level_name || `Level ${level}`}</span>
+        <span style={{ color: PRIMARY }}>{title}</span>
       </h1>
 
       {/* Mô tả phụ */}

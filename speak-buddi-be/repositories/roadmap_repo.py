@@ -1,13 +1,16 @@
 # speak-buddi-be/repositories/roadmap_repo.py
-# ─── Repository: sinh roadmap cá nhân hóa (S2.2) ─────────────────────────────
+# ─── Repository: sinh roadmap cá nhân hóa (S2.2, updated S2.1 v2) ─────────────
 #
 # Hàm chính: get_roadmap(db, user_id)
-#   1. Đọc user_profile.target_level + interests
+#   1. Đọc user_profile.target_level + interests + roadmap_sequence (S2.1 v2)
 #   2. Query topic active thuộc level đó, kèm word_count (subquery COUNT)
-#   3. Sắp xếp: interests-first → display_order → name (BR09/AC-04-01)
-#   4. Trả dict để router map sang RoadmapOut
+#   3. Nếu roadmap_sequence không NULL → reorder nodes theo sequence + gắn
+#      scenario_name/scenario_description; append topic bỏ sót cuối.
+#   4. Nếu roadmap_sequence NULL → fallback: ORDER BY difficulty (behavior cũ).
+#   5. Trả dict để router map sang RoadmapOut
 #
-# Không lưu bảng riêng — computed on-the-fly (quyết định kiến trúc S2.2 §3).
+# Backward-compat: user cũ có roadmap_sequence=NULL → vẫn trả roadmap bình thường,
+#   scenario_name/scenario_description=None cho tất cả node.
 # ─────────────────────────────────────────────────────────────────────────────
 
 import logging
@@ -19,12 +22,15 @@ log = logging.getLogger("speakbuddi.roadmap_repo")
 
 
 async def get_profile_for_roadmap(db: AsyncSession, user_id: str) -> dict | None:
-    """Lấy target_level và interests từ user_profile.
+    """Lấy target_level, learning_goal, interests và roadmap_sequence từ user_profile.
     Trả None nếu không tìm thấy user.
     """
     r = await db.execute(
         text("""
-            SELECT p.target_level, COALESCE(p.interests, ARRAY[]::TEXT[]) AS interests
+            SELECT p.target_level,
+                   p.learning_goal,
+                   COALESCE(p.interests, ARRAY[]::TEXT[]) AS interests,
+                   p.roadmap_sequence
             FROM   user_profile p
             WHERE  p.user_id = CAST(:uid AS UUID)
         """),
@@ -57,8 +63,7 @@ async def get_roadmap_topics(
 ) -> list[dict]:
     """Query topic active thuộc level_code.
     interests: list slug/name từ user_profile.interests — dùng để đánh dấu is_interest.
-    Sắp xếp: topics trong interests lên trước (interest-first), rồi display_order, rồi name.
-    word_count: đếm topic_word active (subquery) — không có cột riêng trong schema.
+    Sắp xếp: difficulty ASC rồi name (S2.1 v2 sẽ reorder theo sequence nếu có).
     Chỉ trả topic is_active = TRUE (AC-04-02 / BR11).
     """
     r = await db.execute(
@@ -123,58 +128,121 @@ async def get_roadmap_topics(
     return [dict(row) for row in rows]
 
 
+def _reorder_by_sequence(
+    topics: list[dict],
+    roadmap_sequence: list,
+    append_missing: bool = True,
+) -> list[dict]:
+    """Reorder topics theo roadmap_sequence; gắn scenario_name/description.
+
+    Args:
+        topics:           list topic dict từ get_roadmap_topics.
+        roadmap_sequence: list of objects từ user_profile.roadmap_sequence (JSONB).
+        append_missing:   True → append topic không có trong sequence vào cuối.
+                          False → chỉ trả đúng topic trong sequence (AI-curated mode).
+    """
+    by_id = {t["id"]: t for t in topics}
+    result: list[dict] = []
+    seen_ids: set[str] = set()
+
+    for item in roadmap_sequence:
+        if isinstance(item, str):
+            topic_id = item.strip()
+            scenario_name = None
+            scenario_description = None
+        elif isinstance(item, dict):
+            topic_id = str(item.get("topic_id", "")).strip()
+            scenario_name = item.get("scenario_name") or None
+            scenario_description = item.get("scenario_description") or None
+        else:
+            continue
+
+        if topic_id in by_id and topic_id not in seen_ids:
+            node = dict(by_id[topic_id])
+            node["scenario_name"]        = scenario_name
+            node["scenario_description"] = scenario_description
+            result.append(node)
+            seen_ids.add(topic_id)
+
+    if append_missing:
+        for t in topics:
+            if t["id"] not in seen_ids:
+                node = dict(t)
+                node["scenario_name"]        = None
+                node["scenario_description"] = None
+                result.append(node)
+
+    return result
+
+
 async def get_roadmap(db: AsyncSession, user_id: str) -> dict | None:
-    """Hàm tổng hợp: lấy profile + sinh danh sách node roadmap.
+    """Hàm tổng hợp: lấy profile + sinh danh sách node roadmap từ mọi level.
 
     Trả về:
         {
-            "level":           str | None,   # target_level hoặc None nếu chưa onboard
+            "level":           str | None,
             "level_name":      str | None,
+            "goal_label":      str,          # nhãn tiếng Việt của learning_goal
             "total_topics":    int,
             "selected_topics": int,
-            "nodes":           list[dict],   # mỗi dict khớp RoadmapNode
+            "nodes":           list[dict],
         }
     Trả None nếu user_id không tồn tại trong user_profile.
-    Trả dict với nodes=[] nếu chưa onboard HOẶC không có topic active (AC-04-04).
     """
     profile = await get_profile_for_roadmap(db, user_id)
     if profile is None:
-        return None  # user_profile không tồn tại
+        return None
 
     target_level = profile.get("target_level")
+    learning_goal = profile.get("learning_goal") or ""
     interests: list[str] = list(profile.get("interests") or [])
+    roadmap_sequence = profile.get("roadmap_sequence")
 
-    # Chưa onboarding — trả empty roadmap, không raise lỗi (plan §3, AC-04-04 flow)
+    goal_label = _GOAL_LABELS.get(learning_goal, learning_goal or "Lộ trình học")
+
+    # Chưa onboarding — trả empty roadmap (AC-04-04)
     if not target_level:
         return {
             "level":           None,
             "level_name":      None,
+            "goal_label":      goal_label,
             "total_topics":    0,
             "selected_topics": 0,
             "nodes":           [],
         }
 
+    # Lấy topic theo level — roadmap vẫn gắn với trình độ người học
     topics = await get_roadmap_topics(db, target_level, interests, user_id)
 
+    if roadmap_sequence and isinstance(roadmap_sequence, list) and len(roadmap_sequence) > 0:
+        ordered_topics = _reorder_by_sequence(topics, roadmap_sequence)
+    else:
+        ordered_topics = [
+            {**t, "scenario_name": None, "scenario_description": None}
+            for t in topics
+        ]
+
     nodes: list[dict] = []
-    for idx, t in enumerate(topics):
+    for idx, t in enumerate(ordered_topics):
         total_words = int(t["word_count"])
         nodes.append({
-            "id":          t["id"],
-            "name":        t["name"],
-            "slug":        t["slug"],
-            "description": t.get("description"),
-            "order_index": idx,
-            "difficulty":  int(t["difficulty"]),
-            "is_interest": bool(t["is_interest"]),
-            "status":      _compute_topic_status(
+            "id":                   t["id"],
+            "name":                 t["name"],
+            "slug":                 t["slug"],
+            "description":          t.get("description"),
+            "order_index":          idx,
+            "difficulty":           int(t["difficulty"]),
+            "is_interest":          bool(t["is_interest"]),
+            "status":               _compute_topic_status(
                 total_words,
                 int(t["known_count"]),
                 int(t["progress_count"]),
                 bool(t["has_active_session"]),
                 bool(t["in_user_topics"]),
             ),
-            "word_count":  total_words,
+            "word_count":           total_words,
+            "scenario_name":        t.get("scenario_name"),
+            "scenario_description": t.get("scenario_description"),
         })
 
     level_name = topics[0]["level_name"] if topics else _default_level_name(target_level)
@@ -183,11 +251,19 @@ async def get_roadmap(db: AsyncSession, user_id: str) -> dict | None:
     return {
         "level":           target_level,
         "level_name":      level_name,
+        "goal_label":      goal_label,
         "total_topics":    len(nodes),
         "selected_topics": selected,
         "nodes":           nodes,
     }
 
+
+# ─── Helper: nhãn tiếng Việt theo learning_goal ────────────────────────────
+_GOAL_LABELS: dict[str, str] = {
+    "travel":        "Du lịch",
+    "work":          "Công việc",
+    "communication": "Giao tiếp hàng ngày",
+}
 
 # ─── Helper: tên level mặc định khi không có topic ─────────────────────────
 _LEVEL_NAMES: dict[str, str] = {

@@ -9,8 +9,14 @@ import DeleteAccountSection from "./components/DeleteAccountSection";
 import PersonalInfoSection from "./components/PersonalInfoSection";
 import ChangePasswordSection from "./components/ChangePasswordSection";
 import { LEVELS, BADGE_COLORS } from "./constants/levels";
-import { updateLevel } from "./services/profileService";
+import { updateLearning } from "./services/profileService";
 import Toast from "../../shared/components/Toast";
+
+const GOAL_OPTIONS = [
+  { slug: "travel",        label: "Du lịch",             desc: "Giao tiếp khi đi du lịch, khám phá thế giới" },
+  { slug: "work",          label: "Công việc",            desc: "Tiếng Anh chuyên nghiệp cho môi trường làm việc" },
+  { slug: "communication", label: "Giao tiếp hàng ngày", desc: "Trò chuyện tự nhiên trong cuộc sống thường ngày" },
+];
 
 const PRIMARY = "#3525cd";
 const SURFACE = "#fcf8ff";
@@ -20,81 +26,6 @@ const ON_SURFACE = "#1b1b24";
 const ON_SURFACE_VARIANT = "#464555";
 const FONT = "'Be Vietnam Pro', system-ui, sans-serif";
 const SURFACE_LOW = "#f5f2ff";
-function LevelDisplay({ level }) {
-  const found = LEVELS.find((l) => l.code === level);
-  const badge = level ? BADGE_COLORS[level] : null;
-
-  return (
-    <div
-      style={{
-        background: SURFACE_LOW,
-        borderRadius: 12,
-        padding: "20px 24px",
-        border: `1px solid ${SURFACE_BORDER}`,
-        display: "flex",
-        alignItems: "center",
-        gap: 16,
-        marginBottom: 24,
-        boxShadow: "0 4px 12px rgba(53,37,205,0.04)",
-      }}
-    >
-      <div
-        style={{
-          width: 44,
-          height: 44,
-          borderRadius: 10,
-          background: PRIMARY + "18",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexShrink: 0,
-        }}
-      >
-        <svg width="22" height="22" viewBox="0 0 24 24" fill={PRIMARY}>
-          <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zm0 12.08L4.59 11 12 6.92 19.41 11 12 15.08zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z" />
-        </svg>
-      </div>
-      <div>
-        <div
-          style={{
-            fontSize: 12,
-            fontWeight: 700,
-            color: ON_SURFACE_VARIANT,
-            letterSpacing: "0.05em",
-            textTransform: "uppercase",
-            marginBottom: 4,
-          }}
-        >
-          Trình độ hiện tại
-        </div>
-        {level && badge ? (
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span
-              style={{
-                background: badge.bg,
-                color: badge.text,
-                padding: "2px 12px",
-                borderRadius: 9999,
-                fontSize: 12,
-                fontWeight: 700,
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-              }}
-            >
-              {level}
-            </span>
-            <span style={{ fontSize: 18, fontWeight: 600, color: ON_SURFACE }}>
-              {found?.label}
-            </span>
-          </div>
-        ) : (
-          <span style={{ fontSize: 15, color: ON_SURFACE_VARIANT }}>Chưa thiết lập</span>
-        )}
-      </div>
-    </div>
-  );
-}
-
 /**
  * @param {{ variant?: "user" | "admin", embedded?: boolean }} props
  */
@@ -105,21 +36,28 @@ export default function ProfileSettingsContent({ variant = "user", embedded = fa
 
   const { user, updateUser } = useAuth();
   const currentLevel = user?.level ?? null;
+  const currentGoal  = user?.goal  ?? null;
 
   const [selectedLevel, setSelectedLevel] = useState(currentLevel);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const [selectedGoal,  setSelectedGoal]  = useState(currentGoal);
+  const [showConfirm,   setShowConfirm]   = useState(false);
+  const [submitting,    setSubmitting]    = useState(false);
+
   const [toast, setToast] = useState({ message: "", type: "success" });
 
-  const hasChanged = selectedLevel !== null && selectedLevel !== currentLevel;
+  const hasChanged = (selectedLevel !== null && selectedLevel !== currentLevel)
+                  || (selectedGoal  !== null && selectedGoal  !== currentGoal);
 
   async function handleConfirmSave() {
     setShowConfirm(false);
     setSubmitting(true);
     try {
-      const data = await updateLevel(selectedLevel);
-      updateUser({ level: data.level, onboarding_completed: data.onboarding_completed });
-      setToast({ message: "Đã cập nhật trình độ thành công!", type: "success" });
+      const level = selectedLevel ?? currentLevel;
+      const goal  = selectedGoal  ?? currentGoal;
+      const data  = await updateLearning({ level, learning_goal: goal });
+      updateUser({ level: data.level, goal: data.learning_goal, onboarding_completed: true });
+      const regen = data.roadmap_generated ? " Lộ trình đã được cập nhật." : "";
+      setToast({ message: `Đã lưu thay đổi!${regen}`, type: "success" });
     } catch (err) {
       setToast({ message: err.message || "Cập nhật thất bại. Vui lòng thử lại.", type: "error" });
     } finally {
@@ -156,7 +94,7 @@ export default function ProfileSettingsContent({ variant = "user", embedded = fa
           >
             <a href="#personal-info" style={styles.navLink}>Thông tin cá nhân</a>
             {showLevelSection && (
-              <a href="#learning-level" style={styles.navLink}>Trình độ học</a>
+              <a href="#learning-path" style={styles.navLink}>Lộ trình học</a>
             )}
             <a href="#account-security" style={styles.navLink}>Bảo mật tài khoản</a>
             {!isAdminProfile && (
@@ -177,32 +115,80 @@ export default function ProfileSettingsContent({ variant = "user", embedded = fa
             />
 
             {showLevelSection && (
-              <section id="learning-level" style={styles.section}>
+              <section id="learning-path" style={styles.section}>
                 <div style={styles.sectionHeader}>
                   <div>
-                    <h2 style={styles.h2}>Trình độ tiếng Anh</h2>
+                    <h2 style={styles.h2}>Lộ trình học tập</h2>
                     <p style={styles.sectionDesc}>
-                      Cập nhật trình độ để lộ trình học được cá nhân hóa chính xác hơn.
+                      Chọn trình độ và mục tiêu — AI sẽ tạo lộ trình phù hợp với bạn.
                     </p>
                   </div>
                 </div>
 
                 <div style={styles.sectionCard}>
-                  <LevelDisplay level={user?.level ?? null} />
-                  <div style={{ marginBottom: 28 }}>
-                    <div
-                      style={{
-                        fontSize: 14,
-                        fontWeight: 600,
-                        color: ON_SURFACE,
-                        marginBottom: 12,
-                        fontFamily: FONT,
-                      }}
-                    >
-                      Chọn trình độ mới:
+                  {/* Current summary */}
+                  <div style={{ display: "flex", gap: 12, marginBottom: 28, flexWrap: "wrap" }}>
+                    <div style={{ flex: 1, minWidth: 160, background: SURFACE_LOW, borderRadius: 12, padding: "14px 18px", border: `1px solid ${SURFACE_BORDER}` }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: ON_SURFACE_VARIANT, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Trình độ hiện tại</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        {user?.level ? (
+                          <>
+                            <span style={{ background: BADGE_COLORS[user.level]?.bg, color: BADGE_COLORS[user.level]?.text, padding: "2px 10px", borderRadius: 9999, fontSize: 12, fontWeight: 700 }}>{user.level}</span>
+                            <span style={{ fontSize: 15, fontWeight: 600, color: ON_SURFACE }}>{LEVELS.find(l => l.code === user.level)?.label}</span>
+                          </>
+                        ) : <span style={{ fontSize: 14, color: ON_SURFACE_VARIANT }}>Chưa thiết lập</span>}
+                      </div>
                     </div>
+                    <div style={{ flex: 1, minWidth: 160, background: SURFACE_LOW, borderRadius: 12, padding: "14px 18px", border: `1px solid ${SURFACE_BORDER}` }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: ON_SURFACE_VARIANT, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Mục tiêu hiện tại</div>
+                      <div style={{ fontSize: 15, fontWeight: 600, color: ON_SURFACE }}>
+                        {GOAL_OPTIONS.find(g => g.slug === user?.goal)?.label ?? "Chưa thiết lập"}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Step 1: Level */}
+                  <div style={{ fontSize: 14, fontWeight: 600, color: ON_SURFACE, marginBottom: 12, fontFamily: FONT }}>
+                    1. Chọn trình độ
+                  </div>
+                  <div style={{ marginBottom: 28 }}>
                     <LevelSelector value={selectedLevel} onChange={setSelectedLevel} />
                   </div>
+
+                  {/* Step 2: Goal */}
+                  <div style={{ fontSize: 14, fontWeight: 600, color: ON_SURFACE, marginBottom: 12, fontFamily: FONT }}>
+                    2. Chọn mục tiêu học tập
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 12, marginBottom: 28 }}>
+                    {GOAL_OPTIONS.map((g) => {
+                      const isSel = selectedGoal === g.slug;
+                      return (
+                        <button
+                          key={g.slug}
+                          type="button"
+                          onClick={() => setSelectedGoal(g.slug)}
+                          aria-pressed={isSel}
+                          style={{
+                            padding: "16px 14px",
+                            border: `2px solid ${isSel ? PRIMARY : SURFACE_BORDER}`,
+                            borderRadius: 10,
+                            background: isSel ? SURFACE_LOW : SURFACE_CARD,
+                            cursor: "pointer",
+                            fontFamily: FONT,
+                            textAlign: "left",
+                            minHeight: 44,
+                            transition: "border-color 0.15s, background 0.15s",
+                          }}
+                        >
+                          <div style={{ fontSize: 14, fontWeight: 700, color: isSel ? PRIMARY : ON_SURFACE, marginBottom: 4 }}>
+                            {isSel && "✓ "}{g.label}
+                          </div>
+                          <div style={{ fontSize: 12, color: ON_SURFACE_VARIANT, lineHeight: 1.4 }}>{g.desc}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
                   <div style={{ display: "flex", justifyContent: "flex-end" }}>
                     <button
                       type="button"
@@ -210,19 +196,13 @@ export default function ProfileSettingsContent({ variant = "user", embedded = fa
                       disabled={!hasChanged || submitting}
                       style={{
                         background: !hasChanged || submitting ? "#c7c4d8" : PRIMARY,
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: 10,
-                        padding: "12px 32px",
-                        fontSize: 15,
-                        fontWeight: 600,
-                        fontFamily: FONT,
-                        cursor: !hasChanged || submitting ? "not-allowed" : "pointer",
-                        minHeight: 44,
-                        minWidth: 140,
+                        color: "#fff", border: "none", borderRadius: 10,
+                        padding: "12px 32px", fontSize: 15, fontWeight: 600,
+                        fontFamily: FONT, cursor: !hasChanged || submitting ? "not-allowed" : "pointer",
+                        minHeight: 44, minWidth: 140,
                       }}
                     >
-                      {submitting ? "Đang lưu..." : "Lưu thay đổi"}
+                      {submitting ? "Đang cập nhật..." : "Lưu & Tạo lại lộ trình"}
                     </button>
                   </div>
                 </div>
@@ -245,12 +225,16 @@ export default function ProfileSettingsContent({ variant = "user", embedded = fa
         contentClassName="profile-confirm-modal"
       >
         <Modal.Header closeButton style={styles.modalHeader}>
-          <Modal.Title style={styles.modalTitle}>Xác nhận đổi trình độ</Modal.Title>
+          <Modal.Title style={styles.modalTitle}>Xác nhận cập nhật lộ trình</Modal.Title>
         </Modal.Header>
         <Modal.Body style={styles.modalBody}>
           <p style={styles.modalText}>
-            Lộ trình học sẽ được cập nhật theo trình độ{" "}
-            <strong style={{ color: PRIMARY }}>{selectedLevel}</strong>. Tiếp tục?
+            AI sẽ tạo lại lộ trình học theo trình độ{" "}
+            <strong style={{ color: PRIMARY }}>{selectedLevel ?? currentLevel}</strong>
+            {selectedGoal && (
+              <> và mục tiêu <strong style={{ color: PRIMARY }}>{GOAL_OPTIONS.find(g => g.slug === selectedGoal)?.label}</strong></>
+            )}
+            . Tiếp tục?
           </p>
         </Modal.Body>
         <Modal.Footer style={styles.modalFooter}>

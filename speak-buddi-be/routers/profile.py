@@ -23,19 +23,39 @@ from schemas.profile import (
     ChangePasswordRequest,
     DeleteAccountOut,
     DeleteAccountRequest,
+    UpdateGoalOut,
+    UpdateGoalRequest,
+    UpdateLearningOut,
+    UpdateLearningRequest,
     UpdateLevelOut,
     UpdateLevelRequest,
     UpdateNameOut,
     UpdateNameRequest,
 )
+from services.roadmap_ai_service import generate_roadmap_sequence
 from utils.validators import validate_password
 
 log = logging.getLogger("speakbuddi.profile")
 
 router = APIRouter(prefix="/api/profile", tags=["profile"])
 
-# Tập level hợp lệ (BR09)
 VALID_LEVELS = {"A1", "A2", "B1", "B2", "C1", "C2"}
+VALID_GOALS  = {"travel", "work", "communication"}
+
+
+async def _regen_roadmap(db: AsyncSession, user_id: str, level: str, goal: str) -> bool:
+    """Sinh lại roadmap_sequence sau khi đổi level hoặc goal. Degrade an toàn — không raise."""
+    if not level or not goal:
+        return False
+    try:
+        topics   = await user_repo.get_topics_by_level(db, level)
+        sequence = await generate_roadmap_sequence(level, goal, topics)
+        if sequence:
+            await user_repo.update_roadmap_sequence(db, user_id, sequence)
+            return True
+    except Exception:
+        log.warning("PROFILE regen_roadmap failed user=%s — fallback to NULL", user_id)
+    return False
 
 
 # ─── PATCH /api/profile/level ─────────────────────────────────────────────────
@@ -62,19 +82,78 @@ async def update_level(
 
     user_id = payload.get("sub", "")
 
-    # 2. Cập nhật DB
+    # 2. Cập nhật DB (xóa roadmap_sequence cũ trong cùng query)
     result = await user_repo.update_level(db, user_id=user_id, level=level)
 
     if result is None:
         raise HTTPException(status_code=404, detail="Người dùng không tồn tại.")
 
-    # 3. Log an toàn — chỉ ghi user_id và level (SRS §4.5)
-    log.info("PROFILE update_level user=%s level=%s", user_id, level)
+    # 3. Re-gen roadmap với level mới + goal cũ (degrade an toàn)
+    goal = result.get("learning_goal") or ""
+    roadmap_generated = await _regen_roadmap(db, user_id, level, goal)
+
+    log.info("PROFILE update_level user=%s level=%s regen=%s", user_id, level, roadmap_generated)
 
     return UpdateLevelOut(
         level=result["target_level"],
         onboarding_completed=result["target_level"] is not None,
     )
+
+
+# ─── PATCH /api/profile/goal ──────────────────────────────────────────────────
+
+@router.patch("/goal", response_model=UpdateGoalOut)
+async def update_goal(
+    req: UpdateGoalRequest,
+    payload: dict = Depends(current_user),
+    db: AsyncSession = Depends(get_db),
+) -> UpdateGoalOut:
+    """Cập nhật mục tiêu học tập và re-gen roadmap_sequence với level hiện tại."""
+    goal = (req.learning_goal or "").strip().lower()
+    if goal not in VALID_GOALS:
+        raise HTTPException(status_code=400, detail="Mục tiêu không hợp lệ.")
+
+    user_id = payload.get("sub", "")
+    result  = await user_repo.update_goal(db, user_id=user_id, learning_goal=goal)
+
+    if result is None:
+        raise HTTPException(status_code=404, detail="Người dùng không tồn tại.")
+
+    level = result.get("target_level") or ""
+    roadmap_generated = await _regen_roadmap(db, user_id, level, goal)
+
+    log.info("PROFILE update_goal user=%s goal=%s regen=%s", user_id, goal, roadmap_generated)
+
+    return UpdateGoalOut(learning_goal=goal, roadmap_generated=roadmap_generated)
+
+
+# ─── PATCH /api/profile/learning (level + goal cùng lúc, re-gen 1 lần) ────────
+
+@router.patch("/learning", response_model=UpdateLearningOut)
+async def update_learning(
+    req: UpdateLearningRequest,
+    payload: dict = Depends(current_user),
+    db: AsyncSession = Depends(get_db),
+) -> UpdateLearningOut:
+    """Cập nhật trình độ + mục tiêu học tập cùng lúc, re-gen roadmap 1 lần duy nhất."""
+    level = req.level.strip().upper()
+    if level not in VALID_LEVELS:
+        raise HTTPException(status_code=400, detail="⚠ Trình độ không hợp lệ. Vui lòng chọn từ A1 đến C2.")
+
+    goal = (req.learning_goal or "").strip().lower()
+    if goal not in VALID_GOALS:
+        raise HTTPException(status_code=400, detail="Mục tiêu không hợp lệ.")
+
+    user_id = payload.get("sub", "")
+    result  = await user_repo.update_learning(db, user_id=user_id, level=level, learning_goal=goal)
+
+    if result is None:
+        raise HTTPException(status_code=404, detail="Người dùng không tồn tại.")
+
+    roadmap_generated = await _regen_roadmap(db, user_id, level, goal)
+    log.info("PROFILE update_learning user=%s level=%s goal=%s regen=%s", user_id, level, goal, roadmap_generated)
+
+    return UpdateLearningOut(level=level, learning_goal=goal, roadmap_generated=roadmap_generated)
 
 
 # ─── PATCH /api/profile/name ──────────────────────────────────────────────────
