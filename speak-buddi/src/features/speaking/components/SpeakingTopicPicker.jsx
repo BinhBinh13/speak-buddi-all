@@ -12,7 +12,7 @@ const SUGGESTIONS = [
   { emoji: "✈️", text: "Kể về chuyến đi bạn muốn thực hiện" },
 ];
 
-export default function SpeakingTopicPicker({ onStart }) {
+export default function SpeakingTopicPicker({ onStart, onShowHistory }) {
   const [prompt, setPrompt] = useState("");
 
   function handleStart() {
@@ -118,6 +118,30 @@ export default function SpeakingTopicPicker({ onStart }) {
       >
         Bắt đầu nói ngay
       </button>
+
+      {onShowHistory && (
+        <button
+          type="button"
+          onClick={onShowHistory}
+          style={{
+            display: "block",
+            width: "100%",
+            marginTop: 12,
+            padding: "12px 20px",
+            borderRadius: 14,
+            border: "1.5px solid #c7c4d8",
+            background: "#ffffff",
+            color: "#464555",
+            fontSize: 14,
+            fontWeight: 600,
+            cursor: "pointer",
+            fontFamily: FONT,
+            minHeight: 44,
+          }}
+        >
+          📋 Xem lịch sử hội thoại
+        </button>
+      )}
     </div>
   );
 }

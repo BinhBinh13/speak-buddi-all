@@ -28,9 +28,10 @@ export default function ProtectedRoute() {
     return <Navigate to="/onboarding" replace />;
   }
 
-  // 4. Đã hoàn tất onboarding mà vào lại /onboarding → /roadmap
+  // 4. Đã hoàn tất onboarding mà vào lại /onboarding → home tương ứng mode
   if (user && user.onboarding_completed && location.pathname === "/onboarding") {
-    return <Navigate to="/roadmap" replace />;
+    const home = user.words_per_session === 0 ? "/speaking" : "/roadmap";
+    return <Navigate to={home} replace />;
   }
 
   return <Outlet />;

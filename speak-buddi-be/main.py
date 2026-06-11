@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from core.config import ALLOWED_ORIGINS
 from jobs.crawler_scheduler import start_crawler_scheduler, stop_crawler_scheduler
-from routers import admin_analytics, admin_content, admin_crawler, admin_payment_plan, ai, auth, learning, onboarding, payment, profile, pronunciation, quiz, roadmap, session, support, translate, user_analytics, voice
+from routers import admin_analytics, admin_content, admin_crawler, admin_payment_plan, ai, auth, learning, onboarding, payment, profile, pronunciation, quiz, roadmap, session, speaking_history, support, translate, user_analytics, voice
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(levelname)s  %(message)s")
 
@@ -43,6 +43,7 @@ app.include_router(pronunciation.router)
 app.include_router(translate.router)
 app.include_router(payment.router)
 app.include_router(voice.router)
+app.include_router(speaking_history.router)
 app.include_router(admin_analytics.router)
 app.include_router(admin_content.router)
 app.include_router(admin_crawler.router)

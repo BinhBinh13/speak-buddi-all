@@ -7,8 +7,8 @@ const SURFACE_VARIANT    = "#e4e1ee";
 const ON_SURFACE_VARIANT = "#464555";
 const FONT               = "'Be Vietnam Pro', system-ui, sans-serif";
 
-const STEP_LABELS = ["Trình độ", "Chủ đề", "Phút/ngày", "Từ/buổi"];
-const TOTAL_STEPS = 4;
+const STEP_LABELS = ["Trình độ", "Mục tiêu", "Học từ vựng"];
+const TOTAL_STEPS = 3;
 
 export default function OnboardingProgress({ step }) {
   const percent = Math.round((step / TOTAL_STEPS) * 100);

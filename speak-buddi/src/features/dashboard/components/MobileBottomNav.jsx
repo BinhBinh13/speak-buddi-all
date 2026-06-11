@@ -1,13 +1,14 @@
 // S1.1: thêm aria-label, aria-current, touch target ≥ 44px (NFR §4.8-3/6)
 import { COLORS, FONTS } from "../../../shared/constants/theme";
+import { useAuth } from "../../../shared/auth/AuthContext";
 import house from "../../../assets/icons/house.svg";
 import mic from "../../../assets/icons/microphone.svg";
 import vocab from "../../../assets/icons/vocab.svg";
 
-const NAV_ITEMS = [
-  { label: "Roadmap",   icon: house, path: "/roadmap"    },
-  { label: "Speaking",  icon: mic,   path: "/speaking"   },
-  { label: "New words", icon: vocab, path: "/vocabulary" },
+const ALL_NAV_ITEMS = [
+  { label: "Roadmap",   icon: house, path: "/roadmap",    vocabOnly: true  },
+  { label: "Speaking",  icon: mic,   path: "/speaking",   vocabOnly: false },
+  { label: "New words", icon: vocab, path: "/vocabulary", vocabOnly: true  },
 ];
 
 /**
@@ -16,6 +17,12 @@ const NAV_ITEMS = [
  * ARIA: aria-label + aria-current cho screen reader (NFR §4.8-6).
  */
 export default function MobileBottomNav({ activePath = "/roadmap" }) {
+  const { user } = useAuth();
+  const isSpeakingOnly = user?.words_per_session === 0;
+  const NAV_ITEMS = ALL_NAV_ITEMS.filter(
+    (item) => !isSpeakingOnly || !item.vocabOnly
+  );
+
   return (
     <>
       <style>{BOTTOM_NAV_CSS}</style>

@@ -11,19 +11,23 @@ import {
   LuLanguages,
 } from "react-icons/lu";
 
-const NAV_ITEMS = [
-  { label: "Roadmap",    Icon: LuMap,             path: "/roadmap"    },
-  { label: "Vocabulary", Icon: LuBookOpen,        path: "/vocabulary" },
-  { label: "Quiz",       Icon: LuClipboardList,   path: "/quiz"       },
-  { label: "Dịch thuật", Icon: LuLanguages,       path: "/translate"  },
-  { label: "Speaking",   Icon: LuMic,             path: "/speaking"   },
-  { label: "Analytics",  Icon: LuChartBar,        path: "/analytics"  },
+const ALL_NAV_ITEMS = [
+  { label: "Roadmap",    Icon: LuMap,             path: "/roadmap",    vocabOnly: true  },
+  { label: "Vocabulary", Icon: LuBookOpen,        path: "/vocabulary", vocabOnly: true  },
+  { label: "Quiz",       Icon: LuClipboardList,   path: "/quiz",       vocabOnly: true  },
+  { label: "Dịch thuật", Icon: LuLanguages,       path: "/translate",  vocabOnly: false },
+  { label: "Speaking",   Icon: LuMic,             path: "/speaking",   vocabOnly: false },
+  { label: "Analytics",  Icon: LuChartBar,        path: "/analytics",  vocabOnly: false },
 ];
 
 export default function DashSidebar({
   activePath = "/roadmap",
 }) {
-  const { isPaid } = useAuth();
+  const { isPaid, user } = useAuth();
+  const isSpeakingOnly = user?.words_per_session === 0;
+  const NAV_ITEMS = ALL_NAV_ITEMS.filter(
+    (item) => !isSpeakingOnly || !item.vocabOnly
+  );
 
   return (
     <>

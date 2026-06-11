@@ -6,8 +6,10 @@ import ChatBubble from "../conversation/components/ChatBubble";
 import { sendMessage } from "../conversation/services/conversationService";
 import { getQuotaStatus } from "../conversation/services/quotaService";
 import { createSpeechRecognizer, detectSpeechLang } from "./services/speechService";
+import { saveSpeakingSession } from "./services/speakingHistoryService";
 import SpeakingTopicPicker from "./components/SpeakingTopicPicker";
 import SpeakingInputBar from "./components/SpeakingInputBar";
+import SpeakingHistoryPanel from "./components/SpeakingHistoryPanel";
 
 const C = {
   primary:          "#3525cd",
@@ -57,15 +59,17 @@ export default function SpeakingPage() {
   const [roadmapTopic,  setRoadmapTopic]  = useState(initState.topic ?? null);
   const [started,       setStarted]       = useState(Boolean(initState.freeTopic || initState.topic));
 
-  const [messages,     setMessages]     = useState([]);
-  const [input,        setInput]        = useState("");
-  const [loading,      setLoading]      = useState(false);
-  const [errorBanner,  setErrorBanner]  = useState(null);
-  const [retryPayload, setRetryPayload] = useState(null);
-  const [quota,        setQuota]        = useState(null);
-  const [quotaBanner,  setQuotaBanner]  = useState(null);
-  const [isListening,  setIsListening]  = useState(false);
-  const [micError,     setMicError]     = useState(null);
+  const [messages,       setMessages]       = useState([]);
+  const [input,          setInput]          = useState("");
+  const [loading,        setLoading]        = useState(false);
+  const [errorBanner,    setErrorBanner]    = useState(null);
+  const [retryPayload,   setRetryPayload]   = useState(null);
+  const [quota,          setQuota]          = useState(null);
+  const [quotaBanner,    setQuotaBanner]    = useState(null);
+  const [isListening,    setIsListening]    = useState(false);
+  const [micError,       setMicError]       = useState(null);
+  const [historyOpen,    setHistoryOpen]    = useState(false);
+  const [saveStatus,     setSaveStatus]     = useState(null); // null | "saving" | "saved" | "error"
   const greetingCalledRef = useRef(false);
 
   const chatEndRef       = useRef(null);
@@ -208,6 +212,20 @@ export default function SpeakingPage() {
     navigate("/speaking", { replace: true, state: { freeTopic: { prompt } } });
   }
 
+  async function handleSaveSession() {
+    const msgs = messagesRef.current;
+    if (!msgs.length) return;
+    setSaveStatus("saving");
+    try {
+      await saveSpeakingSession(sessionTitle, msgs.map((m) => ({ role: m.role, content: m.content })));
+      setSaveStatus("saved");
+      setTimeout(() => setSaveStatus(null), 2500);
+    } catch {
+      setSaveStatus("error");
+      setTimeout(() => setSaveStatus(null), 3000);
+    }
+  }
+
   function handleEndSession() {
     stopAllMedia();
     setStarted(false);
@@ -218,6 +236,7 @@ export default function SpeakingPage() {
     setInput("");
     setErrorBanner(null);
     setQuotaBanner(null);
+    setSaveStatus(null);
     navigate("/speaking", { replace: true, state: {} });
   }
 
@@ -333,7 +352,8 @@ export default function SpeakingPage() {
   if (!started) {
     return (
       <AppLayout>
-        <SpeakingTopicPicker onStart={handleStartSession} />
+        <SpeakingTopicPicker onStart={handleStartSession} onShowHistory={() => setHistoryOpen(true)} />
+        <SpeakingHistoryPanel visible={historyOpen} onClose={() => setHistoryOpen(false)} />
       </AppLayout>
     );
   }
@@ -353,7 +373,7 @@ export default function SpeakingPage() {
             </p>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
             {quota && !quota.is_paid && (
               <span style={{ fontSize: 13, color: C.onSurfaceVariant, whiteSpace: "nowrap" }}>
                 ⏱ Còn {Math.ceil((quota.remaining_seconds || 0) / 60)} phút
@@ -364,6 +384,31 @@ export default function SpeakingPage() {
                 ✨ Pro
               </span>
             )}
+            {/* Nút lưu hội thoại */}
+            {messages.length > 0 && (
+              <button
+                onClick={handleSaveSession}
+                disabled={saveStatus === "saving"}
+                title="Lưu hội thoại này"
+                style={{
+                  padding: "8px 14px", borderRadius: 8, border: `1px solid ${saveStatus === "saved" ? "#006c49" : C.outlineVariant}`,
+                  background: saveStatus === "saved" ? "#e6f4ef" : C.surfaceLowest,
+                  color: saveStatus === "saved" ? "#006c49" : saveStatus === "error" ? C.error : C.onSurfaceVariant,
+                  fontSize: 13, fontWeight: 600, cursor: saveStatus === "saving" ? "default" : "pointer",
+                  minHeight: 44, fontFamily: FONT, whiteSpace: "nowrap", transition: "all 0.2s",
+                }}
+              >
+                {saveStatus === "saving" ? "Đang lưu..." : saveStatus === "saved" ? "✓ Đã lưu" : saveStatus === "error" ? "Lỗi lưu" : "💾 Lưu"}
+              </button>
+            )}
+            {/* Nút xem lịch sử */}
+            <button
+              onClick={() => setHistoryOpen(true)}
+              title="Xem lịch sử hội thoại"
+              style={{ padding: "8px 14px", borderRadius: 8, border: `1px solid ${C.outlineVariant}`, background: C.surfaceLowest, color: C.onSurfaceVariant, fontSize: 13, fontWeight: 600, cursor: "pointer", minHeight: 44, fontFamily: FONT }}
+            >
+              📋 Lịch sử
+            </button>
             <button
               onClick={handleEndSession}
               style={{ padding: "8px 16px", borderRadius: 8, border: `1px solid ${C.outlineVariant}`, background: C.surfaceLowest, color: C.onSurfaceVariant, fontSize: 14, fontWeight: 600, cursor: "pointer", minHeight: 44, fontFamily: FONT }}
@@ -423,6 +468,7 @@ export default function SpeakingPage() {
           micError={micError}
         />
       </div>
+      <SpeakingHistoryPanel visible={historyOpen} onClose={() => setHistoryOpen(false)} />
     </AppLayout>
   );
 }
