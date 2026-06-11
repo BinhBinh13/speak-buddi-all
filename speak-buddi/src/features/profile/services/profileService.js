@@ -42,6 +42,30 @@ export const changePassword = ({ current_password, new_password }) =>
   });
 
 /**
+ * Cập nhật mục tiêu học tập, re-gen roadmap với level hiện tại.
+ * PATCH /api/profile/goal
+ * @param {string} learning_goal - "travel" | "work" | "communication"
+ * @returns {Promise<{ learning_goal: string, roadmap_generated: boolean }>}
+ */
+export const updateGoal = (learning_goal) =>
+  apiClient("/api/profile/goal", {
+    method: "PATCH",
+    body: JSON.stringify({ learning_goal }),
+  });
+
+/**
+ * Cập nhật trình độ + mục tiêu học tập cùng lúc, re-gen roadmap 1 lần.
+ * PATCH /api/profile/learning
+ * @param {{ level: string, learning_goal: string }} payload
+ * @returns {Promise<{ level: string, learning_goal: string, roadmap_generated: boolean }>}
+ */
+export const updateLearning = ({ level, learning_goal }) =>
+  apiClient("/api/profile/learning", {
+    method: "PATCH",
+    body: JSON.stringify({ level, learning_goal }),
+  });
+
+/**
  * Xóa tài khoản và dữ liệu cá nhân (S12.2).
  * DELETE /api/profile/account
  * @param {{ confirm_text: string, password?: string }} payload

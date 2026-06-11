@@ -12,11 +12,12 @@ const ON_SURFACE_VARIANT = "#464555";
 const FONT               = "'Be Vietnam Pro', system-ui, sans-serif";
 
 const OPTIONS = [
-  { value: 5,  label: "5 từ / buổi",   desc: "Nhẹ nhàng — đảm bảo nhớ lâu, ít áp lực" },
-  { value: 10, label: "10 từ / buổi",  desc: "Cân bằng — tiến độ ổn định và hiệu quả" },
-  { value: 15, label: "15 từ / buổi",  desc: "Năng động — mở rộng vốn từ nhanh chóng" },
-  { value: 20, label: "20 từ / buổi",  desc: "Tích cực — đạt mục tiêu trong thời gian ngắn" },
+  { value: 5,  label: "5 từ / buổi",         desc: "Nhẹ nhàng — đảm bảo nhớ lâu, ít áp lực" },
+  { value: 10, label: "10 từ / buổi",         desc: "Cân bằng — tiến độ ổn định và hiệu quả" },
+  { value: 0,  label: "Không học từ mới",     desc: "Tập trung luyện nói, không cần học từ mới", speakingOnly: true },
 ];
+
+const SECONDARY = "#006c49";
 
 function OptionCard({ option, selected, onSelect }) {
   const isSelected = selected === option.value;
@@ -46,16 +47,32 @@ function OptionCard({ option, selected, onSelect }) {
       }}
     >
       {/* Text block */}
-      <div>
-        <div
-          style={{
-            fontSize: 16,
-            fontWeight: 600,
-            color: isSelected ? PRIMARY : ON_SURFACE,
-            marginBottom: 4,
-          }}
-        >
-          {option.label}
+      <div style={{ flex: 1 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+          <span
+            style={{
+              fontSize: 16,
+              fontWeight: 600,
+              color: isSelected ? PRIMARY : ON_SURFACE,
+            }}
+          >
+            {option.label}
+          </span>
+          {option.speakingOnly && (
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                color: SECONDARY,
+                background: "#e6f4ef",
+                borderRadius: 6,
+                padding: "2px 7px",
+                letterSpacing: "0.02em",
+              }}
+            >
+              🎤 Speaking Only
+            </span>
+          )}
         </div>
         <div
           style={{
@@ -107,7 +124,7 @@ export default function WordsStep({ value, onChange }) {
           marginBottom: 8,
         }}
       >
-        Bạn muốn học bao nhiêu từ mỗi buổi?
+        Bạn muốn học từ vựng không?
       </h1>
       <p
         style={{
@@ -119,7 +136,7 @@ export default function WordsStep({ value, onChange }) {
           lineHeight: 1.6,
         }}
       >
-        Chúng tôi sẽ chuẩn bị đúng số từ mới theo lịch học của bạn.
+        Chọn số từ mới mỗi buổi, hoặc bỏ qua và chỉ luyện nói.
       </p>
 
       <div

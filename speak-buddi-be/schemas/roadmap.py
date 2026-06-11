@@ -1,5 +1,5 @@
 # speak-buddi-be/schemas/roadmap.py
-# ─── Pydantic schemas cho Roadmap (S2.2) ──────────────────────────────────────
+# ─── Pydantic schemas cho Roadmap (S2.2, updated S2.1 v2) ────────────────────
 
 from __future__ import annotations
 
@@ -16,11 +16,14 @@ class RoadmapNode(BaseModel):
     is_interest: bool          # user đã chọn topic này khi onboarding
     status: str = "available"  # available | completed | in_progress | locked (placeholder — tracking sau)
     word_count: int = 0        # số từ active trong topic (subquery COUNT)
+    scenario_name: str | None = None          # tên tình huống giao tiếp do AI sinh (S2.1 v2)
+    scenario_description: str | None = None   # user làm được gì sau node này (S2.1 v2)
 
 
 class RoadmapOut(BaseModel):
     level: str                 # "B1"
     level_name: str            # "Intermediate (B1)"
+    goal_label: str = ""       # nhãn tiếng Việt của learning_goal — hiện trong header
     total_topics: int
     selected_topics: int       # số topic user đã chọn trong onboarding
     nodes: list[RoadmapNode]

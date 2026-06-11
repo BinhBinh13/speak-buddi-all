@@ -139,21 +139,23 @@ export default function LoginPage() {
   const [searchParams] = useSearchParams();
   const { login } = useAuth();
 
-  function getSafeNext(userRole) {
+  function getSafeNext(userRole, userData) {
     const isAdmin = userRole === "admin";
-    const fallback = isAdmin ? "/admin/dashboard" : "/roadmap";
+    const defaultHome = isAdmin
+      ? "/admin/dashboard"
+      : userData?.words_per_session === 0 ? "/speaking" : "/roadmap";
     const raw = searchParams.get("next");
     if (raw) {
       try {
         const decoded = decodeURIComponent(raw);
-        if (!decoded.startsWith("/") || decoded.includes("://")) return fallback;
-        if (isAdmin) return decoded.startsWith("/admin") ? decoded : fallback;
-        if (decoded.startsWith("/admin")) return fallback;
-        if (decoded === "/dashboard") return "/roadmap";
+        if (!decoded.startsWith("/") || decoded.includes("://")) return defaultHome;
+        if (isAdmin) return decoded.startsWith("/admin") ? decoded : defaultHome;
+        if (decoded.startsWith("/admin")) return defaultHome;
+        if (decoded === "/dashboard") return defaultHome;
         return decoded;
       } catch { /* fallback */ }
     }
-    return fallback;
+    return defaultHome;
   }
 
   const handleEmailLogin = async () => {
@@ -163,7 +165,7 @@ export default function LoginPage() {
     try {
       const data = await loginWithEmail(email, password);
       login({ access_token: data.access_token, refresh_token: data.refresh_token, user: data.user });
-      navigate(getSafeNext(data.user?.role), { replace: true });
+      navigate(getSafeNext(data.user?.role, data.user), { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -177,7 +179,7 @@ export default function LoginPage() {
     try {
       const data = await loginWithGoogle();
       login({ access_token: data.access_token, refresh_token: data.refresh_token, user: data.user });
-      navigate(getSafeNext(data.user?.role), { replace: true });
+      navigate(getSafeNext(data.user?.role, data.user), { replace: true });
     } catch (err) {
       setError(err.message || "Đăng nhập Google thất bại. Vui lòng thử lại.");
     } finally {

@@ -1,20 +1,20 @@
 // src/features/onboarding/OnboardingPage.jsx
-// ─── Wizard onboarding 4 bước bắt buộc sau khi đăng ký (S2.1) ───────────────
+// ─── Wizard onboarding 4 bước bắt buộc sau khi đăng ký (S2.1 revised v2) ─────
 // Mockup tham chiếu:
 //   - onboarding_chon_trinh_do_desktop (layout + progress + level cards)
 //   - onboarding_chon_muc_tieu_desktop (card option pattern)
-import { useState, useEffect } from "react";
+//   - onboarding_chon_so_thich_desktop (GoalStep — 3 radio card cố định)
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "../../shared/auth/AuthContext";
 import { setUser } from "../../shared/auth/authService";
-import { getTopics, submitOnboarding } from "./services/onboardingService";
+import { submitOnboarding } from "./services/onboardingService";
 
 import OnboardingProgress from "./components/OnboardingProgress";
 import OnboardingNav      from "./components/OnboardingNav";
 import LevelStep          from "./components/LevelStep";
-import TopicStep          from "./components/TopicStep";
-import MinutesStep        from "./components/MinutesStep";
+import GoalStep           from "./components/GoalStep";
 import WordsStep          from "./components/WordsStep";
 
 // Design tokens
@@ -26,56 +26,27 @@ const ERROR_BG           = "#ffdad6";
 const ERROR_TEXT         = "#93000a";
 const FONT               = "'Be Vietnam Pro', system-ui, sans-serif";
 
-const TOTAL_STEPS = 4;
+const TOTAL_STEPS = 3;
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
   const { user, login } = useAuth();
 
   // ── Wizard state ────────────────────────────────────────────────────────────
-  const [step,          setStep]          = useState(1);
-  const [level,         setLevel]         = useState("");
-  const [topics,        setTopics]        = useState([]);   // selected slugs
-  const [topicList,     setTopicList]     = useState([]);   // from API
-  const [minutes,       setMinutes]       = useState(null);
-  const [words,         setWords]         = useState(null);
+  const [step,  setStep]  = useState(1);
+  const [level, setLevel] = useState("");
+  const [goal,  setGoal]  = useState("");   // slug: "travel"|"work"|"communication"
+  const [words, setWords] = useState(null); // 0 = không học từ mới (speaking only)
 
   // ── UI state ────────────────────────────────────────────────────────────────
-  const [loadingTopics, setLoadingTopics] = useState(false);
-  const [topicError,    setTopicError]    = useState("");
-  const [retryCount,    setRetryCount]    = useState(0);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [submitError,   setSubmitError]   = useState("");
-
-  // ── Load topics khi vào bước 2 (hoặc khi retry) ─────────────────────────────
-  useEffect(() => {
-    if (step !== 2 || !level) return;
-    let cancelled = false;
-
-    async function load() {
-      setLoadingTopics(true);
-      setTopicError("");
-      setTopics([]);    // reset khi level đổi
-      try {
-        const data = await getTopics(level);
-        if (!cancelled) setTopicList(Array.isArray(data) ? data : []);
-      } catch (err) {
-        if (!cancelled) setTopicError(err.message || "Không tải được danh sách chủ đề.");
-      } finally {
-        if (!cancelled) setLoadingTopics(false);
-      }
-    }
-
-    load();
-    return () => { cancelled = true; };
-  }, [step, level, retryCount]);
 
   // ── Validation: nút Tiếp tục có được bấm không ──────────────────────────────
   function canContinue() {
     if (step === 1) return level !== "";
-    if (step === 2) return topics.length > 0;
-    if (step === 3) return minutes !== null;
-    if (step === 4) return words !== null;
+    if (step === 2) return goal !== "";
+    if (step === 3) return words !== null;
     return false;
   }
 
@@ -98,8 +69,7 @@ export default function OnboardingPage() {
     try {
       const result = await submitOnboarding({
         level,
-        topics,
-        daily_minutes:     minutes,
+        learning_goal:     goal,
         words_per_session: words,
       });
 
@@ -108,8 +78,8 @@ export default function OnboardingPage() {
         const updatedUser = {
           ...(user || {}),
           level:                level,
+          learning_goal:        goal,
           onboarding_completed: true,
-          daily_minutes:        result.daily_minutes,
           words_per_session:    result.words_per_session,
         };
         setUser(updatedUser);
@@ -119,8 +89,9 @@ export default function OnboardingPage() {
         login({ access_token, refresh_token, user: updatedUser });
       }
 
-      // S2.4: sau onboarding redirect về /roadmap (AC-04-03)
-      navigate("/roadmap", { replace: true });
+      // words=0 (speaking-only) → thẳng vào /speaking; còn lại → /roadmap
+      const dest = words === 0 ? "/speaking" : "/roadmap";
+      navigate(dest, { replace: true });
     } catch (err) {
       setSubmitError(err.message || "Đã có lỗi xảy ra. Vui lòng thử lại.");
     } finally {
@@ -132,31 +103,31 @@ export default function OnboardingPage() {
   return (
     <div
       style={{
-        minHeight: "100vh",
-        background: SURFACE,
-        fontFamily: FONT,
-        display: "flex",
-        flexDirection: "column",
+        minHeight:      "100vh",
+        background:     SURFACE,
+        fontFamily:     FONT,
+        display:        "flex",
+        flexDirection:  "column",
       }}
     >
       {/* Header minimal */}
       <header
         style={{
-          display: "flex",
+          display:        "flex",
           justifyContent: "space-between",
-          alignItems: "center",
-          padding: "16px 24px",
-          maxWidth: 1280,
-          margin: "0 auto",
-          width: "100%",
-          boxSizing: "border-box",
+          alignItems:     "center",
+          padding:        "16px 24px",
+          maxWidth:       1280,
+          margin:         "0 auto",
+          width:          "100%",
+          boxSizing:      "border-box",
         }}
       >
         <span
           style={{
-            fontSize: 22,
-            fontWeight: 700,
-            color: PRIMARY,
+            fontSize:      22,
+            fontWeight:    700,
+            color:         PRIMARY,
             letterSpacing: "-0.02em",
           }}
         >
@@ -165,7 +136,7 @@ export default function OnboardingPage() {
         <span
           style={{
             fontSize: 13,
-            color: ON_SURFACE_VARIANT,
+            color:    ON_SURFACE_VARIANT,
           }}
         >
           Thiết lập tài khoản
@@ -175,12 +146,12 @@ export default function OnboardingPage() {
       {/* Main scroll area */}
       <main
         style={{
-          flex: 1,
-          overflowY: "auto",
-          padding: "24px 16px 120px",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+          flex:           1,
+          overflowY:      "auto",
+          padding:        "24px 16px 120px",
+          display:        "flex",
+          flexDirection:  "column",
+          alignItems:     "center",
         }}
       >
         {/* Progress bar */}
@@ -191,32 +162,22 @@ export default function OnboardingPage() {
         {/* Step content card */}
         <div
           style={{
-            width: "100%",
-            maxWidth: 672,
+            width:      "100%",
+            maxWidth:   672,
             background: SURFACE_CARD,
             borderRadius: 16,
-            boxShadow: "0 4px 24px rgba(53,37,205,0.06)",
-            padding: "28px 24px",
-            boxSizing: "border-box",
+            boxShadow:  "0 4px 24px rgba(53,37,205,0.06)",
+            padding:    "28px 24px",
+            boxSizing:  "border-box",
           }}
         >
           {step === 1 && (
             <LevelStep value={level} onChange={setLevel} />
           )}
           {step === 2 && (
-            <TopicStep
-              topics={topicList}
-              selected={topics}
-              onChange={setTopics}
-              loading={loadingTopics}
-              error={topicError}
-              onRetry={() => setRetryCount((c) => c + 1)}
-            />
+            <GoalStep value={goal} onChange={setGoal} />
           )}
           {step === 3 && (
-            <MinutesStep value={minutes} onChange={setMinutes} />
-          )}
-          {step === 4 && (
             <WordsStep value={words} onChange={setWords} />
           )}
         </div>
@@ -226,16 +187,16 @@ export default function OnboardingPage() {
           <div
             role="alert"
             style={{
-              width: "100%",
-              maxWidth: 672,
-              marginTop: 16,
+              width:      "100%",
+              maxWidth:   672,
+              marginTop:  16,
               background: ERROR_BG,
               borderRadius: 8,
-              padding: "10px 16px",
-              color: ERROR_TEXT,
-              fontSize: 14,
+              padding:    "10px 16px",
+              color:      ERROR_TEXT,
+              fontSize:   14,
               fontWeight: 500,
-              boxSizing: "border-box",
+              boxSizing:  "border-box",
             }}
           >
             {submitError}

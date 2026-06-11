@@ -3,7 +3,7 @@
   "version": "1.1.0",
   "source": "Project/docs/speak-buddi/SRS_speak-buddi_v1.1.0.md",
   "backlog": "backlog.md",
-  "lastUpdated": "2026-06-07",
+  "lastUpdated": "2026-06-11",
   "statusLegend": ["todo", "in_progress", "review", "done", "blocked"],
   "priorityLegend": {
     "P0": "Blocker - chan cac story khac",
@@ -13,13 +13,13 @@
   "summary": {
     "totalEpics": 12,
     "totalStories": 47,
-    "completedStories": 40,
-    "progressPercent": 85,
+    "completedStories": 39,
+    "progressPercent": 83,
     "byStatus": {
       "todo": 6,
       "in_progress": 1,
-      "review": 1,
-      "done": 40,
+      "review": 2,
+      "done": 39,
       "blocked": 0
     }
   },
@@ -53,9 +53,9 @@
       "businessRules": ["BR09"],
       "owner": "Dev A",
       "status": "in_progress",
-      "progressPercent": 75,
+      "progressPercent": 50,
       "stories": [
-        { "id": "S2.1", "title": "Form onboarding + chon level A1-C2 + validation", "ac": "AC-03-01/03, 5.2", "priority": "P0", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S2.1-plan.md", "implement": "implement/S2.1-implement.md", "review": "review/S2.1-review.md" }, "updatedAt": "2026-06-06" },
+        { "id": "S2.1", "title": "Form onboarding + chon level A1-C2 + validation", "ac": "AC-03-01/03, 5.2", "priority": "P0", "status": "review", "assignee": "", "notes": "Re-implement 2026-06-11: doi buoc 2 tu TopicStep sang GoalStep (3 mc tieu co dinh); BE gen roadmap_sequence scenario-based bang Claude (degrade an toan); RoadmapNode them scenario_name/description.", "artifacts": { "plan": "plan/S2.1-plan.md", "implement": "implement/S2.1-implement.md", "review": "" }, "updatedAt": "2026-06-11" },
         { "id": "S2.2", "title": "Sinh roadmap ca nhan hoa tu level + goal", "ac": "AC-03-02", "priority": "P1", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S2.2-plan.md", "implement": "implement/S2.2-implement.md", "review": "review/S2.2-review.md" }, "updatedAt": "2026-06-06" },
         { "id": "S2.3", "title": "Cap nhat level trong profile", "ac": "AC-03-04, BR09", "priority": "P2", "status": "done", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S2.3-plan.md", "implement": "implement/S2.3-implement.md", "review": "review/S2.3-review.md" }, "updatedAt": "2026-06-06" },
         { "id": "S2.4", "title": "Man hinh xem roadmap + empty state", "ac": "AC-04-01/04", "priority": "P1", "status": "review", "assignee": "", "notes": "", "artifacts": { "plan": "plan/S2.4-plan.md", "implement": "implement/S2.4-implement.md", "review": "" }, "updatedAt": "2026-06-06" }

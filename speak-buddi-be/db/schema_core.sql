@@ -60,6 +60,7 @@ CREATE TABLE IF NOT EXISTS user_profile (
     target_level     VARCHAR(10),           -- A1-C2; NULL trước khi onboarding
     learning_goal    VARCHAR(255),          -- ví dụ "IELTS 7.0"
     interests        TEXT[],                -- mảng chủ đề yêu thích (onboarding S2.1)
+    roadmap_sequence JSONB,                -- ordered scenario array sinh bởi AI (S2.1 v2)
     timezone         VARCHAR(60)  NOT NULL DEFAULT 'Asia/Ho_Chi_Minh',
     avatar_url       TEXT,
     created_at       TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
