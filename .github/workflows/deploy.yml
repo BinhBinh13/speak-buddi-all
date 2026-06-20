@@ -5,6 +5,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: write
+
 env:
   REGISTRY: ghcr.io
   BE_IMAGE: ghcr.io/binhbinh13/speak-buddi-all/speak-buddi-be
