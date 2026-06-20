@@ -7,7 +7,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  BE_IMAGE: ghcr.io/${{ github.repository }}/speak-buddi-be
+  BE_IMAGE: ghcr.io/binhbinh13/speak-buddi-all/speak-buddi-be
 
 jobs:
   build-frontend:
