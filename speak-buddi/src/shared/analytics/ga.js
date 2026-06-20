@@ -7,11 +7,48 @@ function gtag(...args) {
   if (typeof window.gtag === "function") window.gtag(...args);
 }
 
+const PAGE_TITLES = {
+  "/":                    "Trang chủ — SpeakBuddi",
+  "/login":               "Đăng nhập — SpeakBuddi",
+  "/register":            "Đăng ký — SpeakBuddi",
+  "/forgot-password":     "Quên mật khẩu — SpeakBuddi",
+  "/reset-password":      "Đặt lại mật khẩu — SpeakBuddi",
+  "/onboarding":          "Onboarding — SpeakBuddi",
+  "/roadmap":             "Lộ trình học — SpeakBuddi",
+  "/vocabulary":          "Từ vựng — SpeakBuddi",
+  "/quiz":                "Bài kiểm tra — SpeakBuddi",
+  "/pronunciation":       "Luyện phát âm — SpeakBuddi",
+  "/conversation":        "Hội thoại AI — SpeakBuddi",
+  "/translate":           "Dịch thuật — SpeakBuddi",
+  "/profile":             "Hồ sơ — SpeakBuddi",
+  "/payment/checkout":    "Nâng cấp Pro — SpeakBuddi",
+  "/payment/success":     "Thanh toán thành công — SpeakBuddi",
+  "/settings/voice":      "Cài đặt giọng đọc — SpeakBuddi",
+  "/admin/dashboard":     "Admin Dashboard — SpeakBuddi",
+  "/admin/topics":        "Quản lý chủ đề — SpeakBuddi",
+  "/admin/vocabulary":    "Quản lý từ vựng — SpeakBuddi",
+  "/admin/tests":         "Quản lý bài kiểm tra — SpeakBuddi",
+  "/admin/crawler":       "Crawler Langeek — SpeakBuddi",
+  "/admin/payments":      "Gói thanh toán — SpeakBuddi",
+  "/admin/reports":       "Báo cáo — SpeakBuddi",
+  "/privacy":             "Chính sách bảo mật — SpeakBuddi",
+  "/terms":               "Điều khoản sử dụng — SpeakBuddi",
+  "/contact":             "Liên hệ — SpeakBuddi",
+};
+
 /** Call once per route change (replaces the default page_view disabled in index.html). */
 export function trackPageView(path) {
   if (!MID) return;
+  // Match exact path first, then try prefix (e.g. /quiz/123 → /quiz)
+  const title =
+    PAGE_TITLES[path] ||
+    PAGE_TITLES[Object.keys(PAGE_TITLES).find((k) => k !== "/" && path.startsWith(k))] ||
+    document.title;
+
+  document.title = title;
   gtag("event", "page_view", {
     page_path: path,
+    page_title: title,
     send_to: MID,
   });
 }
