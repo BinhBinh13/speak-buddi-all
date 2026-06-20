@@ -28,7 +28,7 @@ jobs:
           VITE_GA_MEASUREMENT_ID: ${{ secrets.VITE_GA_MEASUREMENT_ID }}
           VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
         run: |
-          npm ci
+          npm install
           npm run build
 
       - name: Upload dist artifact
@@ -81,7 +81,7 @@ jobs:
         with:
           switches: -avz --delete
           path: dist/
-          remote_path: ${{ secrets.FRONTEND_DEPLOY_PATH }}
+          remote_path: /var/www/speakbuddi/
           remote_host: ${{ secrets.VPS_HOST }}
           remote_user: ${{ secrets.VPS_USER }}
           remote_key: ${{ secrets.VPS_SSH_KEY }}
