@@ -1,5 +1,6 @@
-import { lazy, Suspense } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { lazy, Suspense, useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { trackPageView } from "../shared/analytics/ga";
 import { AuthProvider } from "../shared/auth/AuthContext";
 import ProtectedRoute from "../shared/auth/ProtectedRoute";
 import AdminRoute from "../shared/auth/AdminRoute";
@@ -50,9 +51,16 @@ import AdminProfilePage from "../features/admin/AdminProfilePage";
 // S7.1: lazy-load ConversationPage để không ảnh hưởng bundle size ban đầu
 const ConversationPage = lazy(() => import("../features/conversation/ConversationPage"));
 
+function PageViewTracker() {
+  const { pathname } = useLocation();
+  useEffect(() => { trackPageView(pathname); }, [pathname]);
+  return null;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
+      <PageViewTracker />
       <AuthProvider>
         <Routes>
           {/* ── Public routes (không yêu cầu đăng nhập) ─────────────────── */}
