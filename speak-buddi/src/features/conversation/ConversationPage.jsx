@@ -567,8 +567,8 @@ export default function ConversationPage() {
     >
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <header
+        className="sb-header"
         style={{
-          height:         HEADER_H,
           minHeight:      HEADER_H,
           display:        "flex",
           justifyContent: "space-between",
@@ -579,13 +579,26 @@ export default function ConversationPage() {
           backdropFilter: "blur(8px)",
           flexShrink:     0,
           zIndex:         10,
+          gap:            12,
         }}
       >
-        <div>
-          <h1 style={{ fontSize: 24, fontWeight: 600, color: C.onSurface, margin: 0 }}>
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <h1
+            className="sb-header-title"
+            style={{
+              fontSize:     24,
+              fontWeight:   600,
+              color:        C.onSurface,
+              margin:       0,
+              whiteSpace:   "nowrap",
+              overflow:     "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
             {topicName || "Hội thoại AI"}
           </h1>
           <p
+            className="sb-header-subtitle"
             style={{
               fontSize:   14,
               color:      C.onSurfaceVariant,
@@ -602,6 +615,7 @@ export default function ConversationPage() {
                 height:       8,
                 borderRadius: "50%",
                 background:   C.secondary,
+                flexShrink:   0,
               }}
             />
             AI Tutor đang hoạt động
@@ -609,10 +623,10 @@ export default function ConversationPage() {
         </div>
 
         {/* ── QuotaBar / Pro badge ───────────────────────────────────────── */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div className="sb-header-right" style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
           {/* Free user: hiện thanh quota còn lại (S7.2) */}
           {quota && !quota.is_paid && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
+            <div className="sb-quota-info" style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
               <span style={{ color: C.onSurfaceVariant, whiteSpace: "nowrap" }}>
                 ⏱ Còn {Math.ceil((quota.remaining_seconds || 0) / 60)} phút
               </span>
@@ -642,6 +656,7 @@ export default function ConversationPage() {
           {/* Paid user: Pro badge — không giới hạn (S7.3, AC-09-03/BR05) */}
           {quota?.is_paid && (
             <span
+              className="sb-pro-badge"
               style={{
                 display:       "inline-flex",
                 alignItems:    "center",
@@ -678,6 +693,7 @@ export default function ConversationPage() {
               alignItems:   "center",
               gap:          6,
               fontFamily:   FONT,
+              whiteSpace:   "nowrap",
             }}
             onMouseEnter={(e) => { e.currentTarget.style.background = C.surfaceContainer; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = C.surfaceLowest; }}
@@ -1147,6 +1163,25 @@ export default function ConversationPage() {
                 background: #6cf8bb !important;
                 color: #002113 !important;
                 box-shadow: 0 8px 24px rgba(0,108,73,0.3) !important;
+              }
+              .sb-header {
+                padding: 10px 16px !important;
+                flex-wrap: wrap !important;
+                min-height: 56px !important;
+                height: auto !important;
+              }
+              .sb-header-title {
+                font-size: 17px !important;
+                max-width: 160px !important;
+              }
+              .sb-header-subtitle {
+                display: none !important;
+              }
+              .sb-quota-info {
+                display: none !important;
+              }
+              .sb-pro-badge {
+                display: none !important;
               }
             }
           `}</style>
