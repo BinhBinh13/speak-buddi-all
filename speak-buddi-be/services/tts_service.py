@@ -6,6 +6,32 @@ from core.config import ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID
 log = logging.getLogger("speakbuddi.tts")
 
 
+def _classify_tts_error(exc: Exception) -> str:
+    """Trả chuỗi mô tả nguyên nhân lỗi ElevenLabs để dễ debug."""
+    exc_str = str(exc).lower()
+    status = getattr(exc, "status_code", None) or getattr(exc, "status", None)
+
+    if not ELEVENLABS_API_KEY:
+        return "ELEVENLABS_API_KEY chưa được set trong .env"
+
+    if status == 401 or "401" in exc_str or "unauthorized" in exc_str:
+        return "API key không hợp lệ hoặc đã hết hạn (401 Unauthorized)"
+
+    if status == 403 or "403" in exc_str or "forbidden" in exc_str:
+        return "API key không có quyền dùng tính năng này (403 Forbidden)"
+
+    if status == 429 or "429" in exc_str or "rate limit" in exc_str or "quota" in exc_str:
+        return "Đã vượt rate limit hoặc hết quota ElevenLabs (429)"
+
+    if status == 422 or "422" in exc_str:
+        return "voice_id không tồn tại hoặc model_id không hợp lệ (422)"
+
+    if "connection" in exc_str or "timeout" in exc_str or "network" in exc_str:
+        return "Không kết nối được tới ElevenLabs API (network/timeout)"
+
+    return f"{type(exc).__name__}: {exc}"
+
+
 def text_to_audio_bytes(
     text: str,
     voice_id: str | None = None,
@@ -31,9 +57,8 @@ def text_to_audio_bytes(
         log.info("TTS_OK  bytes=%d", len(result))
         return result
     except Exception as exc:
-        log.error(
-            "TTS_FAIL  voice_id=%s  model_id=%s  error_type=%s  error=%s",
-            used_voice, used_model, type(exc).__name__, exc,
-            exc_info=True,
-        )
+        reason = _classify_tts_error(exc)
+        log.error("TTS_FAIL  reason=%s  voice_id=%s  model_id=%s", reason, used_voice, used_model)
+        # Gắn reason vào exception để caller có thể đưa vào response
+        exc.tts_reason = reason  # type: ignore[attr-defined]
         raise
