@@ -37,6 +37,7 @@ class SpeakTextFallbackOut(BaseModel):
     FE nhận dạng qua Content-Type: application/json + tts_error=true.
     Trả 200 (không 502) để giữ được text reply (AC-09-04: không mất dữ liệu).
     """
-    reply_text: str
-    audio:      None = None
-    tts_error:  bool = True
+    reply_text:       str
+    audio:            None = None
+    tts_error:        bool = True
+    tts_error_detail: str | None = None
