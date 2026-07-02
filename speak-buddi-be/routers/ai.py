@@ -88,7 +88,7 @@ async def speak(
     try:
         audio_bytes = text_to_audio_bytes(reply_text, voice_id=voice_id, model_id=model_id)
     except Exception as exc:
-        error_detail = f"{type(exc).__name__}: {exc}"
+        error_detail = getattr(exc, "tts_reason", None) or f"{type(exc).__name__}: {exc}"
         log.error("TTS error: %s", error_detail)
         # TTS lỗi nhưng Claude đã trả text → degrade: 200 JSON thay vì 502
         # FE phát hiện qua Content-Type application/json và tts_error=true
@@ -132,7 +132,7 @@ async def tts(
     try:
         audio_bytes = text_to_audio_bytes(req.text, voice_id=voice_id, model_id=model_id)
     except Exception as exc:
-        error_detail = f"{type(exc).__name__}: {exc}"
+        error_detail = getattr(exc, "tts_reason", None) or f"{type(exc).__name__}: {exc}"
         log.error("TTS_ERROR  text=%r  latency_ms=%.0f  error=%s",
                   req.text[:80], (time.perf_counter() - t0) * 1000, error_detail)
         raise HTTPException(status_code=502, detail={"message": "TTS service error", "error": error_detail})
