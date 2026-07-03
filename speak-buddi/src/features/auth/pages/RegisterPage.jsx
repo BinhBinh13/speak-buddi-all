@@ -2,10 +2,17 @@
 // Trang đăng ký — S1.4
 // Layout: card đơn căn giữa trang (theo mockup register_page_desktop).
 // Bám design system: màu primary #3525cd, font Be Vietnam Pro, spacing 4px.
+//
+// Hiện tại chỉ bật đăng ký qua Google (email đã được Google xác thực sẵn).
+// Form nhập tay (họ tên/email/mật khẩu) được GIỮ NGUYÊN bên dưới, chỉ tắt qua
+// cờ SHOW_REGISTER_FORM — đổi thành true để bật lại, không cần viết lại code.
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { register, loginWithGoogle } from "../../../shared/auth/authService";
 import { useAuth } from "../../../shared/auth/AuthContext";
+
+// Bật lại form đăng ký bằng email/password khi cần (giữ nguyên toàn bộ code cũ bên dưới).
+const SHOW_REGISTER_FORM = false;
 
 // ─── Design tokens (theo DESIGN.md) ──────────────────────────────────────────
 const PRIMARY        = "#3525cd";
@@ -335,7 +342,7 @@ export default function RegisterPage() {
         minHeight: "100vh",
         background: SURFACE,
         display: "flex",
-        alignItems: "flex-start",
+        alignItems: "center",
         justifyContent: "center",
         padding: "40px 16px",
         fontFamily: "'Be Vietnam Pro', system-ui, sans-serif",
@@ -461,286 +468,291 @@ export default function RegisterPage() {
             </div>
           )}
 
-          {/* Form */}
-          <form
-            onSubmit={(e) => { e.preventDefault(); handleRegister(); }}
-            noValidate
+          {/* Form đăng ký bằng email/password — tắt tạm qua SHOW_REGISTER_FORM,
+              đổi thành true ở đầu file để bật lại (giữ nguyên toàn bộ code). */}
+          {SHOW_REGISTER_FORM && (
+            <>
+              <form
+                onSubmit={(e) => { e.preventDefault(); handleRegister(); }}
+                noValidate
+              >
+                {/* Họ và tên */}
+                <InputField
+                  id="sb-name"
+                  label="Họ và tên"
+                  type="text"
+                  placeholder="Nhập họ và tên"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  icon={<IconPerson />}
+                  disabled={loading}
+                  autoComplete="name"
+                  onKeyDown={handleKeyDown}
+                />
+
+                {/* Email */}
+                <InputField
+                  id="sb-email"
+                  label="Email"
+                  type="email"
+                  placeholder="example@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  icon={<IconMail />}
+                  hasError={!!error && error.toLowerCase().includes("email")}
+                  disabled={loading}
+                  autoComplete="email"
+                  onKeyDown={handleKeyDown}
+                />
+
+                {/* Mật khẩu */}
+                <div style={{ marginBottom: "1rem" }}>
+                  <label
+                    htmlFor="sb-password"
+                    style={{
+                      display: "block",
+                      fontSize: 14,
+                      fontWeight: 500,
+                      color: ON_SURFACE,
+                      marginBottom: 4,
+                    }}
+                  >
+                    Mật khẩu
+                  </label>
+                  <div style={{ position: "relative" }}>
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: 0, bottom: 0, left: 0,
+                        display: "flex",
+                        alignItems: "center",
+                        paddingLeft: 12,
+                        pointerEvents: "none",
+                      }}
+                    >
+                      <IconLock />
+                    </div>
+                    <input
+                      id="sb-password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Tạo mật khẩu"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      autoComplete="new-password"
+                      disabled={loading}
+                      onKeyDown={handleKeyDown}
+                      style={{
+                        display: "block",
+                        width: "100%",
+                        paddingLeft: 40,
+                        paddingRight: 44,
+                        paddingTop: 10,
+                        paddingBottom: 10,
+                        border: `1.5px solid ${SURFACE_BORDER}`,
+                        borderRadius: 8,
+                        background: SURFACE_CARD,
+                        fontFamily: "'Be Vietnam Pro', system-ui, sans-serif",
+                        fontSize: 15,
+                        color: ON_SURFACE,
+                        outline: "none",
+                        boxSizing: "border-box",
+                        opacity: loading ? 0.7 : 1,
+                        transition: "border-color 0.2s",
+                      }}
+                    />
+                    {/* Toggle visibility */}
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                      style={{
+                        position: "absolute",
+                        top: 0, bottom: 0, right: 0,
+                        display: "flex",
+                        alignItems: "center",
+                        paddingRight: 10,
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        color: OUTLINE,
+                        minWidth: 44,
+                        minHeight: 44,
+                        justifyContent: "center",
+                      }}
+                    >
+                      <IconEye visible={showPassword} />
+                    </button>
+                  </div>
+                  {/* Strength bar */}
+                  <PasswordStrengthBar password={password} />
+                </div>
+
+                {/* Xác nhận mật khẩu */}
+                <div style={{ marginBottom: "1.5rem" }}>
+                  <label
+                    htmlFor="sb-confirm"
+                    style={{
+                      display: "block",
+                      fontSize: 14,
+                      fontWeight: 500,
+                      color: ON_SURFACE,
+                      marginBottom: 4,
+                    }}
+                  >
+                    Xác nhận mật khẩu
+                  </label>
+                  <div style={{ position: "relative" }}>
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: 0, bottom: 0, left: 0,
+                        display: "flex",
+                        alignItems: "center",
+                        paddingLeft: 12,
+                        pointerEvents: "none",
+                      }}
+                    >
+                      <IconLockReset />
+                    </div>
+                    <input
+                      id="sb-confirm"
+                      type={showConfirm ? "text" : "password"}
+                      placeholder="Nhập lại mật khẩu"
+                      value={confirm}
+                      onChange={(e) => setConfirm(e.target.value)}
+                      autoComplete="new-password"
+                      disabled={loading}
+                      onKeyDown={handleKeyDown}
+                      style={{
+                        display: "block",
+                        width: "100%",
+                        paddingLeft: 40,
+                        paddingRight: 44,
+                        paddingTop: 10,
+                        paddingBottom: 10,
+                        border: `1.5px solid ${SURFACE_BORDER}`,
+                        borderRadius: 8,
+                        background: SURFACE_CARD,
+                        fontFamily: "'Be Vietnam Pro', system-ui, sans-serif",
+                        fontSize: 15,
+                        color: ON_SURFACE,
+                        outline: "none",
+                        boxSizing: "border-box",
+                        opacity: loading ? 0.7 : 1,
+                        transition: "border-color 0.2s",
+                      }}
+                    />
+                    {/* Toggle confirm visibility */}
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirm((v) => !v)}
+                      aria-label={showConfirm ? "Ẩn mật khẩu xác nhận" : "Hiện mật khẩu xác nhận"}
+                      style={{
+                        position: "absolute",
+                        top: 0, bottom: 0, right: 0,
+                        display: "flex",
+                        alignItems: "center",
+                        paddingRight: 10,
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        color: OUTLINE,
+                        minWidth: 44,
+                        minHeight: 44,
+                        justifyContent: "center",
+                      }}
+                    >
+                      <IconEye visible={showConfirm} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Submit button */}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  style={{
+                    width: "100%",
+                    padding: "12px 16px",
+                    background: loading ? `${PRIMARY}99` : PRIMARY,
+                    border: "none",
+                    borderRadius: 9999,
+                    fontFamily: "'Be Vietnam Pro', system-ui, sans-serif",
+                    fontSize: 14,
+                    fontWeight: 500,
+                    color: ON_PRIMARY,
+                    cursor: loading ? "not-allowed" : "pointer",
+                    transition: "background 0.2s, transform 0.1s",
+                    minHeight: 44,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (loading) return;
+                    e.currentTarget.style.background = PRIMARY_HOVER;
+                  }}
+                  onMouseLeave={(e) => {
+                    if (loading) return;
+                    e.currentTarget.style.background = PRIMARY;
+                  }}
+                  onMouseDown={(e) => {
+                    if (loading) return;
+                    e.currentTarget.style.transform = "scale(0.98)";
+                  }}
+                  onMouseUp={(e) => {
+                    e.currentTarget.style.transform = "scale(1)";
+                  }}
+                >
+                  {loading ? "Đang đăng ký..." : "Đăng ký"}
+                </button>
+              </form>
+
+              {/* Divider */}
+              <div style={{ margin: "1.5rem 0", display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ flex: 1, height: 1, background: SURFACE_BORDER }} />
+                <span
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: ON_SURFACE_VAR,
+                    letterSpacing: "0.05em",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  hoặc
+                </span>
+                <div style={{ flex: 1, height: 1, background: SURFACE_BORDER }} />
+              </div>
+            </>
+          )}
+
+          {/* S12.1: thông báo chấp thuận điều khoản (§4.7 — informed consent) */}
+          <p
+            style={{
+              fontSize: 13,
+              color: ON_SURFACE_VAR,
+              textAlign: "center",
+              margin: "0 0 1.5rem",
+              lineHeight: 1.6,
+            }}
           >
-            {/* Họ và tên */}
-            <InputField
-              id="sb-name"
-              label="Họ và tên"
-              type="text"
-              placeholder="Nhập họ và tên"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              icon={<IconPerson />}
-              disabled={loading}
-              autoComplete="name"
-              onKeyDown={handleKeyDown}
-            />
-
-            {/* Email */}
-            <InputField
-              id="sb-email"
-              label="Email"
-              type="email"
-              placeholder="example@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              icon={<IconMail />}
-              hasError={!!error && error.toLowerCase().includes("email")}
-              disabled={loading}
-              autoComplete="email"
-              onKeyDown={handleKeyDown}
-            />
-
-            {/* Mật khẩu */}
-            <div style={{ marginBottom: "1rem" }}>
-              <label
-                htmlFor="sb-password"
-                style={{
-                  display: "block",
-                  fontSize: 14,
-                  fontWeight: 500,
-                  color: ON_SURFACE,
-                  marginBottom: 4,
-                }}
-              >
-                Mật khẩu
-              </label>
-              <div style={{ position: "relative" }}>
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 0, bottom: 0, left: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    paddingLeft: 12,
-                    pointerEvents: "none",
-                  }}
-                >
-                  <IconLock />
-                </div>
-                <input
-                  id="sb-password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Tạo mật khẩu"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoComplete="new-password"
-                  disabled={loading}
-                  onKeyDown={handleKeyDown}
-                  style={{
-                    display: "block",
-                    width: "100%",
-                    paddingLeft: 40,
-                    paddingRight: 44,
-                    paddingTop: 10,
-                    paddingBottom: 10,
-                    border: `1.5px solid ${SURFACE_BORDER}`,
-                    borderRadius: 8,
-                    background: SURFACE_CARD,
-                    fontFamily: "'Be Vietnam Pro', system-ui, sans-serif",
-                    fontSize: 15,
-                    color: ON_SURFACE,
-                    outline: "none",
-                    boxSizing: "border-box",
-                    opacity: loading ? 0.7 : 1,
-                    transition: "border-color 0.2s",
-                  }}
-                />
-                {/* Toggle visibility */}
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                  style={{
-                    position: "absolute",
-                    top: 0, bottom: 0, right: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    paddingRight: 10,
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    color: OUTLINE,
-                    minWidth: 44,
-                    minHeight: 44,
-                    justifyContent: "center",
-                  }}
-                >
-                  <IconEye visible={showPassword} />
-                </button>
-              </div>
-              {/* Strength bar */}
-              <PasswordStrengthBar password={password} />
-            </div>
-
-            {/* Xác nhận mật khẩu */}
-            <div style={{ marginBottom: "1.5rem" }}>
-              <label
-                htmlFor="sb-confirm"
-                style={{
-                  display: "block",
-                  fontSize: 14,
-                  fontWeight: 500,
-                  color: ON_SURFACE,
-                  marginBottom: 4,
-                }}
-              >
-                Xác nhận mật khẩu
-              </label>
-              <div style={{ position: "relative" }}>
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 0, bottom: 0, left: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    paddingLeft: 12,
-                    pointerEvents: "none",
-                  }}
-                >
-                  <IconLockReset />
-                </div>
-                <input
-                  id="sb-confirm"
-                  type={showConfirm ? "text" : "password"}
-                  placeholder="Nhập lại mật khẩu"
-                  value={confirm}
-                  onChange={(e) => setConfirm(e.target.value)}
-                  autoComplete="new-password"
-                  disabled={loading}
-                  onKeyDown={handleKeyDown}
-                  style={{
-                    display: "block",
-                    width: "100%",
-                    paddingLeft: 40,
-                    paddingRight: 44,
-                    paddingTop: 10,
-                    paddingBottom: 10,
-                    border: `1.5px solid ${SURFACE_BORDER}`,
-                    borderRadius: 8,
-                    background: SURFACE_CARD,
-                    fontFamily: "'Be Vietnam Pro', system-ui, sans-serif",
-                    fontSize: 15,
-                    color: ON_SURFACE,
-                    outline: "none",
-                    boxSizing: "border-box",
-                    opacity: loading ? 0.7 : 1,
-                    transition: "border-color 0.2s",
-                  }}
-                />
-                {/* Toggle confirm visibility */}
-                <button
-                  type="button"
-                  onClick={() => setShowConfirm((v) => !v)}
-                  aria-label={showConfirm ? "Ẩn mật khẩu xác nhận" : "Hiện mật khẩu xác nhận"}
-                  style={{
-                    position: "absolute",
-                    top: 0, bottom: 0, right: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    paddingRight: 10,
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    color: OUTLINE,
-                    minWidth: 44,
-                    minHeight: 44,
-                    justifyContent: "center",
-                  }}
-                >
-                  <IconEye visible={showConfirm} />
-                </button>
-              </div>
-            </div>
-
-            {/* S12.1: thông báo chấp thuận điều khoản (§4.7 — informed consent) */}
-            <p
-              style={{
-                fontSize: 13,
-                color: ON_SURFACE_VAR,
-                textAlign: "center",
-                margin: "0 0 1rem",
-                lineHeight: 1.6,
-              }}
+            Bằng việc đăng ký, bạn đồng ý với{" "}
+            <Link
+              to="/terms"
+              style={{ color: PRIMARY, fontWeight: 500, textDecoration: "underline" }}
             >
-              Bằng việc đăng ký, bạn đồng ý với{" "}
-              <Link
-                to="/terms"
-                style={{ color: PRIMARY, fontWeight: 500, textDecoration: "underline" }}
-              >
-                Điều khoản dịch vụ
-              </Link>{" "}
-              và{" "}
-              <Link
-                to="/privacy"
-                style={{ color: PRIMARY, fontWeight: 500, textDecoration: "underline" }}
-              >
-                Chính sách bảo mật
-              </Link>{" "}
-              của chúng tôi.
-            </p>
-
-            {/* Submit button */}
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                width: "100%",
-                padding: "12px 16px",
-                background: loading ? `${PRIMARY}99` : PRIMARY,
-                border: "none",
-                borderRadius: 9999,
-                fontFamily: "'Be Vietnam Pro', system-ui, sans-serif",
-                fontSize: 14,
-                fontWeight: 500,
-                color: ON_PRIMARY,
-                cursor: loading ? "not-allowed" : "pointer",
-                transition: "background 0.2s, transform 0.1s",
-                minHeight: 44,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-              onMouseEnter={(e) => {
-                if (loading) return;
-                e.currentTarget.style.background = PRIMARY_HOVER;
-              }}
-              onMouseLeave={(e) => {
-                if (loading) return;
-                e.currentTarget.style.background = PRIMARY;
-              }}
-              onMouseDown={(e) => {
-                if (loading) return;
-                e.currentTarget.style.transform = "scale(0.98)";
-              }}
-              onMouseUp={(e) => {
-                e.currentTarget.style.transform = "scale(1)";
-              }}
+              Điều khoản dịch vụ
+            </Link>{" "}
+            và{" "}
+            <Link
+              to="/privacy"
+              style={{ color: PRIMARY, fontWeight: 500, textDecoration: "underline" }}
             >
-              {loading ? "Đang đăng ký..." : "Đăng ký"}
-            </button>
-          </form>
-
-          {/* Divider */}
-          <div style={{ margin: "1.5rem 0", display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ flex: 1, height: 1, background: SURFACE_BORDER }} />
-            <span
-              style={{
-                fontSize: 12,
-                fontWeight: 600,
-                color: ON_SURFACE_VAR,
-                letterSpacing: "0.05em",
-                whiteSpace: "nowrap",
-              }}
-            >
-              hoặc
-            </span>
-            <div style={{ flex: 1, height: 1, background: SURFACE_BORDER }} />
-          </div>
+              Chính sách bảo mật
+            </Link>{" "}
+            của chúng tôi.
+          </p>
 
           {/* Google button */}
           <button
@@ -776,7 +788,7 @@ export default function RegisterPage() {
             }}
           >
             <IconGoogle />
-            Tiếp tục với Google
+            {loading ? "Đang xử lý..." : "Tiếp tục với Google"}
           </button>
 
           {/* Footer — login link */}
