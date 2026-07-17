@@ -89,8 +89,8 @@ async def create_user(
 ) -> dict:
     r = await db.execute(
         text("""
-            INSERT INTO users (email, password_hash, role, status)
-            VALUES (:email, :pw_hash, 'student', 'active')
+            INSERT INTO users (email, password_hash, role, status, last_active_at)
+            VALUES (:email, :pw_hash, 'student', 'active', NOW())
             RETURNING id::text, email, password_hash, role, status
         """),
         {"email": email, "pw_hash": password_hash},
@@ -102,6 +102,42 @@ async def create_user(
     )
     user_row.update({"name": name, "level": None, "goal": None, "daily_minutes": 10, "words_per_session": 10})
     return user_row
+
+
+async def touch_last_active(db: AsyncSession, user_id: str) -> None:
+    """Cập nhật users.last_active_at = NOW() (throttled — chỉ ghi nếu đã hơn 1h).
+
+    Gọi ở login/OAuth và middleware theo dõi request có Bearer token hợp lệ,
+    làm mốc cho email nhắc quay lại sau N ngày không hoạt động.
+    """
+    await db.execute(
+        text("""
+            UPDATE users
+            SET    last_active_at = NOW()
+            WHERE  id = CAST(:uid AS UUID)
+              AND  (last_active_at IS NULL OR last_active_at < NOW() - INTERVAL '1 hour')
+        """),
+        {"uid": user_id},
+    )
+
+
+async def get_users_for_reengagement_reminder(db: AsyncSession, days: int) -> list[dict]:
+    """Trả user active có last_active_at rơi đúng vào ngày lịch cách đây `days` ngày.
+
+    Cửa sổ theo ngày lịch (không phải NOW() - N ngày rolling) để job chạy 1 lần/ngày
+    là bắt trúng mỗi user đúng 1 lần, không phụ thuộc giờ chạy job bị lệch vài phút.
+    """
+    r = await db.execute(
+        text(f"""
+            {_USER_SELECT}
+            WHERE  u.status = 'active'
+              AND  u.last_active_at >= (CURRENT_DATE - make_interval(days => :days + 1))::timestamptz
+              AND  u.last_active_at <  (CURRENT_DATE - make_interval(days => :days))::timestamptz
+        """),
+        {"days": days},
+    )
+    rows = r.mappings().all()
+    return [dict(row) for row in rows]
 
 
 async def link_oauth(

@@ -62,6 +62,10 @@ SEPAY_PAYMENT_PREFIX:  str = os.getenv("SEPAY_PAYMENT_PREFIX", "SB")
 # Thời gian chờ thanh toán tối đa (giây) — giao dịch `pending` quá hạn → `failed`/`timeout`
 PAYMENT_PENDING_TIMEOUT_SECONDS: int = int(os.getenv("PAYMENT_PENDING_TIMEOUT_SECONDS", str(5 * 60)))
 
+# ── Re-engagement reminder email (nhắc user quay lại sau N ngày không hoạt động) ──
+REENGAGEMENT_SCHEDULER_ENABLED: bool = os.getenv("REENGAGEMENT_SCHEDULER_ENABLED", "false").lower() in ("1", "true", "yes")
+REENGAGEMENT_INACTIVE_DAYS: int = int(os.getenv("REENGAGEMENT_INACTIVE_DAYS", "5"))
+
 # ── Langeek Crawler (S9.3 / S9.4) ─────────────────────────────────────────────
 LANGEEK_CRAWL_ENABLED: bool = os.getenv("LANGEEK_CRAWL_ENABLED", "true").lower() in ("1", "true", "yes")
 LANGEEK_USE_FIXTURE: bool = os.getenv("LANGEEK_USE_FIXTURE", "true").lower() in ("1", "true", "yes")

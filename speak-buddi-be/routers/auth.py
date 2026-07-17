@@ -76,6 +76,7 @@ async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
     if user.get("status") == "suspended":
         raise HTTPException(status_code=403, detail="Tài khoản đã bị khóa.")
 
+    await user_repo.touch_last_active(db, user["id"])
     is_paid = await user_repo.get_is_paid(db, user["id"])
     log.info("LOGIN ok user=%s", user["id"])
     return {
@@ -136,6 +137,7 @@ async def google_oauth(req: GoogleAuthRequest, db: AsyncSession = Depends(get_db
     if user.get("status") == "suspended":
         raise HTTPException(status_code=403, detail="Tài khoản đã bị khóa.")
 
+    await user_repo.touch_last_active(db, user["id"])
     is_paid = await user_repo.get_is_paid(db, user["id"])
     log.info("GOOGLE_AUTH ok user=%s", user["id"])
     return {

@@ -6,6 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from core.config import ALLOWED_ORIGINS
 from jobs.crawler_scheduler import start_crawler_scheduler, stop_crawler_scheduler
+from jobs.reengagement_scheduler import start_reengagement_scheduler, stop_reengagement_scheduler
+from middleware.activity import track_last_active
 from routers import admin_analytics, admin_content, admin_crawler, admin_payment_plan, ai, auth, learning, onboarding, payment, profile, pronunciation, quiz, roadmap, session, speaking_history, support, translate, user_analytics, voice
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(levelname)s  %(message)s")
@@ -14,7 +16,9 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(levelname)s  %(me
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     start_crawler_scheduler()
+    start_reengagement_scheduler()
     yield
+    stop_reengagement_scheduler()
     stop_crawler_scheduler()
 
 
@@ -28,6 +32,8 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["X-Reply-Text"],
 )
+
+app.middleware("http")(track_last_active)
 
 app.include_router(auth.router)
 app.include_router(ai.router)

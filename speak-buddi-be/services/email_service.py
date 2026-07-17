@@ -105,6 +105,50 @@ def send_payment_failed_email(to_email: str, plan_name: str, reason: str) -> Non
         log.error("PAYMENT_FAILED_EMAIL error: %s", type(exc).__name__)
 
 
+def send_reengagement_email(to_email: str, name: str, inactive_days: int) -> None:
+    """
+    Email nhắc user quay lại app sau `inactive_days` ngày không hoạt động (retention).
+    Gửi đúng 1 lần — trigger bởi jobs/reengagement_scheduler.py.
+    §4.5: KHÔNG log to_email — chỉ log trạng thái gửi.
+    """
+    if not SMTP_USER or not SMTP_PASS:
+        log.warning("REENGAGEMENT_EMAIL skip: SMTP chưa cấu hình — set SMTP_USER và SMTP_PASS trong .env")
+        return
+
+    greeting = f"Chào {escape(name)}," if name else "Chào bạn,"
+    open_link = f"{FRONTEND_URL}/roadmap"
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = "Đã lâu rồi bạn chưa ghé SpeakBuddi 👋"
+    msg["From"]    = SMTP_USER
+    msg["To"]      = to_email
+
+    html_body = f"""
+<div style="font-family:'Be Vietnam Pro',Arial,sans-serif;max-width:520px;margin:auto;padding:32px;background:#fcf8ff;border-radius:12px;">
+  <h2 style="color:#3525cd;margin-bottom:8px;">SpeakBuddi</h2>
+  <h3 style="color:#1b1b24;">{greeting} lâu rồi không thấy bạn học tiếng Anh cùng SpeakBuddi</h3>
+  <p style="color:#464555;">Đã {inactive_days} ngày trôi qua kể từ lần cuối bạn luyện tập. Chỉ vài phút mỗi ngày cũng đủ giữ tiến độ của bạn!</p>
+  <a href="{open_link}"
+     style="display:inline-block;margin:16px 0;padding:12px 28px;background:#3525cd;color:#fff;border-radius:12px;text-decoration:none;font-weight:600;">
+    Tiếp tục học ngay
+  </a>
+  <hr style="border-color:#c7c4d8;margin-top:24px;"/>
+  <p style="color:#777587;font-size:12px;">© 2024 SpeakBuddi. Nâng tầm tiếng Anh của người Việt.</p>
+</div>
+"""
+    msg.attach(MIMEText(html_body, "html", "utf-8"))
+    try:
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+            server.ehlo()
+            server.starttls()
+            server.login(SMTP_USER, SMTP_PASS)
+            server.sendmail(SMTP_USER, to_email, msg.as_string())
+        log.info("REENGAGEMENT_EMAIL sent via Gmail SMTP")
+    except smtplib.SMTPAuthenticationError:
+        log.error("REENGAGEMENT_EMAIL auth failed: kiểm tra SMTP_USER và App Password")
+    except Exception as exc:
+        log.error("REENGAGEMENT_EMAIL error: %s", type(exc).__name__)
+
+
 def send_crawler_failure_email(to_email: str, context: dict) -> None:
     """
     Email cảnh báo Admin khi crawler Langeek lỗi (S9.4 — AC-13-05, §11.6).
