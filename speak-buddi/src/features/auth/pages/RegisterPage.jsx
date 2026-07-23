@@ -12,7 +12,7 @@ import { register, loginWithGoogle } from "../../../shared/auth/authService";
 import { useAuth } from "../../../shared/auth/AuthContext";
 
 // Bật lại form đăng ký bằng email/password khi cần (giữ nguyên toàn bộ code cũ bên dưới).
-const SHOW_REGISTER_FORM = true;
+const SHOW_REGISTER_FORM = false;
 
 // ─── Design tokens (theo DESIGN.md) ──────────────────────────────────────────
 const PRIMARY = "#3525cd";
